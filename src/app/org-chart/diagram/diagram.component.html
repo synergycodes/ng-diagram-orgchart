@@ -1,1 +1,13 @@
-<ng-diagram [model]="model" />
+<div class="diagram" [class.ready]="isLayoutReady()">
+  <ng-diagram
+    [model]="model"
+    [config]="config"
+    [nodeTemplateMap]="nodeTemplateMap"
+    [edgeTemplateMap]="edgeTemplateMap"
+    (edgeDrawn)="onEdgeDrawn($event)"
+    (selectionRemoved)="onSelectionRemoved($event)"
+    (diagramInit)="onDiagramInit($event)"
+  >
+    <ng-diagram-background />
+  </ng-diagram>
+</div>
