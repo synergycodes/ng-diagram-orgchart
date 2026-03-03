@@ -5,6 +5,7 @@ import {
   NgDiagramBackgroundComponent,
   NgDiagramComponent,
   NgDiagramEdgeTemplateMap,
+  NgDiagramMinimapComponent,
   NgDiagramModelService,
   NgDiagramNodeTemplateMap,
   NgDiagramService,
@@ -31,7 +32,7 @@ import { NodeComponent } from './node/node.component';
  */
 @Component({
   selector: 'app-diagram',
-  imports: [NgDiagramComponent, NgDiagramBackgroundComponent],
+  imports: [NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent],
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   providers: [provideNgDiagram(), LayoutService],

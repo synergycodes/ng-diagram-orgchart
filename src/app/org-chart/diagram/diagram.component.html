@@ -8,6 +8,7 @@
     (selectionRemoved)="onSelectionRemoved($event)"
     (diagramInit)="onDiagramInit($event)"
   >
-    <ng-diagram-background />
+    <ng-diagram-background type="dots" />
   </ng-diagram>
+  <ng-diagram-minimap position="bottom-right" [showZoomControls]="true" />
 </div>
