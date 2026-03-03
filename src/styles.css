@@ -1,17 +1,10 @@
+@import './tokens.css';
 @import 'ng-diagram/styles.css';
 
 html,
 body {
   height: 100%;
   font-family: 'Poppins';
-}
-
-body {
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-
-*:not(dialog) {
   margin: 0;
 }
 
