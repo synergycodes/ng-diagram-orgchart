@@ -18,14 +18,14 @@ import {
 } from 'ng-diagram';
 import { diagramModel } from './data';
 import { EdgeComponent } from './edge/edge.component';
-import { EdgeTemplateType, NodeTemplateType, type TreeNodeData } from './interfaces';
+import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
 import { LayoutService } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
 
 /**
- * Expand/Collapse Tree Diagram Example
+ * Org Chart Diagram
  *
- * Demonstrates a collapsible tree layout using ng-diagram with ELK.js for automatic
+ * Demonstrates a collapsible org-chart layout using ng-diagram with ELK.js for automatic
  * node positioning. Nodes with children display a toggle button to expand/collapse
  * their subtree. The `hasChildren` flag on each node is kept in sync automatically
  * as the user draws or deletes edges.
@@ -46,20 +46,20 @@ export class DiagramComponent {
 
   protected isLayoutReady = signal(false);
 
-  // Assign the custom TreeEdge type to every user-drawn edge so it uses our
+  // Assign the custom OrgChartEdge type to every user-drawn edge so it uses our
   // edge template (with visibility support for collapsed subtrees).
   config = {
     linking: {
       finalEdgeDataBuilder: (edge: Edge) => ({
         ...edge,
-        type: EdgeTemplateType.TreeEdge,
+        type: EdgeTemplateType.OrgChartEdge,
       }),
     },
   } satisfies NgDiagramConfig;
 
-  nodeTemplateMap = new NgDiagramNodeTemplateMap([[NodeTemplateType.TreeNode, NodeComponent]]);
+  nodeTemplateMap = new NgDiagramNodeTemplateMap([[NodeTemplateType.OrgChartNode, NodeComponent]]);
 
-  edgeTemplateMap = new NgDiagramEdgeTemplateMap([[EdgeTemplateType.TreeEdge, EdgeComponent]]);
+  edgeTemplateMap = new NgDiagramEdgeTemplateMap([[EdgeTemplateType.OrgChartEdge, EdgeComponent]]);
 
   model = initializeModel(diagramModel);
 
@@ -69,7 +69,7 @@ export class DiagramComponent {
    * flag actually changed.
    */
   async onEdgeDrawn(event: EdgeDrawnEvent): Promise<void> {
-    const sourceData = event.source.data as TreeNodeData;
+    const sourceData = event.source.data as OrgChartNodeData;
     if (!sourceData.hasChildren) {
       // Await the transaction to ensure hasChildren is committed
       // to the model before re-layout reads it.
@@ -105,9 +105,9 @@ export class DiagramComponent {
         if (stillHasChildren) continue;
 
         const node = this.modelService.getNodeById(sourceId);
-        if (node && (node.data as TreeNodeData).hasChildren) {
+        if (node && (node.data as OrgChartNodeData).hasChildren) {
           this.modelService.updateNodeData(sourceId, {
-            ...(node.data as TreeNodeData),
+            ...(node.data as OrgChartNodeData),
             hasChildren: false,
           });
           changed = true;

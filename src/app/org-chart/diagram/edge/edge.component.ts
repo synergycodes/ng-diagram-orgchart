@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { NgDiagramBaseEdgeComponent, type NgDiagramEdgeTemplate, type Edge } from 'ng-diagram';
-import { type TreeEdgeData } from '../interfaces';
+import { type OrgChartEdgeData } from '../interfaces';
 
 /**
- * Custom tree edge template.
+ * Custom org-chart edge template.
  *
  * Delegates all rendering to the built-in base edge component.
  * Edges whose source or target node is inside a collapsed subtree
@@ -19,6 +19,6 @@ import { type TreeEdgeData } from '../interfaces';
     '[style.visibility]': 'edge().data.isHidden ? "hidden" : null',
   },
 })
-export class EdgeComponent implements NgDiagramEdgeTemplate<TreeEdgeData> {
-  edge = input.required<Edge<TreeEdgeData>>();
+export class EdgeComponent implements NgDiagramEdgeTemplate<OrgChartEdgeData> {
+  edge = input.required<Edge<OrgChartEdgeData>>();
 }
