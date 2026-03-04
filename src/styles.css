@@ -4,7 +4,7 @@
 html,
 body {
   height: 100%;
-  font-family: 'Poppins';
+  font-family: 'Poppins', sans-serif;
   margin: 0;
 }
 
@@ -41,8 +41,4 @@ h4,
 h5,
 h6 {
   text-wrap: balance;
-}
-
-#root {
-  isolation: isolate;
 }

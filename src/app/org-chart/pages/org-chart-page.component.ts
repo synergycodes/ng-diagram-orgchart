@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { DiagramComponent } from '../diagram/diagram.component';
 
 @Component({
@@ -6,5 +6,6 @@ import { DiagramComponent } from '../diagram/diagram.component';
   imports: [DiagramComponent],
   templateUrl: './org-chart-page.component.html',
   styleUrl: './org-chart-page.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrgChartPageComponent {}

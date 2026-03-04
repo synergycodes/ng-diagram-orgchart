@@ -20,6 +20,7 @@ import { LayoutService } from '../layout/layout.service';
   imports: [NgDiagramPortComponent, NgDiagramBaseNodeTemplateComponent],
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class.ng-diagram-port-hoverable-over-node]': 'true',
     // Hide nodes whose parent is collapsed.
@@ -36,9 +37,9 @@ export class NodeComponent implements NgDiagramNodeTemplate<TreeNodeData> {
   node = input.required<Node<TreeNodeData>>();
 
   /** Toggle the collapsed state of this node's subtree and re-layout. */
-  onToggle(event: MouseEvent): void {
+  async onToggle(event: MouseEvent): Promise<void> {
     // Prevent the click from also selecting/dragging the node.
     event.stopPropagation();
-    this.layoutService.toggleCollapsed(this.node().id);
+    await this.layoutService.toggleCollapsed(this.node().id);
   }
 }

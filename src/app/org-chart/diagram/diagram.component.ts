@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -35,6 +35,7 @@ import { NodeComponent } from './node/node.component';
   imports: [NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent],
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNgDiagram(), LayoutService],
 })
 export class DiagramComponent {

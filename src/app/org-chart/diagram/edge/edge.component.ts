@@ -13,6 +13,7 @@ import { type TreeEdgeData } from '../interfaces';
   imports: [NgDiagramBaseEdgeComponent],
   template: `<ng-diagram-base-edge [edge]="edge()" />`,
   styleUrl: './edge.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     // Hide edges that connect to nodes inside a collapsed subtree.
     '[style.visibility]': 'edge().data.isHidden ? "hidden" : null',

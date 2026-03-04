@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
-import { type TreeNodeData } from '../interfaces';
+import { TreeEdgeData, type TreeNodeData } from '../interfaces';
 import { performLayout } from './perform-layout';
 
 /**
@@ -26,7 +26,7 @@ export class LayoutService {
     // reflect updates made within the current transaction.
     const model = this.modelService.getModel();
     const visibleNodes = model.getNodes().filter((n) => !(n.data as TreeNodeData).isHidden);
-    const visibleEdges = model.getEdges().filter((e) => !(e.data as TreeNodeData).isHidden);
+    const visibleEdges = model.getEdges().filter((e) => !(e.data as TreeEdgeData).isHidden);
 
     const positionedNodes = await performLayout(visibleNodes, visibleEdges);
 
@@ -81,18 +81,9 @@ export class LayoutService {
    * Find the tree root — the node that is never a target of any edge.
    */
   private findRootNode() {
-    const targetIds = new Set(
-      this.modelService
-        .getModel()
-        .getEdges()
-        .map((e) => e.target),
-    );
-    return (
-      this.modelService
-        .getModel()
-        .getNodes()
-        .find((n) => !targetIds.has(n.id)) ?? null
-    );
+    const model = this.modelService.getModel();
+    const targetIds = new Set(model.getEdges().map((e) => e.target));
+    return model.getNodes().find((n) => !targetIds.has(n.id)) ?? null;
   }
 
   /**
