@@ -8,11 +8,14 @@
 
   // Invisible hover zone extending beyond the node so that
   // "+" buttons outside the node boundary remain reachable.
-  &:hover::before {
-    content: '';
+  .hover-zone {
     position: absolute;
     inset: -30px;
     z-index: -1;
+    pointer-events: none;
+  }
+
+  &:hover .hover-zone {
     pointer-events: auto;
   }
 
@@ -27,7 +30,7 @@
   transition: border-color 150ms ease;
   border-radius: var(--ngd-token-radius-node4-head, 16px);
   padding: var(--ngd-token-spacing-node4-v-pad, 16px) var(--ngd-token-spacing-node4-h-pad, 16px);
-  min-width: 16rem;
+  min-width: 241px;
   display: flex;
   flex-direction: column;
   gap: var(--ngd-token-spacing-node4-gap, 16px);
@@ -63,13 +66,16 @@
 .node-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .initials {
-  width: 3.5rem;
-  height: 3.5rem;
-  min-width: 3.5rem;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 100%;
   border-radius: 50%;
   background: var(--ngd-node-bg-secondary-default);
   border: 2px solid
@@ -77,8 +83,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
   color: var(--node-accent, var(--ngd-colors-acc3-400));
 
   &--vacant {
@@ -95,22 +99,28 @@
 .node-info {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
   overflow: hidden;
 }
 
 .node-name {
+  color: var(--ngd-txt-primary-default, #fff);
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
   font-weight: 600;
-  font-size: 0.9375rem;
-  color: var(--ngd-txt-primary-default);
+  line-height: 140%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .node-role {
-  font-size: 0.75rem;
-  color: var(--ngd-txt-tertiary-default);
+  font-family: Poppins;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+  color: var(--ngd-txt-secondary-default, #d5d8e0);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -129,23 +139,30 @@
   justify-content: center;
   align-items: flex-start;
   flex: 1 0 0;
-
   border-radius: 8px;
   background: var(--ngd-ui-bg-secondary-default, #383a40);
 }
 
 .stat-label {
-  font-size: 0.625rem;
-  font-weight: 600;
+  color: var(--ngd-txt-secondary-default, #d5d8e0);
+  font-family: Poppins;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 130%;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ngd-txt-tertiary-default);
+  display: flex;
+  padding-bottom: 4px;
+  align-items: center;
 }
 
 .stat-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--ngd-txt-primary-default);
+  color: var(--ngd-txt-primary-default, #fff);
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
 }
 
 .capacity-section {
@@ -161,28 +178,38 @@
 }
 
 .capacity-label {
-  font-size: 0.75rem;
-  color: var(--ngd-txt-secondary-default);
+  color: var(--ngd-txt-tertiary-default, #6f7480);
+  font-family: Poppins;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
 }
 
 .capacity-value {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--ngd-txt-primary-default);
+  color: var(--ngd-txt-tertiary-default, #6f7480);
+  text-align: right;
+  font-family: Poppins;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
 }
 
 .capacity-bar {
-  height: 0.375rem;
-  background: var(--ngd-node-bg-secondary-default);
-  border-radius: 0.25rem;
+  display: flex;
+  height: 7px;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  border-radius: var(--ngd-token-radius-progressbar, 64px);
+  background: var(--ngd-colors-gray-650, #383a40);
   overflow: hidden;
 }
 
 .capacity-fill {
   height: 100%;
   background: var(--node-accent, var(--ngd-colors-acc3-400));
-  border-radius: 0.25rem;
-  transition: width 0.3s ease;
 }
 
 .toggle-btn {
@@ -255,7 +282,7 @@
   }
 }
 
-:host:hover .add-btn {
+:host:hover:not(:active) .add-btn {
   opacity: 1;
   pointer-events: auto;
 }
