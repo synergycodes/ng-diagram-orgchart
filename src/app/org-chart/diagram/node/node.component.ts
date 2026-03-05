@@ -61,4 +61,16 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     event.stopPropagation();
     await this.layoutService.toggleCollapsed(this.node().id);
   }
+
+  onAddLeft(event: MouseEvent): void {
+    event.stopPropagation();
+  }
+
+  onAddRight(event: MouseEvent): void {
+    event.stopPropagation();
+  }
+
+  onAddBottom(event: MouseEvent): void {
+    event.stopPropagation();
+  }
 }
