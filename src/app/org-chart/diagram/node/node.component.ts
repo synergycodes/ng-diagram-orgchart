@@ -5,6 +5,7 @@ import {
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
+import { DragStateService } from '../drag-state.service';
 import { isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
@@ -38,8 +39,13 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly layoutService = inject(LayoutService);
   private readonly viewportService = inject(NgDiagramViewportService);
+  private readonly dragStateService = inject(DragStateService);
 
   node = input.required<Node<OrgChartNodeData>>();
+
+  showDropIndicators = computed(
+    () => this.dragStateService.isDragging() && !this.dragStateService.isNodeDragged(this.node().id),
+  );
 
   variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node().data)) return 'vacant';

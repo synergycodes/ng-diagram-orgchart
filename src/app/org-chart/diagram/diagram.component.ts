@@ -14,9 +14,12 @@ import {
   type Edge,
   type EdgeDrawnEvent,
   type NgDiagramConfig,
+  type NodeDragEndedEvent,
+  type NodeDragStartedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
 import { diagramModel } from './data';
+import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
 import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
 import { LayoutService } from './layout/layout.service';
@@ -36,13 +39,14 @@ import { NodeComponent } from './node/node.component';
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNgDiagram(), LayoutService],
+  providers: [provideNgDiagram(), LayoutService, DragStateService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
+  private readonly dragStateService = inject(DragStateService);
 
   protected isLayoutReady = signal(false);
 
@@ -134,5 +138,13 @@ export class DiagramComponent {
 
     this.viewportService.zoomToFit();
     this.isLayoutReady.set(true);
+  }
+
+  onNodeDragStarted(event: NodeDragStartedEvent): void {
+    this.dragStateService.setDraggedNodes(event);
+  }
+
+  onNodeDragEnded(_: NodeDragEndedEvent): void {
+    this.dragStateService.clearDrag();
   }
 }

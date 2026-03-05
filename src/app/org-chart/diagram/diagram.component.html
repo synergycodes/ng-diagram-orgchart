@@ -6,6 +6,8 @@
     [edgeTemplateMap]="edgeTemplateMap"
     (edgeDrawn)="onEdgeDrawn($event)"
     (selectionRemoved)="onSelectionRemoved($event)"
+    (nodeDragStarted)="onNodeDragStarted($event)"
+    (nodeDragEnded)="onNodeDragEnded($event)"
     (diagramInit)="onDiagramInit($event)"
   >
     <ng-diagram-background type="dots" />

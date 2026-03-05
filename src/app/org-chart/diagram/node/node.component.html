@@ -70,36 +70,42 @@
   </button>
 }
 
-<button
-  class="add-btn add-btn--left"
-  (pointerdown)="$event.stopPropagation()"
-  (click)="onAddLeft($event)"
-  data-no-drag="true"
-  data-no-pan="true"
->
-  +
-</button>
-<button
-  class="add-btn add-btn--right"
-  (pointerdown)="$event.stopPropagation()"
-  (click)="onAddRight($event)"
-  data-no-drag="true"
-  data-no-pan="true"
->
-  +
-</button>
-<button
-  class="add-btn add-btn--bottom"
-  (pointerdown)="$event.stopPropagation()"
-  (click)="onAddBottom($event)"
-  data-no-drag="true"
-  data-no-pan="true"
->
-  +
-</button>
+@if (showDropIndicators()) {
+  <div class="drop-indicator drop-indicator--left"></div>
+  <div class="drop-indicator drop-indicator--right"></div>
+  <div class="drop-indicator drop-indicator--bottom" [class.drop-indicator--no-toggle]="!node().data.hasChildren"></div>
+} @else {
+  <button
+    class="add-btn add-btn--left"
+    (pointerdown)="$event.stopPropagation()"
+    (click)="onAddLeft($event)"
+    data-no-drag="true"
+    data-no-pan="true"
+  >
+    +
+  </button>
+  <button
+    class="add-btn add-btn--right"
+    (pointerdown)="$event.stopPropagation()"
+    (click)="onAddRight($event)"
+    data-no-drag="true"
+    data-no-pan="true"
+  >
+    +
+  </button>
+  <button
+    class="add-btn add-btn--bottom"
+    (pointerdown)="$event.stopPropagation()"
+    (click)="onAddBottom($event)"
+    data-no-drag="true"
+    data-no-pan="true"
+  >
+    +
+  </button>
 
-<!-- Invisible hover zone so "+" buttons outside the node boundary remain reachable. -->
-<div class="hover-zone" data-no-drag="true"></div>
+  <!-- Invisible hover zone so "+" buttons outside the node boundary remain reachable. -->
+  <div class="hover-zone" data-no-drag="true"></div>
+}
 
 <!-- Connection ports: top for incoming edges, bottom for outgoing edges. -->
 <ng-diagram-port id="port-top" type="both" side="top" />
