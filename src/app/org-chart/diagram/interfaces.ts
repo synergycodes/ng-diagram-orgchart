@@ -30,6 +30,7 @@ export interface OrgChartNodeData {
   reports: number;
   span: number;
   shiftCapacity: number;
+  color?: string;
   isCollapsed?: boolean;
   hasChildren?: boolean;
   isHidden?: boolean;
