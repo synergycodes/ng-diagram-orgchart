@@ -1,0 +1,7 @@
+ng-diagram-base-edge.selected {
+  --edge-stroke: var(--ngd-node-border-color-hover);
+}
+
+ng-diagram-base-edge:hover:not(.selected):not(.temporary) {
+  --edge-stroke: var(--ngd-colors-gray-450);
+}
