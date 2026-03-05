@@ -1,5 +1,10 @@
 :host {
   position: relative;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   // Invisible hover zone extending beyond the node so that
   // "+" buttons outside the node boundary remain reachable.
