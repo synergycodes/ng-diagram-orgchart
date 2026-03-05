@@ -1,42 +1,162 @@
 :host {
-  .node-content {
-    min-width: 10rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0.5rem;
-    gap: 0.5rem;
+  position: relative;
+
+  ng-diagram-port {
+    visibility: hidden;
   }
+}
 
-  .node-label {
-    flex: 1;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.node-card {
+  background: var(--ngd-node-bg-primary-default);
+  border: 1px solid var(--ngd-ui-stroke-primary-default, #383a40);
+  border-radius: var(--ngd-token-radius-node4-head, 16px);
+  padding: var(--ngd-token-spacing-node4-v-pad, 16px) var(--ngd-token-spacing-node4-h-pad, 16px);
+  min-width: 16rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ngd-token-spacing-node4-gap, 16px);
+
+  &:hover {
+    border: 1px solid var(--ngd-ui-stroke-primary-highlight, #9140ff);
   }
+}
 
-  .toggle-btn {
-    width: 1.375rem;
-    height: 1.375rem;
-    min-width: 1.375rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--ngd-node-stroke-primary-default);
-    border-radius: 0.25rem;
-    background: var(--ngd-node-bg-primary-default);
-    cursor: pointer;
-    font-weight: bold;
-    position: absolute;
-    top: -0.625rem;
-    right: -0.625rem;
-    z-index: 2;
-    color: var(--ngd-txt-primary-default);
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
 
-    &:hover {
-      border-color: var(--ngd-node-border-color-hover);
-      color: var(--ngd-node-border-color-hover);
-    }
+.initials {
+  width: 3.5rem;
+  height: 3.5rem;
+  min-width: 3.5rem;
+  border-radius: 50%;
+  background: var(--ngd-node-bg-secondary-default);
+  border: 2px solid
+    color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 30%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--node-accent, var(--ngd-colors-acc3-400));
+}
+
+.node-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  overflow: hidden;
+}
+
+.node-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--ngd-txt-primary-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-role {
+  font-size: 0.75rem;
+  color: var(--ngd-txt-tertiary-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cards {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ngd-token-spacing-node4-gap, 16px);
+}
+
+.reports {
+  display: flex;
+  padding: 8px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1 0 0;
+
+  border-radius: 8px;
+  background: var(--ngd-ui-bg-secondary-default, #383a40);
+}
+
+.stat-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ngd-txt-tertiary-default);
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ngd-txt-primary-default);
+}
+
+.capacity-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.capacity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.capacity-label {
+  font-size: 0.75rem;
+  color: var(--ngd-txt-secondary-default);
+}
+
+.capacity-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ngd-txt-primary-default);
+}
+
+.capacity-bar {
+  height: 0.375rem;
+  background: var(--ngd-node-bg-secondary-default);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.capacity-fill {
+  height: 100%;
+  background: var(--node-accent, var(--ngd-colors-acc3-400));
+  border-radius: 0.25rem;
+  transition: width 0.3s ease;
+}
+
+.toggle-btn {
+  display: flex;
+  position: absolute;
+  bottom: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  padding: 5.333px;
+  justify-content: center;
+  align-items: center;
+  gap: 2.667px;
+  cursor: pointer;
+  color: var(--ngd-txt-primary-white);
+
+  border-radius: 32px;
+  border: 2.667px solid var(--ngd-ui-stroke-primary-default, #edeff3);
+  background: var(--ngd-node-port-fill-active, #9140ff);
+
+  &:hover {
+    background: var(--ngd-colors-acc1-400);
   }
 }
