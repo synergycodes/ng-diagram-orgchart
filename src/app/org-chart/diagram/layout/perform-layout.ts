@@ -19,15 +19,15 @@ const layoutOptions = {
  */
 export async function performLayout(nodes: Node[], edges: Edge[]) {
   // Use the largest measured node size so all nodes occupy the same
-  // bounding box in the layout — this top-aligns nodes within each layer.
-  const maxWidth = Math.max(...nodes.map((n) => n.measuredBounds?.width ?? 0));
-  const maxHeight = Math.max(...nodes.map((n) => n.measuredBounds?.height ?? 0));
+  // bounding box in the layout.
+  const MAX_WIDTH = 267;
+  const MAX_HEIGHT = 247;
 
   const nodesToLayout = nodes.map(
     ({ id: nodeId }): ElkNode => ({
       id: nodeId,
-      width: maxWidth,
-      height: maxHeight,
+      width: MAX_WIDTH,
+      height: MAX_HEIGHT,
     }),
   );
 
