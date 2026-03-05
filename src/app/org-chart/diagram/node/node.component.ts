@@ -5,6 +5,7 @@ import {
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
+import { isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
 
@@ -41,7 +42,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   node = input.required<Node<OrgChartNodeData>>();
 
   variant = computed<NodeVariant>(() => {
-    if (!this.node().data.fullName) return 'vacant';
+    if (isVacantNode(this.node().data)) return 'vacant';
     if (this.layoutService.forceFullVariant()) return 'full';
     return this.viewportService.scale() < 1 ? 'compact' : 'full';
   });
