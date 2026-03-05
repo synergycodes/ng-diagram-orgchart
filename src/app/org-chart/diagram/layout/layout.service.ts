@@ -81,7 +81,7 @@ export class LayoutService {
   }
 
   /**
-   * Find the root — the node that is never a target of any edge.
+   * Find the tree root — the node that is never a target of any edge.
    */
   private findRootNode() {
     const model = this.modelService.getModel();
@@ -126,7 +126,9 @@ export class LayoutService {
     parentPosition?: { x: number; y: number },
   ): void {
     this.modelService.updateNodes(
-      [...subtreeIds].reduce<{ id: string; data: OrgChartNodeData; position?: { x: number; y: number } }[]>((acc, id) => {
+      [...subtreeIds].reduce<
+        { id: string; data: OrgChartNodeData; position?: { x: number; y: number } }[]
+      >((acc, id) => {
         const node = this.modelService.getNodeById(id);
         if (!node) return acc;
 
