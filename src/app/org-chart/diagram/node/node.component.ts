@@ -42,6 +42,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
 
   variant = computed<NodeVariant>(() => {
     if (!this.node().data.fullName) return 'vacant';
+    if (this.layoutService.forceFullVariant()) return 'full';
     return this.viewportService.scale() < 1 ? 'compact' : 'full';
   });
 

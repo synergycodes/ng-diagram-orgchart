@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 import { performLayout } from './perform-layout';
@@ -16,14 +16,24 @@ export class LayoutService {
   private readonly modelService = inject(NgDiagramModelService);
 
   /**
+   * When `true`, nodes render as the full variant regardless of zoom level.
+   * Set temporarily during layout so measurements always reflect full-size nodes.
+   */
+  readonly forceFullVariant = signal(false);
+
+  /**
    * Run the ELK layout on all visible nodes and edges.
    * The root node is pinned to its current position so the chart
    * doesn't jump after a re-layout.
+   *
+   * Forces the full node variant before measuring so the layout
+   * always uses full-size dimensions, even when zoomed out.
    */
   async applyLayout(): Promise<void> {
     // Use getModel() to read the latest committed state directly.
     // Signal-based accessors (modelService.nodes/edges) may not yet
     // reflect updates made within the current transaction.
+    this.forceFullVariant.set(true);
     const model = this.modelService.getModel();
     const visibleNodes = model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden);
     const visibleEdges = model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden);
@@ -49,6 +59,8 @@ export class LayoutService {
     } else {
       this.modelService.updateNodes(positionedNodes);
     }
+
+    this.forceFullVariant.set(false);
   }
 
   /**
