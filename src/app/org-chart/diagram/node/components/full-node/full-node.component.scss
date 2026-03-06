@@ -32,11 +32,6 @@
 
 .stat-label {
   color: var(--ngd-txt-secondary-default);
-  font-family: Poppins;
-  font-size: 8px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 130%;
   text-transform: uppercase;
   display: flex;
   padding-bottom: 4px;
@@ -45,11 +40,6 @@
 
 .stat-value {
   color: var(--ngd-txt-primary-default);
-  font-family: Poppins;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
 }
 
 .capacity-section {
@@ -66,21 +56,11 @@
 
 .capacity-label {
   color: var(--ngd-txt-tertiary-default);
-  font-family: Poppins;
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 140%;
 }
 
 .capacity-value {
   color: var(--ngd-txt-tertiary-default);
   text-align: right;
-  font-family: Poppins;
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 140%;
 }
 
 .capacity-bar {

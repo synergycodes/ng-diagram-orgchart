@@ -3,19 +3,19 @@
 
   <div class="cards">
     <div class="reports">
-      <span class="stat-label">Reports</span>
-      <span class="stat-value">{{ reports() }}</span>
+      <span class="stat-label p12">Reports</span>
+      <span class="stat-value h9">{{ reports() }}</span>
     </div>
     <div class="reports">
-      <span class="stat-label">Span</span>
-      <span class="stat-value">{{ span() }}</span>
+      <span class="stat-label p12">Span</span>
+      <span class="stat-value h9">{{ span() }}</span>
     </div>
   </div>
 
   <div class="capacity-section">
     <div class="capacity-header">
-      <span class="capacity-label">Shift capacity</span>
-      <span class="capacity-value">{{ shiftCapacity() }}%</span>
+      <span class="capacity-label p11">Shift capacity</span>
+      <span class="capacity-value p11">{{ shiftCapacity() }}%</span>
     </div>
     <div class="capacity-bar">
       <div class="capacity-fill" [style.width.%]="shiftCapacity()"></div>
