@@ -5,11 +5,11 @@ import {
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
-import { type TreeNodeData } from '../interfaces';
+import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
 
 /**
- * Custom tree node template.
+ * Custom org-chart node template.
  *
  * Renders a labeled node with top/bottom ports for edge connections.
  * When the node has children (`hasChildren` flag), a toggle button is
@@ -31,10 +31,10 @@ import { LayoutService } from '../layout/layout.service';
     '[style.pointer-events]': 'node().data.isHidden ? "none" : null',
   },
 })
-export class NodeComponent implements NgDiagramNodeTemplate<TreeNodeData> {
+export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly layoutService = inject(LayoutService);
 
-  node = input.required<Node<TreeNodeData>>();
+  node = input.required<Node<OrgChartNodeData>>();
 
   /** Toggle the collapsed state of this node's subtree and re-layout. */
   async onToggle(event: MouseEvent): Promise<void> {

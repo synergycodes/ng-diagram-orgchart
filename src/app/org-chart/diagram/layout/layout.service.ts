@@ -1,14 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
-import { TreeEdgeData, type TreeNodeData } from '../interfaces';
+import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 import { performLayout } from './perform-layout';
 
 /**
- * Manages tree layout and expand/collapse behaviour.
+ * Manages org-chart layout and expand/collapse behaviour.
  *
  * Uses ELK.js (via `performLayout`) to position visible nodes in a
- * top-down tree. Hidden nodes (inside collapsed subtrees) are excluded
- * from the layout pass so the tree stays compact.
+ * top-down hierarchy. Hidden nodes (inside collapsed subtrees) are excluded
+ * from the layout pass so the chart stays compact.
  */
 @Injectable()
 export class LayoutService {
@@ -16,8 +16,8 @@ export class LayoutService {
   private readonly modelService = inject(NgDiagramModelService);
 
   /**
-   * Run the ELK tree layout on all visible nodes and edges.
-   * The root node is pinned to its current position so the tree
+   * Run the ELK layout on all visible nodes and edges.
+   * The root node is pinned to its current position so the chart
    * doesn't jump after a re-layout.
    */
   async applyLayout(): Promise<void> {
@@ -25,15 +25,18 @@ export class LayoutService {
     // Signal-based accessors (modelService.nodes/edges) may not yet
     // reflect updates made within the current transaction.
     const model = this.modelService.getModel();
-    const visibleNodes = model.getNodes().filter((n) => !(n.data as TreeNodeData).isHidden);
-    const visibleEdges = model.getEdges().filter((e) => !(e.data as TreeEdgeData).isHidden);
+    const visibleNodes = model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden);
+    const visibleEdges = model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden);
 
     const positionedNodes = await performLayout(visibleNodes, visibleEdges);
 
     const rootNode = this.findRootNode();
     if (rootNode) {
       // Offset every node so the root stays where it was before layout.
-      const newRootPosition = positionedNodes.find((n) => n.id === rootNode.id)!.position;
+      const newRoot = positionedNodes.find((n) => n.id === rootNode.id);
+      if (!newRoot) return;
+
+      const newRootPosition = newRoot.position;
       const dx = rootNode.position.x - newRootPosition.x;
       const dy = rootNode.position.y - newRootPosition.y;
 
@@ -60,15 +63,15 @@ export class LayoutService {
       return;
     }
 
-    const newCollapsed = !(node.data as TreeNodeData).collapsed;
+    const newCollapsed = !(node.data as OrgChartNodeData).isCollapsed;
     const subtreeIds = this.computeAvailableSubtreeIds(nodeId);
 
     // Await the transaction to ensure all updates (collapsed flag +
     // visibility) are committed to the model before re-layout reads them.
     await this.diagramService.transaction(async () => {
       this.modelService.updateNodeData(nodeId, {
-        ...(node.data as TreeNodeData),
-        collapsed: newCollapsed,
+        ...(node.data as OrgChartNodeData),
+        isCollapsed: newCollapsed,
       });
 
       this.updateVisibility(subtreeIds, newCollapsed, !newCollapsed ? node.position : undefined);
@@ -78,7 +81,7 @@ export class LayoutService {
   }
 
   /**
-   * Find the tree root — the node that is never a target of any edge.
+   * Find the root — the node that is never a target of any edge.
    */
   private findRootNode() {
     const model = this.modelService.getModel();
@@ -101,8 +104,8 @@ export class LayoutService {
         if (edge.source === parentId) {
           childrenIds.add(edge.target);
 
-          const childData = this.modelService.getNodeById(edge.target)?.data as TreeNodeData;
-          if (!childData?.collapsed) {
+          const childData = this.modelService.getNodeById(edge.target)?.data as OrgChartNodeData;
+          if (!childData?.isCollapsed) {
             stack.push(edge.target);
           }
         }
@@ -123,17 +126,24 @@ export class LayoutService {
     parentPosition?: { x: number; y: number },
   ): void {
     this.modelService.updateNodes(
-      [...subtreeIds].map((id) => ({
-        id,
-        data: {
-          ...(this.modelService.getNodeById(id)!.data as TreeNodeData),
-          isHidden: hidden,
-        },
-        // When expanding, place children at the parent's position so they
-        // fan out from it once the layout runs — avoids a visual blink
-        // from a random previous position.
-        ...(parentPosition ? { position: parentPosition } : {}),
-      })),
+      [...subtreeIds].reduce<{ id: string; data: OrgChartNodeData; position?: { x: number; y: number } }[]>((acc, id) => {
+        const node = this.modelService.getNodeById(id);
+        if (!node) return acc;
+
+        acc.push({
+          id,
+          data: {
+            ...(node.data as OrgChartNodeData),
+            isHidden: hidden,
+          },
+          // When expanding, place children at the parent's position so they
+          // fan out from it once the layout runs — avoids a visual blink
+          // from a random previous position.
+          ...(parentPosition ? { position: parentPosition } : {}),
+        });
+
+        return acc;
+      }, []),
     );
 
     this.modelService.updateEdges(

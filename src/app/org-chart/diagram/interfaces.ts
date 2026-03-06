@@ -1,18 +1,40 @@
 export enum NodeTemplateType {
-  TreeNode = 'treeNode',
+  OrgChartNode = 'orgChartNode',
 }
 
 export enum EdgeTemplateType {
-  TreeEdge = 'treeEdge',
+  OrgChartEdge = 'orgChartEdge',
 }
 
-export interface TreeNodeData {
-  label: string;
+export enum OrgChartRole {
+  PlantDirector = 'Plant Director',
+  OperationsManager = 'Operations Manager',
+  HseSafetyLead = 'HSE & Safety Lead',
+  HseInspector = 'HSE Inspector',
+  MaintenanceHead = 'Maintenance Head',
+  HrPayrollManager = 'HR & Payroll Manager',
+  ShiftASupervisor = 'Shift A Supervisor',
+  ShiftBSupervisor = 'Shift B (Night) Supervisor',
+  ShiftALead = 'Shift A Lead',
+  ShiftBLead = 'Shift B (Night) Lead',
+  SeniorElectrician = 'Senior Electrician',
+  MaintenanceTechnician = 'Maintenance Technician',
+  UnionRepresentative = 'Union Representative',
+  ProductionCoordinator = 'Production Coordinator',
+}
+
+export interface OrgChartNodeData {
+  fullName?: string;
+  role?: OrgChartRole;
+  description?: string;
+  reports: number;
+  span: number;
+  shiftCapacity: number;
+  isCollapsed?: boolean;
   hasChildren?: boolean;
-  collapsed?: boolean;
   isHidden?: boolean;
 }
 
-export interface TreeEdgeData {
+export interface OrgChartEdgeData {
   isHidden?: boolean;
 }
