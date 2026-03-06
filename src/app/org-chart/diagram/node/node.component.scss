@@ -42,8 +42,12 @@
   }
 
   :host.selected & {
-    border-color: #9140ff;
-    box-shadow: 0 0 0 4px rgba(145, 64, 255, 0.4);
+    border: 1px solid var(--ngd-ui-stroke-primary-highlight, #9140ff);
+    box-shadow: var(--ngd-token-shadow-focus-node-active-x, 0)
+      var(--ngd-token-shadow-focus-node-active-y, 0)
+      var(--ngd-token-shadow-focus-node-active-blur, 0)
+      var(--ngd-token-shadow-focus-node-active-spread, 4px)
+      var(--ngd-focus-ring-node-active, rgba(145, 64, 255, 0.4));
   }
 
   &--vacant {
