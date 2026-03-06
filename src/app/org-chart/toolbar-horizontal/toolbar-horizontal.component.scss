@@ -1,0 +1,59 @@
+:host {
+  display: block;
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  z-index: 10;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--ngd-token-spacing-toolbar-hor-gap);
+  background: var(--ngd-ui-bg-primary-default);
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-toolbar-hor-l);
+  padding: var(--ngd-token-spacing-toolbar-hor-pad);
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--ngd-token-radius-button-l);
+  padding: var(--ngd-token-spacing-button-l-v-pad-2);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  .icon {
+    transition: background-color 0.15s ease;
+  }
+
+  &.active {
+    background: var(--ngd-button-primary-bg-default);
+
+    .icon {
+      background-color: #fff;
+    }
+  }
+}
+
+.icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-color: var(--ngd-nav-button-icon-primary-default);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.icon-vertical {
+  mask-image: url('/network.svg');
+}
+
+.icon-horizontal {
+  mask-image: url('/tree-structure.svg');
+}

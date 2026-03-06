@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -18,6 +25,7 @@ import {
   type NodeDragStartedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
+import { LayoutDirectionService } from '../layout-direction.service';
 import { diagramModel } from './data';
 import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
@@ -47,8 +55,26 @@ export class DiagramComponent {
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
   private readonly dragStateService = inject(DragStateService);
+  private readonly layoutDirectionService = inject(LayoutDirectionService);
 
   protected isLayoutReady = signal(false);
+
+  constructor() {
+    effect(() => {
+      this.layoutDirectionService.direction();
+
+      untracked(() => {
+        if (!this.isLayoutReady()) return;
+
+        this.diagramService.transaction(
+          async () => {
+            await this.layoutService.applyLayout();
+          },
+          { waitForMeasurements: true },
+        );
+      });
+    });
+  }
 
   // Assign the custom OrgChartEdge type to every user-drawn edge so it uses our
   // edge template (with visibility support for collapsed subtrees).

@@ -1,5 +1,6 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
+import { LayoutDirectionService } from '../../layout-direction.service';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 import { performLayout } from './perform-layout';
 
@@ -14,6 +15,7 @@ import { performLayout } from './perform-layout';
 export class LayoutService {
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
+  private readonly layoutDirectionService = inject(LayoutDirectionService);
 
   /**
    * Run the ELK layout on all visible nodes and edges.
@@ -28,7 +30,11 @@ export class LayoutService {
     const visibleNodes = model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden);
     const visibleEdges = model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden);
 
-    const positionedNodes = await performLayout(visibleNodes, visibleEdges);
+    const positionedNodes = await performLayout(
+      visibleNodes,
+      visibleEdges,
+      this.layoutDirectionService.direction(),
+    );
 
     const rootNode = this.findRootNode();
     if (rootNode) {

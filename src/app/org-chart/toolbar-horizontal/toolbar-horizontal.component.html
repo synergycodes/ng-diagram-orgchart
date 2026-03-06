@@ -1,0 +1,16 @@
+<div class="toolbar">
+  <button
+    class="toolbar-btn"
+    [class.active]="layoutDirectionService.direction() === 'DOWN'"
+    (click)="layoutDirectionService.setDirection('DOWN')"
+  >
+    <span class="icon icon-vertical"></span>
+  </button>
+  <button
+    class="toolbar-btn"
+    [class.active]="layoutDirectionService.direction() === 'RIGHT'"
+    (click)="layoutDirectionService.setDirection('RIGHT')"
+  >
+    <span class="icon icon-horizontal"></span>
+  </button>
+</div>

@@ -4,12 +4,6 @@ import { type Edge, type Node } from 'ng-diagram';
 // Single ELK instance reused across all layout calls.
 const elk = new ELK();
 
-const layoutOptions = {
-  'elk.algorithm': 'mrtree',
-  'elk.direction': 'DOWN',
-  'spacing.nodeNode': '140',
-};
-
 /**
  * Compute tree positions for the given nodes using ELK.js.
  *
@@ -17,7 +11,12 @@ const layoutOptions = {
  * layout algorithm, and returns a new array of nodes with updated
  * positions.
  */
-export async function performLayout(nodes: Node[], edges: Edge[]) {
+export async function performLayout(nodes: Node[], edges: Edge[], direction: 'DOWN' | 'RIGHT' = 'DOWN') {
+  const layoutOptions = {
+    'elk.algorithm': 'mrtree',
+    'elk.direction': direction,
+    'spacing.nodeNode': '140',
+  };
   // Use the largest measured node size so all nodes occupy the same
   // bounding box in the layout.
   const MAX_WIDTH = 267;
