@@ -60,8 +60,12 @@
   background: var(--ngd-colors-acc1-500-50);
   border-radius: var(--ngd-token-radius-progressbar);
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0;
   transition: opacity 200ms ease;
+
+  &--visible {
+    opacity: 0.6;
+  }
 
   &--left {
     width: 6px;
