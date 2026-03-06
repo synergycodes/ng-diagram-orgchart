@@ -66,14 +66,17 @@
 <!-- Expand / collapse button – only rendered when the node has child edges. -->
 @if (node().data.hasChildren) {
   <button class="toggle-btn" (pointerdown)="$event.stopPropagation()" (click)="onToggle($event)">
-    {{ node().data.isCollapsed ? '+' : '-' }}
+    {{ node().data.isCollapsed ? node().data.collapsedChildrenCount : '-' }}
   </button>
 }
 
 @if (showDropIndicators()) {
   <div class="drop-indicator drop-indicator--left"></div>
   <div class="drop-indicator drop-indicator--right"></div>
-  <div class="drop-indicator drop-indicator--bottom" [class.drop-indicator--no-toggle]="!node().data.hasChildren"></div>
+  <div
+    class="drop-indicator drop-indicator--bottom"
+    [class.drop-indicator--no-toggle]="!node().data.hasChildren"
+  ></div>
 } @else if (showAddButtons()) {
   <button
     class="add-btn add-btn--left"
