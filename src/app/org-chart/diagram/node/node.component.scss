@@ -41,6 +41,11 @@
     border: 1px solid var(--ngd-ui-stroke-primary-highlight, #9140ff);
   }
 
+  :host.selected & {
+    border-color: #9140ff;
+    box-shadow: 0 0 0 4px rgba(145, 64, 255, 0.4);
+  }
+
   &--vacant {
     border-radius: var(--ngd-token-radius-node4-head, 16px);
     border: 1px dashed var(--ngd-ui-stroke-secondary-default, #d5d8e0);

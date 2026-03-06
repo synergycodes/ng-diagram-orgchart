@@ -32,6 +32,7 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[class.variant-vacant]': 'variant() === "vacant"',
     '[class.variant-compact]': 'variant() === "compact"',
     '[class.variant-full]': 'variant() === "full"',
+    '[class.selected]': 'node().selected',
     '[style.visibility]': 'node().data.isHidden ? "hidden" : null',
     '[style.pointer-events]': 'node().data.isHidden ? "none" : null',
   },
