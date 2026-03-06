@@ -9,9 +9,13 @@
   height: 44px;
   padding: 10px;
   border-radius: 50%;
-  background: var(--ngd-node-bg-secondary-default);
+  background: color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 20%, transparent);
   border: 2px solid
     color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 30%, transparent);
+
+  :host-context(html[data-theme='dark']) & {
+    background: var(--ngd-node-bg-secondary-default);
+  }
   display: flex;
   align-items: center;
   justify-content: center;
