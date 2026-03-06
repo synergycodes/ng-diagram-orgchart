@@ -1,0 +1,24 @@
+<div class="node-card" [style.--node-accent]="color()">
+  <app-node-header [fullName]="fullName()" [role]="role()" [color]="color()" />
+
+  <div class="cards">
+    <div class="reports">
+      <span class="stat-label">Reports</span>
+      <span class="stat-value">{{ reports() }}</span>
+    </div>
+    <div class="reports">
+      <span class="stat-label">Span</span>
+      <span class="stat-value">{{ span() }}</span>
+    </div>
+  </div>
+
+  <div class="capacity-section">
+    <div class="capacity-header">
+      <span class="capacity-label">Shift capacity</span>
+      <span class="capacity-value">{{ shiftCapacity() }}%</span>
+    </div>
+    <div class="capacity-bar">
+      <div class="capacity-fill" [style.width.%]="shiftCapacity()"></div>
+    </div>
+  </div>
+</div>

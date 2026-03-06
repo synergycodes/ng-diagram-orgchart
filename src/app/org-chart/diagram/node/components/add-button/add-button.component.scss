@@ -1,0 +1,44 @@
+.add-btn {
+  display: flex;
+  position: absolute;
+  width: 19px;
+  height: 19px;
+  min-width: 19px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 32px;
+  border: none;
+  background: var(--ngd-nav-button-icon-primary-disabled);
+  color: var(--ngd-diagram-background-color);
+  font-size: 14px;
+  opacity: var(--add-btn-opacity);
+  pointer-events: var(--add-btn-pointer-events);
+  transition: opacity 150ms ease;
+
+  &:hover {
+    background: var(--ngd-nav-button-icon-primary-default);
+  }
+
+  &:active {
+    background: var(--ngd-nav-button-icon-primary-pressed);
+  }
+
+  &--left {
+    top: 50%;
+    left: -15px;
+    transform: translate(-50%, -50%);
+  }
+
+  &--right {
+    top: 50%;
+    right: -15px;
+    transform: translate(50%, -50%);
+  }
+
+  &--bottom {
+    bottom: -34px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

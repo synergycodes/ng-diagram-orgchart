@@ -1,0 +1,5 @@
+<div class="initials" [class.initials--vacant]="vacant()">{{ initials() }}</div>
+<div class="node-info">
+  <span class="node-name" [class.node-name--vacant]="vacant()">{{ vacant() ? 'Vacant Position' : fullName() }}</span>
+  <span class="node-role">{{ role() }}</span>
+</div>
