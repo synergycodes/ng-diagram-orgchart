@@ -282,7 +282,7 @@
   }
 }
 
-:host:hover:not(:active) .add-btn {
+:host:hover .add-btn {
   opacity: 1;
   pointer-events: auto;
 }

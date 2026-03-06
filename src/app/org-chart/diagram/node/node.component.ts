@@ -44,8 +44,11 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   node = input.required<Node<OrgChartNodeData>>();
 
   showDropIndicators = computed(
-    () => this.dragStateService.isDragging() && !this.dragStateService.isNodeDragged(this.node().id),
+    () =>
+      this.dragStateService.isDragging() && !this.dragStateService.isNodeDragged(this.node().id),
   );
+
+  showAddButtons = computed(() => !this.dragStateService.isDragging());
 
   variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node().data)) return 'vacant';
