@@ -1,0 +1,18 @@
+<nav class="top-navbar">
+  <div class="left-wrap">
+    <button class="menu-trigger">
+      <img src="ngd-logo.svg" alt="ngD logo" />
+      <span class="icon icon-caret-down"></span>
+    </button>
+  </div>
+  <div class="right-wrap">
+    <div class="theme-toggle" (click)="toggleTheme()">
+      <div class="toggle-indicator" [class.active]="activeTheme() === 'light'">
+        <span class="icon icon-sun"></span>
+      </div>
+      <div class="toggle-indicator" [class.active]="activeTheme() === 'dark'">
+        <span class="icon icon-moon"></span>
+      </div>
+    </div>
+  </div>
+</nav>
