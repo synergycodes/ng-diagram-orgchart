@@ -5,8 +5,8 @@
 
   --card-border-color: var(--ngd-ui-stroke-primary-default);
   --card-border-style: solid;
-  --card-box-shadow: var(--ngd-token-radius-shadow-xxs-x, 0) var(--ngd-token-radius-shadow-xxs-y, 4px)
-    var(--ngd-token-radius-shadow-xxs-blur, 8px) 0 var(--ngd-colors-gray-900-10);
+  --card-box-shadow: var(--ngd-token-radius-shadow-xxs-x) var(--ngd-token-radius-shadow-xxs-y)
+    var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10);
   --add-btn-opacity: 0;
   --add-btn-pointer-events: none;
 
@@ -22,10 +22,10 @@
 
   &.selected {
     --card-border-color: var(--ngd-ui-stroke-primary-highlight);
-    --card-box-shadow: var(--ngd-token-shadow-focus-node-active-x, 0)
-      var(--ngd-token-shadow-focus-node-active-y, 0)
-      var(--ngd-token-shadow-focus-node-active-blur, 0)
-      var(--ngd-token-shadow-focus-node-active-spread, 4px)
+    --card-box-shadow: var(--ngd-token-shadow-focus-node-active-x)
+      var(--ngd-token-shadow-focus-node-active-y)
+      var(--ngd-token-shadow-focus-node-active-blur)
+      var(--ngd-token-shadow-focus-node-active-spread)
       var(--ngd-focus-ring-node-active);
   }
 
@@ -58,7 +58,7 @@
 .drop-indicator {
   position: absolute;
   background: var(--ngd-colors-acc1-500-50);
-  border-radius: var(--ngd-token-radius-progressbar, 64px);
+  border-radius: var(--ngd-token-radius-progressbar);
   pointer-events: none;
   opacity: 0.6;
   transition: opacity 200ms ease;

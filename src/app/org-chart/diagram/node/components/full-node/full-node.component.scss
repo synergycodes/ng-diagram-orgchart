@@ -4,19 +4,19 @@
   transition:
     border-color 150ms ease,
     box-shadow 150ms ease;
-  border-radius: var(--ngd-token-radius-node4-head, 16px);
-  padding: var(--ngd-token-spacing-node4-v-pad, 16px) var(--ngd-token-spacing-node4-h-pad, 16px);
+  border-radius: var(--ngd-token-radius-node4-head);
+  padding: var(--ngd-token-spacing-node4-v-pad) var(--ngd-token-spacing-node4-h-pad);
   min-width: 241px;
   display: flex;
   flex-direction: column;
-  gap: var(--ngd-token-spacing-node4-gap, 16px);
+  gap: var(--ngd-token-spacing-node4-gap);
   box-shadow: var(--card-box-shadow);
 }
 
 .cards {
   display: flex;
   align-items: flex-start;
-  gap: var(--ngd-token-spacing-node4-gap, 16px);
+  gap: var(--ngd-token-spacing-node4-gap);
 }
 
 .reports {
@@ -69,7 +69,7 @@
   flex-direction: column;
   align-items: flex-start;
   align-self: stretch;
-  border-radius: var(--ngd-token-radius-progressbar, 64px);
+  border-radius: var(--ngd-token-radius-progressbar);
   background: var(--ngd-colors-gray-650);
   overflow: hidden;
 }
