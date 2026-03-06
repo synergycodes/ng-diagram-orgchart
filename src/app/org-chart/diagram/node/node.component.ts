@@ -9,6 +9,11 @@ import { DragStateService } from '../drag-state.service';
 import { isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
+import { AddButtonComponent } from './components/add-button/add-button.component';
+import { CompactNodeComponent } from './components/compact-node/compact-node.component';
+import { FullNodeComponent } from './components/full-node/full-node.component';
+import { VacantNodeComponent } from './components/vacant-node/vacant-node.component';
+import { ToggleExpandButtonComponent } from './components/toggle-expand-button/toggle-expand-button.component';
 
 type NodeVariant = 'vacant' | 'compact' | 'full';
 
@@ -23,7 +28,14 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
  * Expand/collapse button and connection ports are identical for all variants.
  */
 @Component({
-  imports: [NgDiagramPortComponent],
+  imports: [
+    NgDiagramPortComponent,
+    VacantNodeComponent,
+    CompactNodeComponent,
+    FullNodeComponent,
+    ToggleExpandButtonComponent,
+    AddButtonComponent,
+  ],
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,16 +66,6 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node().data)) return 'vacant';
     return this.viewportService.scale() < 1 ? 'compact' : 'full';
-  });
-
-  initials = computed(() => {
-    const name = this.node().data.fullName;
-    if (!name) return '';
-    return name
-      .split(' ')
-      .map((word) => word[0])
-      .join('')
-      .toUpperCase();
   });
 
   /** Toggle the collapsed state of this node's subtree and re-layout. */

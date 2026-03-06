@@ -1,4 +1,5 @@
 @import './tokens.css';
+@import './typography.css';
 @import 'ng-diagram/styles.css';
 
 html,

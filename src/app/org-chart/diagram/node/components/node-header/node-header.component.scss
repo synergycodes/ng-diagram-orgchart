@@ -1,0 +1,53 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.initials {
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 20%, transparent);
+  border: 2px solid
+    color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 30%, transparent);
+
+  :host-context(html[data-theme='dark']) & {
+    background: var(--ngd-node-bg-secondary-default);
+  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--node-accent, var(--ngd-colors-acc3-400));
+
+  &--vacant {
+    background: var(--ngd-colors-gray-900-5);
+    border: 2px solid var(--ngd-colors-gray-900-10);
+
+    :host-context(html[data-theme='dark']) & {
+      background: var(--ngd-colors-gray-100-10);
+      border: 2px solid var(--ngd-colors-gray-100-20);
+    }
+  }
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.name {
+  color: var(--ngd-txt-primary-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role {
+  color: var(--ngd-txt-secondary-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

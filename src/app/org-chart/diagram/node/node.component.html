@@ -1,73 +1,31 @@
 @switch (variant()) {
-  <!-- Vacant position – no fullName assigned -->
   @case ('vacant') {
-    <div class="node-card node-card--vacant">
-      <div class="node-header">
-        <div class="initials initials--vacant"></div>
-        <div class="node-info">
-          <span class="node-name node-name--vacant">Vacant Position</span>
-          <span class="node-role">{{ node().data.role }}</span>
-        </div>
-      </div>
-    </div>
+    <app-vacant-node [role]="node().data.role" />
   }
-
-  <!-- Compact – zoom < 100%, header only -->
   @case ('compact') {
-    <div class="node-card" [style.--node-accent]="node().data.color">
-      <div class="node-header">
-        <div class="initials">{{ initials() }}</div>
-        <div class="node-info">
-          <span class="node-name">{{ node().data.fullName }}</span>
-          <span class="node-role">{{ node().data.role }}</span>
-        </div>
-      </div>
-    </div>
+    <app-compact-node
+      [fullName]="node().data.fullName"
+      [role]="node().data.role"
+      [color]="node().data.color"
+    />
   }
-
-  <!-- Full – zoom >= 100%, complete card -->
   @case ('full') {
-    <div class="node-card" [style.--node-accent]="node().data.color">
-      <!-- Header: initials avatar + name/role -->
-      <div class="node-header">
-        <div class="initials">{{ initials() }}</div>
-        <div class="node-info">
-          <span class="node-name">{{ node().data.fullName }}</span>
-          <span class="node-role">{{ node().data.role }}</span>
-        </div>
-      </div>
-
-      <!-- Stats: reports + span -->
-      <div class="cards">
-        <div class="reports">
-          <span class="stat-label">Reports</span>
-          <span class="stat-value">{{ node().data.reports }}</span>
-        </div>
-        <div class="reports">
-          <span class="stat-label">Span</span>
-          <span class="stat-value">{{ node().data.span }}</span>
-        </div>
-      </div>
-
-      <!-- Capacity progress bar -->
-      <div class="capacity-section">
-        <div class="capacity-header">
-          <span class="capacity-label">Shift capacity</span>
-          <span class="capacity-value">{{ node().data.shiftCapacity }}%</span>
-        </div>
-        <div class="capacity-bar">
-          <div class="capacity-fill" [style.width.%]="node().data.shiftCapacity"></div>
-        </div>
-      </div>
-    </div>
+    <app-full-node
+      [fullName]="node().data.fullName"
+      [role]="node().data.role"
+      [color]="node().data.color"
+      [reports]="node().data.reports"
+      [span]="node().data.span"
+      [shiftCapacity]="node().data.shiftCapacity"
+    />
   }
 }
 
-<!-- Expand / collapse button – only rendered when the node has child edges. -->
 @if (node().data.hasChildren) {
-  <button class="toggle-btn" (pointerdown)="$event.stopPropagation()" (click)="onToggle($event)">
-    {{ node().data.isCollapsed ? node().data.collapsedChildrenCount : '-' }}
-  </button>
+  <app-toggle-expand-button
+    [isCollapsed]="!!node().data.isCollapsed"
+    (toggle)="onToggle($event)"
+  />
 }
 
 @if (showDropIndicators()) {
@@ -78,33 +36,9 @@
     [class.drop-indicator--no-toggle]="!node().data.hasChildren"
   ></div>
 } @else if (showAddButtons()) {
-  <button
-    class="add-btn add-btn--left"
-    (pointerdown)="$event.stopPropagation()"
-    (click)="onAddLeft($event)"
-    data-no-drag="true"
-    data-no-pan="true"
-  >
-    +
-  </button>
-  <button
-    class="add-btn add-btn--right"
-    (pointerdown)="$event.stopPropagation()"
-    (click)="onAddRight($event)"
-    data-no-drag="true"
-    data-no-pan="true"
-  >
-    +
-  </button>
-  <button
-    class="add-btn add-btn--bottom"
-    (pointerdown)="$event.stopPropagation()"
-    (click)="onAddBottom($event)"
-    data-no-drag="true"
-    data-no-pan="true"
-  >
-    +
-  </button>
+  <app-add-button position="left" (add)="onAddLeft($event)" />
+  <app-add-button position="right" (add)="onAddRight($event)" />
+  <app-add-button position="bottom" (add)="onAddBottom($event)" />
 
   <!-- Invisible hover zone so "+" buttons outside the node boundary remain reachable. -->
   <div class="hover-zone" data-no-drag="true"></div>
