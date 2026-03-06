@@ -28,20 +28,20 @@
   }
 }
 
-.node-info {
+.info {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.node-name {
+.name {
   color: var(--ngd-txt-primary-default);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.node-role {
+.role {
   color: var(--ngd-txt-secondary-default);
   white-space: nowrap;
   overflow: hidden;

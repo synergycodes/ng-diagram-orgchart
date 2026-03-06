@@ -1,12 +1,12 @@
-<div class="node-card" [style.--node-accent]="color()">
+<div class="node" [style.--node-accent]="color()">
   <app-node-header [fullName]="fullName()" [role]="role()" [color]="color()" />
 
   <div class="cards">
-    <div class="reports">
+    <div class="card">
       <span class="stat-label p12">Reports</span>
       <span class="stat-value h9">{{ reports() }}</span>
     </div>
-    <div class="reports">
+    <div class="card">
       <span class="stat-label p12">Span</span>
       <span class="stat-value h9">{{ span() }}</span>
     </div>

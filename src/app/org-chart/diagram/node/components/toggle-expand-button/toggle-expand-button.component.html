@@ -1,0 +1,3 @@
+<button class="toggle-btn" (pointerdown)="$event.stopPropagation()" (click)="onToggle($event)">
+  {{ isCollapsed() ? '+' : '-' }}
+</button>

@@ -22,4 +22,5 @@ export class NodeHeaderComponent {
       .join('')
       .toUpperCase();
   });
+  displayName = computed(() => (this.vacant() ? 'Vacant Position' : (this.fullName() ?? '')));
 }

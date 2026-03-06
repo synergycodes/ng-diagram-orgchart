@@ -1,4 +1,4 @@
-.node-card {
+.node {
   background: var(--ngd-node-bg-primary-default);
   border: 1px var(--card-border-style) var(--card-border-color);
   transition:
@@ -17,17 +17,17 @@
   display: flex;
   align-items: flex-start;
   gap: var(--ngd-token-spacing-node4-gap);
-}
 
-.reports {
-  display: flex;
-  padding: 8px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  flex: 1 0 0;
-  border-radius: 8px;
-  background: var(--ngd-ui-bg-secondary-default);
+  .card {
+    display: flex;
+    padding: 8px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    flex: 1 0 0;
+    border-radius: 8px;
+    background: var(--ngd-ui-bg-secondary-default);
+  }
 }
 
 .stat-label {
