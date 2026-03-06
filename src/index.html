@@ -1,8 +1,15 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>NgDiagramOrgchart</title>
+    <script>
+      const stored = localStorage.getItem('theme');
+      const preferred = window.matchMedia('(prefers-color-scheme: light)').matches
+        ? 'light'
+        : 'dark';
+      document.documentElement.dataset.theme = stored || preferred;
+    </script>
+    <title>NgDiagram OrgChart</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />

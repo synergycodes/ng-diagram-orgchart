@@ -14,6 +14,7 @@ export class TopNavbarComponent {
   toggleTheme(): void {
     const next = this.activeTheme() === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset['theme'] = next;
+    localStorage.setItem('theme', next);
     this.activeTheme.set(next);
   }
 }
