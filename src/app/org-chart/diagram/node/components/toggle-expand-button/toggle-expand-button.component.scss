@@ -1,12 +1,14 @@
 .toggle-btn {
+  --expand-button-size: 24px;
+
   display: flex;
   position: absolute;
   bottom: -0.75rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: var(--expand-button-size);
+  height: var(--expand-button-size);
+  min-width: var(--expand-button-size);
   padding: 5.333px;
   justify-content: center;
   align-items: center;

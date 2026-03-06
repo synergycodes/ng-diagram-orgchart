@@ -1,9 +1,11 @@
 .add-btn {
+  --add-button-size: 19px;
+
   display: flex;
   position: absolute;
-  width: 19px;
-  height: 19px;
-  min-width: 19px;
+  width: var(--add-button-size);
+  height: var(--add-button-size);
+  min-width: var(--add-button-size);
   justify-content: center;
   align-items: center;
   cursor: pointer;

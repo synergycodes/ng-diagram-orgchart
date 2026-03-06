@@ -5,8 +5,10 @@
 }
 
 .initials {
-  width: 44px;
-  height: 44px;
+  --initials-size: 44px;
+
+  width: var(--initials-size);
+  height: var(--initials-size);
   padding: 10px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 20%, transparent);
