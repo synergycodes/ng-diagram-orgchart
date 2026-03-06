@@ -59,6 +59,9 @@ export class DiagramComponent {
         type: EdgeTemplateType.OrgChartEdge,
       }),
     },
+    zIndex: {
+      elevateOnSelection: false,
+    },
   } satisfies NgDiagramConfig;
 
   nodeTemplateMap = new NgDiagramNodeTemplateMap([[NodeTemplateType.OrgChartNode, NodeComponent]]);
