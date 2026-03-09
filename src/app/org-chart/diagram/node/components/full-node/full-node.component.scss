@@ -72,11 +72,11 @@
   align-items: flex-start;
   align-self: stretch;
   border-radius: var(--ngd-token-radius-progressbar);
-  background: var(--ngd-colors-gray-650);
+  background: var(--ngd-colors-gray-650); /* No Figma token */
   overflow: hidden;
 }
 
 .capacity-fill {
   height: 100%;
-  background: var(--node-accent, var(--ngd-colors-acc8-400));
+  background: var(--node-accent, var(--ngd-colors-acc8-400)); /* No Figma token for default value */
 }

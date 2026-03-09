@@ -6,7 +6,7 @@
   --card-border-color: var(--ngd-ui-stroke-primary-default);
   --card-border-style: solid;
   --card-box-shadow: var(--ngd-token-radius-shadow-xxs-x) var(--ngd-token-radius-shadow-xxs-y)
-    var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10);
+    var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10); /* No Figma token - shadow color */
   --add-btn-opacity: 0;
   --add-btn-pointer-events: none;
 
@@ -55,7 +55,7 @@
 
 .drop-indicator {
   position: absolute;
-  background: var(--ngd-colors-acc1-500-50);
+  background: var(--ngd-colors-acc1-500-50); /* No Figma token */
   border-radius: var(--ngd-token-radius-progressbar);
   pointer-events: none;
   opacity: 0;
@@ -69,7 +69,7 @@
     width: 6px; /* No Figma token */
     height: 48px; /* No Figma token */
     top: 50%;
-    left: var(--ngd-primitive-even-negative--12);
+    left: var(--ngd-primitive-even-negative--12); /* No Figma token */
     transform: translate(-50%, -50%);
   }
 
@@ -77,19 +77,19 @@
     width: 6px;
     height: 48px;
     top: 50%;
-    right: var(--ngd-primitive-even-negative--12);
+    right: var(--ngd-primitive-even-negative--12); /* No Figma token */
     transform: translate(50%, -50%);
   }
 
   &--bottom {
     width: 180px; /* No Figma token */
     height: 6px; /* No Figma token */
-    bottom: calc(-1 * var(--ngd-primitive-4rule-28));
+    bottom: calc(-1 * var(--ngd-primitive-4rule-28)); /* No Figma token */
     left: 50%;
     transform: translateX(-50%);
 
     &.drop-indicator--no-toggle {
-      bottom: var(--ngd-primitive-even-negative--12);
+      bottom: var(--ngd-primitive-even-negative--12); /* No Figma token */
     }
   }
 }
