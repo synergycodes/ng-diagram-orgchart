@@ -7,7 +7,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
   selector: 'app-org-chart-page',
   imports: [DiagramComponent, ToolbarHorizontalComponent, TopNavbarComponent],
   templateUrl: './org-chart-page.component.html',
-  styleUrl: './org-chart-page.component.css',
+  styleUrl: './org-chart-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrgChartPageComponent {}

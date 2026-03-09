@@ -1,9 +1,6 @@
 :host {
-  display: block;
-  position: absolute;
-  top: 72px;
-  left: 50%;
-  z-index: 10;
+  width: fit-content;
+  align-self: center;
 }
 
 .toolbar {
@@ -25,17 +22,17 @@
   border-radius: var(--ngd-token-radius-button-l);
   padding: var(--ngd-token-spacing-button-l-v-pad-2);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 150ms ease;
 
   .icon {
-    transition: background-color 0.15s ease;
+    transition: background-color 150ms ease;
   }
 
   &.active {
     background: var(--ngd-button-primary-bg-default);
 
     .icon {
-      background-color: #fff;
+      background-color: var(--ngd-txt-primary-white);
     }
   }
 }

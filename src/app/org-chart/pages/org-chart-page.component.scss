@@ -1,0 +1,21 @@
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.navbar-wrapper {
+  position: absolute;
+  z-index: 10;
+  gap: 14px; /* No Figma token */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 12px; /* No Figma token */
+  pointer-events: none;
+}
+
+.clickable {
+  pointer-events: all;
+}

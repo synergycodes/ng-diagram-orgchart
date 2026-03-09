@@ -1,12 +1,3 @@
-:host {
-  display: block;
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  right: 16px;
-  z-index: 10;
-}
-
 .top-navbar {
   display: flex;
   align-items: center;
@@ -25,11 +16,11 @@
 .menu-trigger {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px; /* No Figma token */
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: var(--ngd-token-spacing-spacing-4, 4px); /* No Figma token - wrong token */
   color: var(--ngd-nav-button-icon-primary-default);
 }
 
@@ -82,10 +73,10 @@
     height: 24px;
     border-radius: 50%;
     background: transparent;
-    transition: background 0.15s ease;
+    transition: background 150ms ease;
 
     .icon {
-      transition: background-color 0.15s ease;
+      transition: background-color 150ms ease;
     }
 
     &.active {
