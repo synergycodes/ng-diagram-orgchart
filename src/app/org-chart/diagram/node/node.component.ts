@@ -9,6 +9,7 @@ import { DragStateService } from '../drag-state.service';
 import { isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
+import { LayoutDirectionService } from '../../layout-direction.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
 import { FullNodeComponent } from './components/full-node/full-node.component';
@@ -47,14 +48,18 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[class.selected]': 'node().selected',
     '[style.visibility]': 'node().data.isHidden ? "hidden" : null',
     '[style.pointer-events]': 'node().data.isHidden ? "none" : null',
+    '[class.layout-horizontal]': 'isHorizontal()',
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly layoutService = inject(LayoutService);
+  private readonly layoutDirectionService = inject(LayoutDirectionService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly dragStateService = inject(DragStateService);
 
   node = input.required<Node<OrgChartNodeData>>();
+
+  isHorizontal = computed(() => this.layoutDirectionService.direction() === 'RIGHT');
 
   showDropIndicators = computed(
     () =>

@@ -42,3 +42,28 @@
     transform: translateX(-50%);
   }
 }
+
+:host-context(.layout-horizontal) .add-btn {
+  &--left {
+    top: -15px;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+  }
+
+  &--right {
+    top: auto;
+    right: auto;
+    bottom: -15px;
+    left: 50%;
+    transform: translate(-50%, 50%);
+  }
+
+  &--bottom {
+    bottom: auto;
+    left: auto;
+    right: -34px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}

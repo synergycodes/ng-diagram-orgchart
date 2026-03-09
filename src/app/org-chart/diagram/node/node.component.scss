@@ -95,3 +95,42 @@
     }
   }
 }
+
+:host(.layout-horizontal) {
+  .drop-indicator {
+    &--left {
+      width: 48px;
+      height: 6px;
+      top: -15px;
+      left: 50%;
+      right: auto;
+      bottom: auto;
+      transform: translate(-50%, -50%);
+    }
+
+    &--right {
+      width: 48px;
+      height: 6px;
+      bottom: -15px;
+      left: 50%;
+      top: auto;
+      right: auto;
+      transform: translate(-50%, 50%);
+    }
+
+    &--bottom {
+      width: 6px;
+      height: 48px;
+      right: -30px;
+      top: 50%;
+      bottom: auto;
+      left: auto;
+      transform: translateY(-50%);
+
+      &.drop-indicator--no-toggle {
+        right: -18px;
+        bottom: auto;
+      }
+    }
+  }
+}

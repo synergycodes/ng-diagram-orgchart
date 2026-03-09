@@ -22,3 +22,11 @@
     background: var(--ngd-colors-acc1-400);
   }
 }
+
+:host-context(.layout-horizontal) .toggle-btn {
+  bottom: auto;
+  left: auto;
+  right: -0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
