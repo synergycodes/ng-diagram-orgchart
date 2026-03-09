@@ -66,8 +66,8 @@
   }
 
   &--left {
-    width: 6px;
-    height: 48px;
+    width: 6px; /* No Figma token */
+    height: 48px; /* No Figma token */
     top: 50%;
     left: var(--ngd-primitive-even-negative--12);
     transform: translate(-50%, -50%);
@@ -82,8 +82,8 @@
   }
 
   &--bottom {
-    width: 180px;
-    height: 6px;
+    width: 180px; /* No Figma token */
+    height: 6px; /* No Figma token */
     bottom: calc(-1 * var(--ngd-primitive-4rule-28));
     left: 50%;
     transform: translateX(-50%);

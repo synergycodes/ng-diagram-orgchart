@@ -6,7 +6,7 @@
     box-shadow 150ms ease;
   border-radius: var(--ngd-token-radius-node4-head);
   padding: var(--ngd-token-spacing-node4-v-pad) var(--ngd-token-spacing-node4-h-pad);
-  min-width: 241px;
+  min-width: 241px; /* No Figma token */
   display: flex;
   flex-direction: column;
   gap: var(--ngd-token-spacing-node4-gap);
@@ -20,12 +20,12 @@
 
   .card {
     display: flex;
-    padding: 8px;
+    padding: var(--ngd-token-spacing-node-head-v-pad); /* No Figma token */
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
     flex: 1 0 0;
-    border-radius: 8px;
+    border-radius: var(--ngd-token-radius-node-head-icon); /* No Figma token */
     background: var(--ngd-ui-bg-secondary-default);
   }
 }
@@ -34,7 +34,7 @@
   color: var(--ngd-txt-secondary-default);
   text-transform: uppercase;
   display: flex;
-  padding-bottom: 4px;
+  padding-bottom: var(--ngd-token-spacing-spacing-4); /* No Figma token */
   align-items: center;
 }
 
@@ -45,7 +45,9 @@
 .capacity-section {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: var(
+    --ngd-token-spacing-progressbar-gap
+  ); /* Wrong token in Figma. --ngd-token-spacing-progressbar-gap */
 }
 
 .capacity-header {
@@ -65,7 +67,7 @@
 
 .capacity-bar {
   display: flex;
-  height: 7px;
+  height: 7px; /* No Figma token */
   flex-direction: column;
   align-items: flex-start;
   align-self: stretch;
@@ -76,5 +78,5 @@
 
 .capacity-fill {
   height: 100%;
-  background: var(--node-accent, var(--ngd-colors-acc3-400));
+  background: var(--node-accent, var(--ngd-colors-acc8-400));
 }

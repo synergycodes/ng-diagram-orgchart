@@ -1,18 +1,18 @@
 :host {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 12px; /* No Figma token */
 }
 
 .initials {
-  --initials-size: 44px;
+  --initials-size: 44px; /* No Figma token */
 
   width: var(--initials-size);
   height: var(--initials-size);
-  padding: 10px;
+  padding: var(--ngd-token-spacing-node-head-icon);
   border-radius: 50%;
   background: color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 20%, transparent);
-  border: 2px solid
+  border: 2px solid /* No Figma token */
     color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 30%, transparent);
 
   :host-context(html[data-theme='dark']) & {

@@ -1,27 +1,29 @@
 .toggle-btn {
-  --expand-button-size: 24px; // Missing token
+  --expand-button-size: 24px; /* No Figma token */
 
   display: flex;
   position: absolute;
   bottom: calc(-1 * var(--expand-button-size));
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: calc(-1 * var(--ngd-primitive-even-negative--8)); // Missing token
+  margin-bottom: calc(-1 * var(--ngd-primitive-even-negative--8)); /* No Figma token */
   width: var(--expand-button-size);
   height: var(--expand-button-size);
   min-width: var(--expand-button-size);
-  padding: 5.333px; // Missing token
+  padding: 5.333px; /* No Figma token */
   justify-content: center;
   align-items: center;
-  gap: 2.667px; // Missing token
+  gap: 2.667px; /* No Figma token */
   cursor: pointer;
   color: var(--ngd-txt-primary-white);
 
-  border-radius: 32px; // Missing token
-  border: 2.667px solid var(--ngd-ui-stroke-primary-default); // Missing token
+  border-radius: var(--ngd-token-radius-button-round); /* No Figma token */
+  border: 2.667px solid var(--ngd-ui-stroke-primary-default); /* No Figma token - border width */
   background: var(--ngd-node-port-fill-active);
 
   &:hover {
-    background: var(--ngd-colors-acc1-400);
+    background: var(
+      --ngd-node-port-fill-active
+    ); /* The same Figma token as for default state. Maybe add different color on hover? */
   }
 }
