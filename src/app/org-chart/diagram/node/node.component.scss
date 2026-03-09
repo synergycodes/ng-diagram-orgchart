@@ -6,7 +6,7 @@
   --card-border-color: var(--ngd-ui-stroke-primary-default);
   --card-border-style: solid;
   --card-box-shadow: var(--ngd-token-radius-shadow-xxs-x) var(--ngd-token-radius-shadow-xxs-y)
-    var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10);
+    var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10); /* No Figma token - shadow color */
   --add-btn-opacity: 0;
   --add-btn-pointer-events: none;
 
@@ -23,10 +23,8 @@
   &.selected {
     --card-border-color: var(--ngd-ui-stroke-primary-highlight);
     --card-box-shadow: var(--ngd-token-shadow-focus-node-active-x)
-      var(--ngd-token-shadow-focus-node-active-y)
-      var(--ngd-token-shadow-focus-node-active-blur)
-      var(--ngd-token-shadow-focus-node-active-spread)
-      var(--ngd-focus-ring-node-active);
+      var(--ngd-token-shadow-focus-node-active-y) var(--ngd-token-shadow-focus-node-active-blur)
+      var(--ngd-token-shadow-focus-node-active-spread) var(--ngd-focus-ring-node-active);
   }
 
   &.variant-vacant {
@@ -57,17 +55,21 @@
 
 .drop-indicator {
   position: absolute;
-  background: var(--ngd-colors-acc1-500-50);
+  background: var(--ngd-colors-acc1-500-50); /* No Figma token */
   border-radius: var(--ngd-token-radius-progressbar);
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0;
   transition: opacity 200ms ease;
 
+  &--visible {
+    opacity: 0.6;
+  }
+
   &--left {
-    width: 6px;
-    height: 48px;
+    width: 6px; /* No Figma token */
+    height: 48px; /* No Figma token */
     top: 50%;
-    left: -15px;
+    left: var(--ngd-primitive-even-negative--12); /* No Figma token */
     transform: translate(-50%, -50%);
   }
 
@@ -75,19 +77,19 @@
     width: 6px;
     height: 48px;
     top: 50%;
-    right: -15px;
+    right: var(--ngd-primitive-even-negative--12); /* No Figma token */
     transform: translate(50%, -50%);
   }
 
   &--bottom {
-    width: 180px;
-    height: 6px;
-    bottom: -30px;
+    width: 180px; /* No Figma token */
+    height: 6px; /* No Figma token */
+    bottom: calc(-1 * var(--ngd-primitive-4rule-28)); /* No Figma token */
     left: 50%;
     transform: translateX(-50%);
 
     &.drop-indicator--no-toggle {
-      bottom: -18px;
+      bottom: var(--ngd-primitive-even-negative--12); /* No Figma token */
     }
   }
 }

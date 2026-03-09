@@ -1,3 +1,7 @@
 <button class="toggle-btn p11" (pointerdown)="$event.stopPropagation()" (click)="onToggle($event)">
-  {{ isCollapsed() ? collapsedChildrenCount() : '-' }}
+  @if (isCollapsed()) {
+    collapsedChildrenCount()
+  } @else {
+    <img src="assets/minus.svg" alt="Collapse" width="13" height="13" />
+  }
 </button>
