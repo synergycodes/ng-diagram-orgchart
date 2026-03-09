@@ -13,7 +13,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       data-no-drag="true"
       data-no-pan="true"
     >
-      +
+      <span class="add-btn__icon"></span>
     </button>
   `,
   styleUrls: ['./add-button.component.scss'],
