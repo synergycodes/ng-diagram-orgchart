@@ -1,23 +1,24 @@
 .toggle-btn {
-  --expand-button-size: 24px;
+  --expand-button-size: 24px; // Missing token
 
   display: flex;
   position: absolute;
-  bottom: -0.75rem;
+  bottom: calc(-1 * var(--expand-button-size));
   left: 50%;
   transform: translateX(-50%);
+  margin-bottom: calc(-1 * var(--ngd-primitive-even-negative--8)); // Missing token
   width: var(--expand-button-size);
   height: var(--expand-button-size);
   min-width: var(--expand-button-size);
-  padding: 5.333px;
+  padding: 5.333px; // Missing token
   justify-content: center;
   align-items: center;
-  gap: 2.667px;
+  gap: 2.667px; // Missing token
   cursor: pointer;
   color: var(--ngd-txt-primary-white);
 
-  border-radius: 32px;
-  border: 2.667px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: 32px; // Missing token
+  border: 2.667px solid var(--ngd-ui-stroke-primary-default); // Missing token
   background: var(--ngd-node-port-fill-active);
 
   &:hover {
