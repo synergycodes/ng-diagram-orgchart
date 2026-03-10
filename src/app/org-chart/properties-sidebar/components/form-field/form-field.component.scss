@@ -1,0 +1,9 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+label {
+  color: var(--ngd-txt-secondary-default);
+}

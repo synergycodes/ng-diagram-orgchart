@@ -1,0 +1,50 @@
+@if (selectedNode(); as node) {
+  <div class="form-section">
+    <span class="h10 section-title">General Information</span>
+
+    <app-form-field label="Full Name" fieldId="fullName">
+      <input
+        id="fullName"
+        type="text"
+        class="form-input p10"
+        [formControl]="form.controls.fullName"
+        placeholder="Enter full name"
+      />
+    </app-form-field>
+
+    <app-form-field label="Role" fieldId="role">
+      <div class="select-wrapper">
+        <select
+          id="role"
+          class="form-input form-select p10"
+          [formControl]="form.controls.role"
+        >
+          <option value="">Select a role</option>
+          @for (role of roles; track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+      </div>
+    </app-form-field>
+
+    <app-form-field label="Description" fieldId="description">
+      <textarea
+        id="description"
+        class="form-input form-textarea p10"
+        [formControl]="form.controls.description"
+        placeholder="Enter description"
+        rows="3"
+      ></textarea>
+    </app-form-field>
+  </div>
+
+  <div class="form-separator"></div>
+
+  <div class="form-section">
+    <span class="h10 section-title">Organization Structure</span>
+
+    <app-form-field label="Reports to" fieldId="reportsTo">
+      <app-reports-to-field [node]="node" />
+    </app-form-field>
+  </div>
+}

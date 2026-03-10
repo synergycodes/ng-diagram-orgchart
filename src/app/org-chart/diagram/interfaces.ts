@@ -23,7 +23,7 @@ export enum OrgChartRole {
   ProductionCoordinator = 'Production Coordinator',
 }
 
-export interface OrgChartNodeData {
+export interface OrgChartNodeData extends Record<string, unknown> {
   fullName?: string;
   role?: OrgChartRole;
   description?: string;
@@ -35,6 +35,7 @@ export interface OrgChartNodeData {
   collapsedChildrenCount?: number;
   hasChildren?: boolean;
   isHidden?: boolean;
+  reportsTo?: string;
 }
 
 export interface OrgChartEdgeData {

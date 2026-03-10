@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: 48px 24px;
+  gap: 8px;
+}
+
+.wrapper {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  color: var(--ngd-txt-primary-default);
+  text-align: center;
+}
+
+.description {
+  color: var(--ngd-txt-primary-default);
+  text-align: center;
+}

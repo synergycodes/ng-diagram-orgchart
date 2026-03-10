@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { InitialsAvatarComponent } from '../../../../shared/initials-avatar/initials-avatar.component';
 
 @Component({
   selector: 'app-node-header',
+  imports: [InitialsAvatarComponent],
   templateUrl: './node-header.component.html',
   styleUrls: ['./node-header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,14 +15,5 @@ export class NodeHeaderComponent {
   color = input<string>();
   vacant = input(false);
 
-  initials = computed(() => {
-    const name = this.fullName();
-    if (!name) return '';
-    return name
-      .split(' ')
-      .map((word) => word[0])
-      .join('')
-      .toUpperCase();
-  });
   displayName = computed(() => (this.vacant() ? 'Vacant Position' : (this.fullName() ?? '')));
 }

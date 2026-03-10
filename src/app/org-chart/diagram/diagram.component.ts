@@ -10,7 +10,6 @@ import {
   NgDiagramNodeTemplateMap,
   NgDiagramService,
   NgDiagramViewportService,
-  provideNgDiagram,
   type Edge,
   type EdgeDrawnEvent,
   type NgDiagramConfig,
@@ -39,7 +38,7 @@ import { NodeComponent } from './node/node.component';
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNgDiagram(), LayoutService, DragStateService],
+  providers: [LayoutService, DragStateService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);

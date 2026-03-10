@@ -1,0 +1,35 @@
+<aside class="sidebar" [class.expanded]="sidebarExpanded()">
+  <div class="sidebar-header">
+    <span class="h7 sidebar-title">Properties</span>
+    <button
+      class="sidebar-toggle"
+      (click)="toggle()"
+      [attr.aria-expanded]="isExpanded()"
+      aria-label="Toggle properties panel"
+    >
+      <span class="icon icon-sidebar"></span>
+    </button>
+  </div>
+  <div class="sidebar-separator" [class.visible]="sidebarExpanded()"></div>
+  @if (isExpanded()) {
+    <div class="sidebar-content" animate.enter="sidebar-enter" animate.leave="sidebar-leave">
+      @switch (state()) {
+        @case ('empty') {
+          <app-sidebar-placeholder
+            title="No selection"
+            description="Select an employee card on the canvas to view their details."
+          />
+        }
+        @case ('multi') {
+          <app-sidebar-placeholder
+            title="Multiple items selected."
+            description="Please select a single node to view properties."
+          />
+        }
+        @case ('single') {
+          <app-sidebar-form />
+        }
+      }
+    </div>
+  }
+</aside>

@@ -1,0 +1,71 @@
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.section-title {
+  color: var(--ngd-txt-primary-default);
+}
+
+.form-separator {
+  height: 1px;
+  background: var(--ngd-ui-separator-primary-default);
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--ngd-input-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-input-m);
+  background: var(--ngd-ui-bg-primary-default);
+  color: var(--ngd-txt-primary-default);
+  outline: none;
+  transition: border-color 150ms ease;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: var(--ngd-txt-tertiary-default);
+  }
+
+  &:focus {
+    border-color: var(--ngd-input-stroke-primary-focus);
+  }
+}
+
+.form-select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 28px;
+}
+
+.select-wrapper {
+  position: relative;
+
+  select {
+    width: 100%;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 9px;
+    height: 5px;
+    background-color: var(--ngd-txt-secondary-default);
+    mask-image: url('/caret-down.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    pointer-events: none;
+  }
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}
