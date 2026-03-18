@@ -6,13 +6,6 @@
     </div>
   </div>
   <div class="right-wrap">
-    <div class="theme-toggle" (click)="toggleTheme()">
-      <div class="toggle-indicator" [class.active]="activeTheme() === 'light'">
-        <span class="icon icon-sun"></span>
-      </div>
-      <div class="toggle-indicator" [class.active]="activeTheme() === 'dark'">
-        <span class="icon icon-moon"></span>
-      </div>
-    </div>
+    <app-theme-toggle />
   </div>
 </nav>

@@ -1,10 +1,9 @@
 :host {
   display: block;
   position: absolute;
-  top: 16px;
-  left: 16px;
-  right: 16px;
-  z-index: 10;
+  top: var(--ngd-primitive-4rule-12); /* No Figma token */
+  left: var(--ngd-primitive-4rule-12); /* No Figma token */
+  right: var(--ngd-primitive-4rule-12); /* No Figma token */
 }
 
 .top-navbar {
@@ -25,7 +24,7 @@
 .menu-trigger {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--ngd-token-spacing-spacing-4); /* Wrong Token in Figma */
   background: none;
   border: none;
   padding: 0;
@@ -42,57 +41,12 @@
 
 .icon-caret-down {
   mask-image: url('/assets/caret-down.svg');
+  -webkit-mask-image: url('/assets/caret-down.svg');
   width: 9px;
   height: 5px;
-  opacity: 0.6;
-}
-
-.icon-sun {
-  mask-image: url('/assets/sun.svg');
-  width: 12px;
-  height: 12px;
-}
-
-.icon-moon {
-  mask-image: url('/assets/moon.svg');
-  width: 12px;
-  height: 12px;
 }
 
 .right-wrap {
   display: flex;
   align-items: center;
-}
-
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  background: var(--ngd-ui-bg-tertiary-default);
-  border-radius: var(--ngd-token-radius-button-round);
-  padding: var(--ngd-token-spacing-seg-picker-pad);
-  gap: var(--ngd-token-spacing-seg-picker-gap);
-  cursor: pointer;
-
-  .toggle-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: transparent;
-    transition: background 0.15s ease;
-
-    .icon {
-      transition: background-color 0.15s ease;
-    }
-
-    &.active {
-      background: var(--ngd-button-primary-bg-default);
-
-      .icon {
-        background-color: #fff;
-      }
-    }
-  }
 }

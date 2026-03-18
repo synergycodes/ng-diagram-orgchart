@@ -1,0 +1,14 @@
+@let theme = activeTheme();
+<button
+  class="theme-toggle"
+  type="button"
+  [attr.aria-label]="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+  (click)="toggleTheme()"
+>
+  <span class="toggle-indicator" [class.active]="theme === 'light'" aria-hidden="true">
+    <span class="icon icon-sun"></span>
+  </span>
+  <span class="toggle-indicator" [class.active]="theme === 'dark'" aria-hidden="true">
+    <span class="icon icon-moon"></span>
+  </span>
+</button>
