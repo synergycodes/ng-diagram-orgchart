@@ -1,0 +1,58 @@
+:host {
+  --icon-size: var(--ngd-primitive-4rule-12);
+}
+
+.icon {
+  display: inline-block;
+  background-color: var(--ngd-nav-button-icon-primary-default);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.icon-sun {
+  mask-image: url('/assets/sun.svg');
+  -webkit-mask-image: url('/assets/sun.svg');
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.icon-moon {
+  mask-image: url('/assets/moon.svg');
+  -webkit-mask-image: url('/assets/moon.svg');
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--ngd-ui-bg-tertiary-default); /* No Figma token */
+  border: none;
+  border-radius: var(--ngd-token-radius-button-round);
+  padding: var(--ngd-token-spacing-seg-picker-pad);
+  gap: var(--ngd-token-spacing-seg-picker-gap);
+  cursor: pointer;
+
+  .toggle-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--ngd-token-spacing-button-xxs-v-pad-2); /* No Figma token - wrong token */
+    border-radius: 50%;
+    background: transparent;
+    transition: background 0.15s ease;
+
+    .icon {
+      transition: background-color 0.15s ease;
+    }
+
+    &.active {
+      background: var(--ngd-button-primary-bg-default);
+
+      .icon {
+        background-color: var(--ngd-colors-gray-100);
+      }
+    }
+  }
+}

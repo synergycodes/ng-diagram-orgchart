@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
 import { LayoutDirectionService } from '../../layout-direction.service';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
+import { countAllDescendants } from './expand-collapse';
 import { performLayout } from './perform-layout';
 
 /**
@@ -78,6 +79,9 @@ export class LayoutService {
       this.modelService.updateNodeData(nodeId, {
         ...(node.data as OrgChartNodeData),
         isCollapsed: newCollapsed,
+        collapsedChildrenCount: newCollapsed
+          ? countAllDescendants(nodeId, this.modelService)
+          : undefined,
       });
 
       this.updateVisibility(subtreeIds, newCollapsed, !newCollapsed ? node.position : undefined);

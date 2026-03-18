@@ -1,45 +1,57 @@
 .add-btn {
+  --add-button-size: 24px; /* No Figma token */
+
   display: flex;
   position: absolute;
-  width: 19px;
-  height: 19px;
-  min-width: 19px;
+  width: var(--add-button-size);
+  height: var(--add-button-size);
+  min-width: var(--add-button-size);
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border-radius: 32px;
   border: none;
-  background: var(--ngd-nav-button-icon-primary-disabled);
-  color: var(--ngd-diagram-background-color);
-  font-size: 14px;
+  background: transparent;
+  padding: 0;
   opacity: var(--add-btn-opacity);
   pointer-events: var(--add-btn-pointer-events);
   transition: opacity 150ms ease;
 
-  &:hover {
-    background: var(--ngd-nav-button-icon-primary-default);
+  &:hover &__icon {
+    background-color: var(--ngd-nav-button-icon-primary-default);
   }
 
-  &:active {
-    background: var(--ngd-nav-button-icon-primary-pressed);
+  &:active &__icon {
+    background-color: var(--ngd-nav-button-icon-primary-pressed);
+  }
+
+  &__icon {
+    width: var(--add-button-size);
+    height: var(--add-button-size);
+    display: block;
+    background-color: var(--ngd-nav-button-icon-primary-disabled);
+    mask-image: url('/assets/plus-circle.svg');
+    -webkit-mask-image: url('/assets/plus-circle.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    transition: background-color 150ms ease;
   }
 
   &--left {
     top: 50%;
-    left: -15px;
+    left: calc(-1 * var(--add-button-size) / 2 - var(--ngd-token-spacing-top-navbar-v-pad));
     transform: translate(-50%, -50%);
   }
 
   &--right {
     top: 50%;
-    right: -15px;
+    right: calc(-1 * var(--add-button-size) / 2 - var(--ngd-token-spacing-top-navbar-v-pad));
     transform: translate(50%, -50%);
   }
 
   &--bottom {
-    bottom: -34px;
+    bottom: calc(-1 * var(--expand-button-size) - var(--ngd-token-spacing-top-navbar-v-pad));
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, 100%);
   }
 }
 

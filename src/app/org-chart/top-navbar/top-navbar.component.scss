@@ -16,12 +16,12 @@
 .menu-trigger {
   display: flex;
   align-items: center;
-  gap: 4px; /* No Figma token */
+  gap: var(--ngd-token-spacing-spacing-4); /* No Figma token - wrong Token */
   background: none;
   border: none;
-  cursor: pointer;
-  padding: var(--ngd-token-spacing-spacing-4, 4px); /* No Figma token - wrong token */
+  padding: 0;
   color: var(--ngd-nav-button-icon-primary-default);
+  cursor: pointer;
 }
 
 .icon {
@@ -32,59 +32,7 @@
   mask-position: center;
 }
 
-.icon-caret-down {
-  mask-image: url('/caret-down.svg');
-  width: 9px;
-  height: 5px;
-  opacity: 0.6;
-}
-
-.icon-sun {
-  mask-image: url('/sun.svg');
-  width: 12px;
-  height: 12px;
-}
-
-.icon-moon {
-  mask-image: url('/moon.svg');
-  width: 12px;
-  height: 12px;
-}
-
 .right-wrap {
   display: flex;
   align-items: center;
-}
-
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  background: var(--ngd-ui-bg-tertiary-default);
-  border-radius: var(--ngd-token-radius-button-round);
-  padding: var(--ngd-token-spacing-seg-picker-pad);
-  gap: var(--ngd-token-spacing-seg-picker-gap);
-  cursor: pointer;
-
-  .toggle-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: transparent;
-    transition: background 150ms ease;
-
-    .icon {
-      transition: background-color 150ms ease;
-    }
-
-    &.active {
-      background: var(--ngd-button-primary-bg-default);
-
-      .icon {
-        background-color: #fff;
-      }
-    }
-  }
 }

@@ -6,15 +6,9 @@
     border-color 150ms ease,
     box-shadow 150ms ease;
   padding: var(--ngd-token-spacing-node4-v-pad) var(--ngd-token-spacing-node4-h-pad);
-  min-width: 241px;
+  min-width: 241px; /* No Figma token */
   display: flex;
   flex-direction: column;
   gap: var(--ngd-token-spacing-node4-gap);
   box-shadow: var(--card-box-shadow);
-
-  :host-context(html[data-theme='dark']) & {
-    border-radius: var(--ngd-token-radius-node4-head);
-    border: 1px var(--card-border-style) var(--card-border-color);
-    background: var(--ngd-node-bg-secondary-default);
-  }
 }

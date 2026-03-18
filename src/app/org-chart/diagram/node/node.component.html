@@ -24,6 +24,7 @@
 @if (node().data.hasChildren) {
   <app-toggle-expand-button
     [isCollapsed]="!!node().data.isCollapsed"
+    [collapsedChildrenCount]="node().data.collapsedChildrenCount"
     (toggle)="onToggle($event)"
   />
 }
