@@ -1,34 +1,52 @@
-import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  forwardRef,
+  inject,
+  input,
+} from '@angular/core';
+import { FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule, type ControlValueAccessor } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgDiagramModelService, type Node } from 'ng-diagram';
 import { type OrgChartNodeData } from '../../../diagram/interfaces';
-import { PropertiesSidebarService } from '../../properties-sidebar.service';
 import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
+import {
+  SelectDropdownComponent,
+  type SelectDropdownOption,
+} from '../../../shared/select-dropdown/select-dropdown.component';
+import { SelectDropdownOptionDef, SelectDropdownNullOptionDef } from '../../../shared/select-dropdown/select-dropdown-option.directive';
 
 @Component({
   selector: 'app-reports-to-field',
-  imports: [InitialsAvatarComponent],
+  imports: [
+    ReactiveFormsModule,
+    SelectDropdownComponent,
+    SelectDropdownOptionDef,
+    SelectDropdownNullOptionDef,
+    InitialsAvatarComponent,
+  ],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ReportsToFieldComponent),
+      multi: true,
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './reports-to-field.component.html',
   styleUrl: './reports-to-field.component.scss',
-  host: {
-    '(document:click)': 'onDocumentClick($event)',
-  },
 })
-export class ReportsToFieldComponent {
-  private readonly sidebarService = inject(PropertiesSidebarService);
+export class ReportsToFieldComponent implements ControlValueAccessor {
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly elRef = inject(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   node = input.required<Node<OrgChartNodeData>>();
 
-  protected readonly isOpen = signal(false);
+  protected readonly innerControl = new FormControl<string | null>(null);
 
-  protected readonly parentNodeId = computed(() => {
-    const data = this.node().data as OrgChartNodeData;
-    return data.reportsTo ?? null;
-  });
-
-  protected readonly candidates = computed(() => {
+  protected readonly candidates = computed<SelectDropdownOption<string>[]>(() => {
     const currentNode = this.node();
     const nodes = this.modelService.nodes();
 
@@ -37,36 +55,26 @@ export class ReportsToFieldComponent {
       .map((n) => {
         const data = n.data as OrgChartNodeData;
         return {
-          id: n.id,
-          name: data.fullName!,
-          color: data.color ?? '#999',
+          value: n.id,
+          label: data.fullName!,
+          data: { color: data.color ?? '#999' },
         };
       });
   });
 
-  protected readonly selectedCandidate = computed(() => {
-    const parentId = this.parentNodeId();
-    if (!parentId) return null;
-    return this.candidates().find((c) => c.id === parentId) ?? null;
-  });
+  private onChange: (value: string | null) => void = () => {};
+  private onTouched: () => void = () => {};
 
-  onDocumentClick(event: MouseEvent): void {
-    if (!this.elRef.nativeElement.contains(event.target)) {
-      this.isOpen.set(false);
-    }
+  writeValue(val: string | null): void {
+    this.innerControl.setValue(val, { emitEvent: false });
   }
 
-  protected toggleOpen(): void {
-    this.isOpen.update((v) => !v);
+  registerOnChange(fn: (value: string | null) => void): void {
+    this.onChange = fn;
+    this.innerControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(fn);
   }
 
-  protected onSelect(newParentId: string | null): void {
-    this.isOpen.set(false);
-    const node = this.node();
-    const currentData = node.data as OrgChartNodeData;
-    this.sidebarService.updateNodeData(node.id, {
-      ...currentData,
-      reportsTo: newParentId ?? undefined,
-    });
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
   }
 }

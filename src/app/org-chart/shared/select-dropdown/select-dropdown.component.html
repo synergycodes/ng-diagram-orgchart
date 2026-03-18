@@ -1,0 +1,61 @@
+<div class="dropdown">
+  <button
+    class="dropdown-trigger p10"
+    type="button"
+    role="combobox"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    (click)="toggleOpen()"
+  >
+    @if (selectedOption(); as opt) {
+      @if (optionTpl(); as tpl) {
+        <ng-container *ngTemplateOutlet="tpl.templateRef; context: { $implicit: opt }" />
+      } @else {
+        <span class="option-label">{{ opt.label }}</span>
+      }
+    } @else {
+      @if (nullOptionTpl(); as tpl) {
+        <ng-container *ngTemplateOutlet="tpl.templateRef" />
+      } @else {
+        <span class="option-label placeholder">{{ placeholder() }}</span>
+      }
+    }
+    <span class="caret-icon"></span>
+  </button>
+
+  @if (isOpen()) {
+    <div class="dropdown-panel" role="listbox">
+      <button
+        class="dropdown-option p10"
+        type="button"
+        role="option"
+        [attr.aria-selected]="value() == null"
+        [class.selected]="value() == null"
+        (click)="select(null)"
+      >
+        @if (nullOptionTpl(); as tpl) {
+          <ng-container *ngTemplateOutlet="tpl.templateRef" />
+        } @else {
+          <span class="option-label placeholder">{{ placeholder() }}</span>
+        }
+      </button>
+
+      @for (opt of options(); track opt.value) {
+        <button
+          class="dropdown-option p10"
+          type="button"
+          role="option"
+          [class.selected]="opt.value === value()"
+          [attr.aria-selected]="opt.value === value()"
+          (click)="select(opt)"
+        >
+          @if (optionTpl(); as tpl) {
+            <ng-container *ngTemplateOutlet="tpl.templateRef; context: { $implicit: opt }" />
+          } @else {
+            <span class="option-label">{{ opt.label }}</span>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

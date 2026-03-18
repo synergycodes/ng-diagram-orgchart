@@ -12,10 +12,14 @@ import { OrgChartRole, type OrgChartNodeData } from '../../../diagram/interfaces
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
+import {
+  SelectDropdownComponent,
+  type SelectDropdownOption,
+} from '../../../shared/select-dropdown/select-dropdown.component';
 
 @Component({
   selector: 'app-sidebar-form',
-  imports: [ReactiveFormsModule, FormFieldComponent, ReportsToFieldComponent],
+  imports: [ReactiveFormsModule, FormFieldComponent, ReportsToFieldComponent, SelectDropdownComponent],
   templateUrl: './sidebar-form.component.html',
   styleUrl: './sidebar-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,12 +30,16 @@ export class SidebarFormComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly selectedNode = this.sidebarService.selectedNode;
-  protected readonly roles = Object.values(OrgChartRole);
+
+  protected readonly roleOptions: SelectDropdownOption<OrgChartRole>[] = Object.values(OrgChartRole).map(
+    (role) => ({ value: role, label: role }),
+  );
 
   protected readonly form = new FormGroup({
     fullName: new FormControl('', { nonNullable: true }),
-    role: new FormControl<OrgChartRole | ''>('', { nonNullable: true }),
+    role: new FormControl<OrgChartRole | null>(null),
     description: new FormControl('', { nonNullable: true }),
+    reportsTo: new FormControl<string | null>(null),
   });
 
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -50,8 +58,9 @@ export class SidebarFormComponent {
           this.form.patchValue(
             {
               fullName: data.fullName ?? '',
-              role: data.role ?? '',
+              role: data.role ?? null,
               description: data.description ?? '',
+              reportsTo: data.reportsTo ?? null,
             },
             { emitEvent: false },
           );
@@ -99,8 +108,9 @@ export class SidebarFormComponent {
     this.sidebarService.updateNodeData(nodeId, {
       ...currentData,
       fullName: formValue.fullName || undefined,
-      role: (formValue.role as OrgChartRole) || undefined,
+      role: formValue.role ?? undefined,
       description: formValue.description || undefined,
+      reportsTo: formValue.reportsTo ?? undefined,
     });
   }
 }

@@ -1,31 +1,10 @@
-<div class="dropdown">
-  <button class="dropdown-trigger" (click)="toggleOpen()" type="button">
-    @if (selectedCandidate(); as parent) {
-      <app-initials-avatar [fullName]="parent.name" [color]="parent.color" size="sm" />
-      <span class="candidate-name">{{ parent.name }}</span>
-    } @else {
-      <app-initials-avatar size="sm" />
-      <span class="candidate-name placeholder">None</span>
-    }
-    <span class="caret-icon"></span>
-  </button>
-
-  @if (isOpen()) {
-    <div class="dropdown-panel">
-      <button class="dropdown-option" (click)="onSelect(null)">
-        <app-initials-avatar size="sm" />
-        <span class="candidate-name placeholder">None</span>
-      </button>
-      @for (candidate of candidates(); track candidate.id) {
-        <button
-          class="dropdown-option"
-          [class.selected]="candidate.id === parentNodeId()"
-          (click)="onSelect(candidate.id)"
-        >
-          <app-initials-avatar [fullName]="candidate.name" [color]="candidate.color" size="sm" />
-          <span class="candidate-name">{{ candidate.name }}</span>
-        </button>
-      }
-    </div>
-  }
-</div>
+<app-select-dropdown [formControl]="innerControl" [options]="candidates()" placeholder="None">
+  <ng-template appSelectNullOption>
+    <app-initials-avatar size="sm" />
+    <span class="option-label placeholder">None</span>
+  </ng-template>
+  <ng-template appSelectOption let-option>
+    <app-initials-avatar [fullName]="option.label" [color]="option.data.color" size="sm" />
+    <span class="option-label">{{ option.label }}</span>
+  </ng-template>
+</app-select-dropdown>
