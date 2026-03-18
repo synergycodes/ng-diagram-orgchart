@@ -27,7 +27,7 @@
 .theme-toggle {
   display: flex;
   align-items: center;
-  background: var(--ngd-ui-bg-tertiary-default); /* No separate token in Figma*/
+  background: var(--ngd-ui-bg-tertiary-default); /* No Figma token */
   border: none;
   border-radius: var(--ngd-token-radius-button-round);
   padding: var(--ngd-token-spacing-seg-picker-pad);
@@ -38,7 +38,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--ngd-token-spacing-button-xxs-v-pad-2); /* Wrong token in Figma */
+    padding: var(--ngd-token-spacing-button-xxs-v-pad-2); /* No Figma token - wrong token */
     border-radius: 50%;
     background: transparent;
     transition: background 0.15s ease;

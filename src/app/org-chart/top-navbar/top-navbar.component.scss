@@ -24,11 +24,12 @@
 .menu-trigger {
   display: flex;
   align-items: center;
-  gap: var(--ngd-token-spacing-spacing-4); /* Wrong Token in Figma */
+  gap: var(--ngd-token-spacing-spacing-4); /* No Figma token - wrong Token */
   background: none;
   border: none;
   padding: 0;
   color: var(--ngd-nav-button-icon-primary-default);
+  cursor: pointer;
 }
 
 .icon {
@@ -37,13 +38,6 @@
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: center;
-}
-
-.icon-caret-down {
-  mask-image: url('/assets/caret-down.svg');
-  -webkit-mask-image: url('/assets/caret-down.svg');
-  width: 9px;
-  height: 5px;
 }
 
 .right-wrap {
