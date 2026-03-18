@@ -13,7 +13,6 @@ const carlosMartinezId = '0000-000000000008';
 const thomasGreenId = '0000-000000000009';
 const vacantMaintenanceTechId = '0000-00000000000a';
 const patriciaMooreId = '0000-00000000000b';
-const robertKimId = '0000-00000000000c';
 
 // Edge IDs
 const edgeTwScId = '0001-000000000001';
@@ -26,7 +25,6 @@ const edgeMtCmId = '0001-000000000007';
 const edgeJrTgId = '0001-000000000008';
 const edgeJrVmId = '0001-000000000009';
 const edgeEwPmId = '0001-00000000000a';
-const edgeDpRkId = '0001-00000000000b';
 
 export const diagramModel: {
   nodes: Node<OrgChartNodeData>[];
@@ -44,6 +42,7 @@ export const diagramModel: {
         reports: 4,
         span: 1230,
         shiftCapacity: 70,
+        color: '#AF3',
         isCollapsed: false,
         hasChildren: true,
       },
@@ -59,6 +58,7 @@ export const diagramModel: {
         reports: 2,
         span: 410,
         shiftCapacity: 85,
+        color: '#3AB0F6',
         isCollapsed: false,
         hasChildren: true,
       },
@@ -76,6 +76,7 @@ export const diagramModel: {
         shiftCapacity: 60,
         isCollapsed: false,
         hasChildren: true,
+        color: '#EB8147',
       },
     },
     {
@@ -89,6 +90,7 @@ export const diagramModel: {
         reports: 2,
         span: 320,
         shiftCapacity: 45,
+        color: '#EB8147',
         isCollapsed: false,
         hasChildren: true,
       },
@@ -104,6 +106,7 @@ export const diagramModel: {
         reports: 1,
         span: 150,
         shiftCapacity: 90,
+        color: '#A977FF',
         isCollapsed: false,
         hasChildren: true,
       },
@@ -119,6 +122,7 @@ export const diagramModel: {
         reports: 0,
         span: 0,
         shiftCapacity: 75,
+        color: '#3AB0F6',
       },
     },
     {
@@ -132,8 +136,8 @@ export const diagramModel: {
         reports: 1,
         span: 120,
         shiftCapacity: 55,
+        color: '#3AB0F6',
         isCollapsed: false,
-        hasChildren: true,
       },
     },
     {
@@ -147,6 +151,7 @@ export const diagramModel: {
         reports: 0,
         span: 0,
         shiftCapacity: 65,
+        color: '#EB8147',
       },
     },
     {
@@ -160,6 +165,7 @@ export const diagramModel: {
         reports: 0,
         span: 0,
         shiftCapacity: 80,
+        color: '#EB8147',
       },
     },
     {
@@ -185,19 +191,7 @@ export const diagramModel: {
         reports: 0,
         span: 0,
         shiftCapacity: 50,
-      },
-    },
-    {
-      id: robertKimId,
-      position: { x: 0, y: 0 },
-      type: 'orgChartNode',
-      data: {
-        fullName: 'Robert Kim',
-        role: OrgChartRole.ProductionCoordinator,
-        description: '',
-        reports: 0,
-        span: 0,
-        shiftCapacity: 40,
+        color: '#A977FF',
       },
     },
   ],
@@ -288,15 +282,6 @@ export const diagramModel: {
       source: emilyWatsonId,
       sourcePort: 'port-bottom',
       target: patriciaMooreId,
-      targetPort: 'port-top',
-      type: 'orgChartEdge',
-      data: {},
-    },
-    {
-      id: edgeDpRkId,
-      source: dianaPatelId,
-      sourcePort: 'port-bottom',
-      target: robertKimId,
       targetPort: 'port-top',
       type: 'orgChartEdge',
       data: {},

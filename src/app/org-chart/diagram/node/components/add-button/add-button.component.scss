@@ -1,0 +1,55 @@
+.add-btn {
+  --add-button-size: 24px; /* No Figma token */
+
+  display: flex;
+  position: absolute;
+  width: var(--add-button-size);
+  height: var(--add-button-size);
+  min-width: var(--add-button-size);
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  opacity: var(--add-btn-opacity);
+  pointer-events: var(--add-btn-pointer-events);
+  transition: opacity 150ms ease;
+
+  &:hover &__icon {
+    background-color: var(--ngd-nav-button-icon-primary-default);
+  }
+
+  &:active &__icon {
+    background-color: var(--ngd-nav-button-icon-primary-pressed);
+  }
+
+  &__icon {
+    width: var(--add-button-size);
+    height: var(--add-button-size);
+    display: block;
+    background-color: var(--ngd-nav-button-icon-primary-disabled);
+    mask-image: url('/assets/plus-circle.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    transition: background-color 150ms ease;
+  }
+
+  &--left {
+    top: 50%;
+    left: calc(-1 * var(--add-button-size) / 2 - var(--ngd-token-spacing-top-navbar-v-pad));
+    transform: translate(-50%, -50%);
+  }
+
+  &--right {
+    top: 50%;
+    right: calc(-1 * var(--add-button-size) / 2 - var(--ngd-token-spacing-top-navbar-v-pad));
+    transform: translate(50%, -50%);
+  }
+
+  &--bottom {
+    bottom: calc(-1 * var(--expand-button-size) - var(--ngd-token-spacing-top-navbar-v-pad));
+    left: 50%;
+    transform: translate(-50%, 100%);
+  }
+}

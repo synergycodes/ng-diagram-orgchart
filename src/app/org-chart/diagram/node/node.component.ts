@@ -1,45 +1,88 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import {
-  NgDiagramBaseNodeTemplateComponent,
   NgDiagramPortComponent,
+  NgDiagramViewportService,
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
+import { DragStateService } from '../drag-state.service';
+import { isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
+import { AddButtonComponent } from './components/add-button/add-button.component';
+import { CompactNodeComponent } from './components/compact-node/compact-node.component';
+import { FullNodeComponent } from './components/full-node/full-node.component';
+import { VacantNodeComponent } from './components/vacant-node/vacant-node.component';
+import { ToggleExpandButtonComponent } from './components/toggle-expand-button/toggle-expand-button.component';
+
+type NodeVariant = 'vacant' | 'compact' | 'full';
 
 /**
  * Custom org-chart node template.
  *
- * Renders a labeled node with top/bottom ports for edge connections.
- * When the node has children (`hasChildren` flag), a toggle button is
- * shown to expand or collapse the subtree. Hidden nodes (children of a
- * collapsed parent) are made invisible via host bindings.
+ * Renders one of three visual variants depending on vacancy and zoom level:
+ * - **vacant** – no `fullName` set; shows a placeholder card.
+ * - **compact** – zoom < 100%; header only, no stats/capacity.
+ * - **full** – zoom >= 100%; complete card with stats and capacity bar.
+ *
+ * Expand/collapse button and connection ports are identical for all variants.
  */
 @Component({
-  imports: [NgDiagramPortComponent, NgDiagramBaseNodeTemplateComponent],
+  imports: [
+    NgDiagramPortComponent,
+    VacantNodeComponent,
+    CompactNodeComponent,
+    FullNodeComponent,
+    ToggleExpandButtonComponent,
+    AddButtonComponent,
+  ],
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class.ng-diagram-port-hoverable-over-node]': 'true',
-    // Hide nodes whose parent is collapsed.
-    // Important: ng-diagram does not work correctly with display: none —
-    // it breaks internal measurements. Use visibility: hidden instead.
-    // A proper fix is incoming.
+    '[class.variant-vacant]': 'variant() === "vacant"',
+    '[class.variant-compact]': 'variant() === "compact"',
+    '[class.variant-full]': 'variant() === "full"',
+    '[class.selected]': 'node().selected',
     '[style.visibility]': 'node().data.isHidden ? "hidden" : null',
     '[style.pointer-events]': 'node().data.isHidden ? "none" : null',
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly layoutService = inject(LayoutService);
+  private readonly viewportService = inject(NgDiagramViewportService);
+  private readonly dragStateService = inject(DragStateService);
 
   node = input.required<Node<OrgChartNodeData>>();
 
+  showDropIndicators = computed(
+    () =>
+      this.dragStateService.isDragging() && !this.dragStateService.isNodeDragged(this.node().id),
+  );
+
+  showAddButtons = computed(() => !this.dragStateService.isDragging());
+
+  variant = computed<NodeVariant>(() => {
+    if (isVacantNode(this.node().data)) return 'vacant';
+    return this.viewportService.scale() < 1 ? 'compact' : 'full';
+  });
+
   /** Toggle the collapsed state of this node's subtree and re-layout. */
   async onToggle(event: MouseEvent): Promise<void> {
-    // Prevent the click from also selecting/dragging the node.
     event.stopPropagation();
     await this.layoutService.toggleCollapsed(this.node().id);
+  }
+
+  onAddLeft(event: MouseEvent): void {
+    event.stopPropagation();
+  }
+
+  onAddRight(event: MouseEvent): void {
+    event.stopPropagation();
+  }
+
+  onAddBottom(event: MouseEvent): void {
+    event.stopPropagation();
   }
 }

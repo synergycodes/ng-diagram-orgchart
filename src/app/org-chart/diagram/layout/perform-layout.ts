@@ -7,7 +7,7 @@ const elk = new ELK();
 const layoutOptions = {
   'elk.algorithm': 'mrtree',
   'elk.direction': 'DOWN',
-  'spacing.nodeNode': '80',
+  'spacing.nodeNode': '140',
 };
 
 /**
@@ -18,11 +18,16 @@ const layoutOptions = {
  * positions.
  */
 export async function performLayout(nodes: Node[], edges: Edge[]) {
-  // Convert ng-diagram nodes to ELK format (only id + size are needed).
+  // Use the largest measured node size so all nodes occupy the same
+  // bounding box in the layout.
+  const MAX_WIDTH = 267;
+  const MAX_HEIGHT = 247;
+
   const nodesToLayout = nodes.map(
-    ({ id: nodeId, size }): ElkNode => ({
+    ({ id: nodeId }): ElkNode => ({
       id: nodeId,
-      ...size,
+      width: MAX_WIDTH,
+      height: MAX_HEIGHT,
     }),
   );
 

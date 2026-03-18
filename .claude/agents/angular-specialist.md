@@ -59,3 +59,8 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+## Styling preferences
+
+- Do not include CSS variable fallbacks. Always go with e.g. `var(--variable-name)` instead of `var(--variable-name, #fff)`
+- Always use existing typography classes from `typography.css` (e.g. `.h9`, `.p11`) instead of writing manual font-size/line-height/font-weight styles, and only write custom typography styles when no matching class exists.

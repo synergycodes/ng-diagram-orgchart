@@ -1,0 +1,82 @@
+.node {
+  background: var(--ngd-node-bg-primary-default);
+  border: 1px var(--card-border-style) var(--card-border-color);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+  border-radius: var(--ngd-token-radius-node4-head);
+  padding: var(--ngd-token-spacing-node4-v-pad) var(--ngd-token-spacing-node4-h-pad);
+  min-width: 241px; /* No Figma token */
+  display: flex;
+  flex-direction: column;
+  gap: var(--ngd-token-spacing-node4-gap);
+  box-shadow: var(--card-box-shadow);
+}
+
+.cards {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ngd-token-spacing-node4-gap);
+
+  .card {
+    display: flex;
+    padding: var(--ngd-token-spacing-node-head-v-pad); /* No Figma token */
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    flex: 1 0 0;
+    border-radius: var(--ngd-token-radius-node-head-icon); /* No Figma token */
+    background: var(--ngd-ui-bg-secondary-default);
+  }
+}
+
+.stat-label {
+  color: var(--ngd-txt-secondary-default);
+  text-transform: uppercase;
+  display: flex;
+  padding-bottom: var(--ngd-token-spacing-spacing-4); /* No Figma token */
+  align-items: center;
+}
+
+.stat-value {
+  color: var(--ngd-txt-primary-default);
+}
+
+.capacity-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(
+    --ngd-token-spacing-progressbar-gap
+  ); /* Wrong token in Figma. --ngd-token-spacing-progressbar-gap */
+}
+
+.capacity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.capacity-label {
+  color: var(--ngd-txt-tertiary-default);
+}
+
+.capacity-value {
+  color: var(--ngd-txt-tertiary-default);
+  text-align: right;
+}
+
+.capacity-bar {
+  display: flex;
+  height: 7px; /* No Figma token */
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  border-radius: var(--ngd-token-radius-progressbar);
+  background: var(--ngd-colors-gray-650); /* No Figma token */
+  overflow: hidden;
+}
+
+.capacity-fill {
+  height: 100%;
+  background: var(--node-accent, var(--ngd-colors-acc8-400)); /* No Figma token for default value */
+}
