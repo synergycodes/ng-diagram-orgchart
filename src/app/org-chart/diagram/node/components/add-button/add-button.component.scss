@@ -30,6 +30,7 @@
     display: block;
     background-color: var(--ngd-nav-button-icon-primary-disabled);
     mask-image: url('/assets/plus-circle.svg');
+    -webkit-mask-image: url('/assets/plus-circle.svg');
     mask-size: contain;
     mask-repeat: no-repeat;
     transition: background-color 150ms ease;

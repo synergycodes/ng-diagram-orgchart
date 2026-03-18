@@ -9,4 +9,12 @@
   &.ready {
     visibility: visible;
   }
+
+  // TODO: change to use panel position when this will be available in ng-diagram lib (https://github.com/synergycodes/ng-diagram/issues/621)
+  ::ng-deep ng-diagram-watermark {
+    top: auto !important;
+    right: auto !important;
+    bottom: 10px;
+    left: 10px;
+  }
 }

@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  position: absolute;
+  top: var(--ngd-primitive-4rule-12); /* No Figma token */
+  left: var(--ngd-primitive-4rule-12); /* No Figma token */
+  right: var(--ngd-primitive-4rule-12); /* No Figma token */
+}
+
+.top-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--ngd-ui-bg-primary-default);
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-element-16);
+  padding: var(--ngd-token-spacing-top-navbar-v-pad) var(--ngd-token-spacing-top-navbar-h-pad);
+}
+
+.left-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--ngd-token-spacing-spacing-4); /* No Figma token - wrong Token */
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ngd-nav-button-icon-primary-default);
+  cursor: pointer;
+}
+
+.icon {
+  display: inline-block;
+  background-color: var(--ngd-nav-button-icon-primary-default);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.right-wrap {
+  display: flex;
+  align-items: center;
+}

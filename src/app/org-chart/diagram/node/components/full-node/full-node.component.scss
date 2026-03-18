@@ -47,7 +47,7 @@
   flex-direction: column;
   gap: var(
     --ngd-token-spacing-progressbar-gap
-  ); /* Wrong token in Figma. --ngd-token-spacing-progressbar-gap */
+  ); /* No Figma token - wrong token --ngd-token-spacing-progressbar-gap */
 }
 
 .capacity-header {
@@ -78,5 +78,5 @@
 
 .capacity-fill {
   height: 100%;
-  background: var(--node-accent, var(--ngd-colors-acc8-400)); /* No Figma token for default value */
+  background: var(--node-accent, var(--ngd-colors-acc8-400)); /* No Figma token - default value */
 }
