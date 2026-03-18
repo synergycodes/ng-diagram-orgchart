@@ -9,6 +9,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 })
 export class ToggleExpandButtonComponent {
   isCollapsed = input.required<boolean>();
+  collapsedChildrenCount = input<number>();
   toggle = output<MouseEvent>();
 
   onToggle(event: MouseEvent): void {
