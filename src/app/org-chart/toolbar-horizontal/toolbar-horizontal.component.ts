@@ -8,8 +8,16 @@ import { LayoutDirectionService } from '../layout-direction.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolbarHorizontalComponent {
-  protected readonly layoutDirectionService = inject(LayoutDirectionService);
+  private readonly layoutDirectionService = inject(LayoutDirectionService);
 
   protected readonly isDown = computed(() => this.layoutDirectionService.direction() === 'DOWN');
   protected readonly isRight = computed(() => this.layoutDirectionService.direction() === 'RIGHT');
+
+  protected setVerticalLayout(): void {
+    this.layoutDirectionService.setDirection('DOWN');
+  }
+
+  protected setHorizontalLayout(): void {
+    this.layoutDirectionService.setDirection('RIGHT');
+  }
 }

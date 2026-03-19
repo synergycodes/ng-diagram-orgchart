@@ -5,7 +5,7 @@
     [class.active]="isDown()"
     [attr.aria-pressed]="isDown()"
     aria-label="Vertical layout"
-    (click)="layoutDirectionService.setDirection('DOWN')"
+    (click)="setVerticalLayout()"
   >
     <span class="icon icon-vertical" aria-hidden="true"></span>
   </button>
@@ -15,7 +15,7 @@
     [class.active]="isRight()"
     [attr.aria-pressed]="isRight()"
     aria-label="Horizontal layout"
-    (click)="layoutDirectionService.setDirection('RIGHT')"
+    (click)="setHorizontalLayout()"
   >
     <span class="icon icon-horizontal" aria-hidden="true"></span>
   </button>
