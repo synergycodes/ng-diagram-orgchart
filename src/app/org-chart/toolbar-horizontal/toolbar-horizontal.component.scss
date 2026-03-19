@@ -38,9 +38,10 @@
 }
 
 .icon {
+  --icon-size: var(--ngd-primitive-even-20);
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: var(--icon-size);
+  height: var(--icon-size);
   background-color: var(--ngd-nav-button-icon-primary-default);
   mask-size: contain;
   mask-repeat: no-repeat;
@@ -49,8 +50,10 @@
 
 .icon-vertical {
   mask-image: url('/assets/network.svg');
+  -webkit-mask-image: url('/assets/network.svg');
 }
 
 .icon-horizontal {
   mask-image: url('/assets/tree-structure.svg');
+  -webkit-mask-image: url('/assets/tree-structure.svg');
 }

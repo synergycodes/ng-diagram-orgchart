@@ -66,12 +66,14 @@ export class DiagramComponent {
       untracked(() => {
         if (!this.isLayoutReady()) return;
 
-        this.diagramService.transaction(
-          async () => {
-            await this.layoutService.applyLayout();
-          },
-          { waitForMeasurements: true },
-        );
+        this.diagramService
+          .transaction(
+            async () => {
+              await this.layoutService.applyLayout();
+            },
+            { waitForMeasurements: true },
+          )
+          .catch(console.error);
       });
     });
   }

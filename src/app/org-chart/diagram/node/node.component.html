@@ -48,9 +48,9 @@
 
 <!-- Connection ports: incoming edge port and outgoing edge port. -->
 @if (isHorizontal()) {
-  <ng-diagram-port id="port-top" type="both" side="left" />
-  <ng-diagram-port id="port-bottom" type="both" side="right" />
+  <ng-diagram-port id="port-in" type="both" side="left" />
+  <ng-diagram-port id="port-out" type="both" side="right" />
 } @else {
-  <ng-diagram-port id="port-top" type="both" side="top" />
-  <ng-diagram-port id="port-bottom" type="both" side="bottom" />
+  <ng-diagram-port id="port-in" type="both" side="top" />
+  <ng-diagram-port id="port-out" type="both" side="bottom" />
 }

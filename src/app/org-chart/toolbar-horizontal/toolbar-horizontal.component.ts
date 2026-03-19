@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { LayoutDirectionService } from '../layout-direction.service';
 
 @Component({
@@ -9,4 +9,7 @@ import { LayoutDirectionService } from '../layout-direction.service';
 })
 export class ToolbarHorizontalComponent {
   protected readonly layoutDirectionService = inject(LayoutDirectionService);
+
+  protected readonly isDown = computed(() => this.layoutDirectionService.direction() === 'DOWN');
+  protected readonly isRight = computed(() => this.layoutDirectionService.direction() === 'RIGHT');
 }

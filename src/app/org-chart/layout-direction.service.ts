@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class LayoutDirectionService {
   readonly direction = signal<'DOWN' | 'RIGHT'>('DOWN');
 

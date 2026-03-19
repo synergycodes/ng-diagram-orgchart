@@ -31,7 +31,7 @@
 :host-context(.layout-horizontal) .toggle-btn {
   bottom: auto;
   left: auto;
-  right: -0.75rem;
+  right: var(--ngd-primitive-even-negative--12); /* No Figma token */
   top: 50%;
   transform: translateY(-50%);
 }
