@@ -65,31 +65,37 @@
     opacity: 0.6;
   }
 
+  --drop-indicator-height: 6px; /* No Figma token */
+  --drop-indicator-small-width: 48px; /* No Figma token */
+  --drop-indicator-big-width: 180px; /* No Figma token */
+  --drop-indicator-horizontal-padding: var(--ngd-primitive-even-negative--12); /* No Figma token */
+  --drop-indicator-vertical-padding: calc(-1 * var(--ngd-primitive-4rule-28)); /* No Figma token */
+
   &--left {
-    width: 6px; /* No Figma token */
-    height: 48px; /* No Figma token */
+    width: var(--drop-indicator-height);
+    height: var(--drop-indicator-small-width);
     top: 50%;
-    left: var(--ngd-primitive-even-negative--12); /* No Figma token */
+    left: var(--drop-indicator-horizontal-padding);
     transform: translate(-50%, -50%);
   }
 
   &--right {
-    width: 6px;
-    height: 48px;
+    width: var(--drop-indicator-height);
+    height: var(--drop-indicator-small-width);
     top: 50%;
-    right: var(--ngd-primitive-even-negative--12); /* No Figma token */
+    right: var(--drop-indicator-horizontal-padding);
     transform: translate(50%, -50%);
   }
 
   &--bottom {
-    width: 180px; /* No Figma token */
-    height: 6px; /* No Figma token */
-    bottom: calc(-1 * var(--ngd-primitive-4rule-28)); /* No Figma token */
+    width: var(--drop-indicator-big-width);
+    height: var(--drop-indicator-height);
+    bottom: var(--drop-indicator-vertical-padding);
     left: 50%;
     transform: translateX(-50%);
 
     &.drop-indicator--no-toggle {
-      bottom: var(--ngd-primitive-even-negative--12); /* No Figma token */
+      bottom: var(--drop-indicator-horizontal-padding);
     }
   }
 }
