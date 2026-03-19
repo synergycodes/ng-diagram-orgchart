@@ -24,6 +24,8 @@ export class PropertiesSidebarComponent {
   private readonly formRef = viewChild(SidebarFormComponent);
   private readonly isCollapsing = signal(false);
   private collapseTimeout: ReturnType<typeof setTimeout> | null = null;
+  protected readonly shouldAnimatePlaceholder = signal(false);
+  private expandTimeout: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly isExpanded = this.sidebarService.isExpanded;
   protected readonly sidebarExpanded = computed(() => this.isExpanded() || this.isCollapsing());
@@ -33,6 +35,9 @@ export class PropertiesSidebarComponent {
     this.destroyRef.onDestroy(() => {
       if (this.collapseTimeout) {
         clearTimeout(this.collapseTimeout);
+      }
+      if (this.expandTimeout) {
+        clearTimeout(this.expandTimeout);
       }
     });
   }
@@ -44,7 +49,9 @@ export class PropertiesSidebarComponent {
       this.sidebarService.toggle();
       this.collapseTimeout = setTimeout(() => this.isCollapsing.set(false), 200);
     } else {
+      this.shouldAnimatePlaceholder.set(true);
       this.sidebarService.toggle();
+      this.expandTimeout = setTimeout(() => this.shouldAnimatePlaceholder.set(false), 350);
     }
   }
 }

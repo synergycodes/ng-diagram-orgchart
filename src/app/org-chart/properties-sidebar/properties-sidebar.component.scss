@@ -83,7 +83,29 @@
 
 .sidebar-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
+}
+
+.placeholder-wrapper {
+  flex: 1;
+  display: flex;
+}
+
+.placeholder-enter {
+  animation: placeholder-enter 200ms ease 150ms both;
+}
+
+@keyframes placeholder-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .sidebar-enter {

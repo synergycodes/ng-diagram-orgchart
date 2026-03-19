@@ -13,22 +13,22 @@
   <div class="sidebar-separator" [class.visible]="sidebarExpanded()"></div>
   @if (isExpanded()) {
     <div class="sidebar-content" animate.enter="sidebar-enter" animate.leave="sidebar-leave">
-      @switch (state()) {
-        @case ('empty') {
-          <app-sidebar-placeholder
-            title="No selection"
-            description="Select an employee card on the canvas to view their details."
-          />
-        }
-        @case ('multi') {
-          <app-sidebar-placeholder
-            title="Multiple items selected."
-            description="Please select a single node to view properties."
-          />
-        }
-        @case ('single') {
-          <app-sidebar-form />
-        }
+      @if (state() === 'single') {
+        <app-sidebar-form />
+      } @else {
+        <div class="placeholder-wrapper" [class.placeholder-enter]="shouldAnimatePlaceholder()">
+          @if (state() === 'empty') {
+            <app-sidebar-placeholder
+              title="No selection"
+              description="Select an employee card on the canvas to view their details."
+            />
+          } @else {
+            <app-sidebar-placeholder
+              title="Multiple items selected."
+              description="Please select a single node to view properties."
+            />
+          }
+        </div>
       }
     </div>
   }
