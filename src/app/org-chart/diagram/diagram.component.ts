@@ -30,6 +30,7 @@ import { diagramModel } from './data';
 import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
 import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
+import { LayoutSchedulerService } from './layout/layout-scheduler.service';
 import { LayoutService } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
 
@@ -47,7 +48,7 @@ import { NodeComponent } from './node/node.component';
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNgDiagram(), LayoutService, DragStateService],
+  providers: [provideNgDiagram(), LayoutService, DragStateService, LayoutSchedulerService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);
@@ -56,30 +57,10 @@ export class DiagramComponent {
   private readonly layoutService = inject(LayoutService);
   private readonly dragStateService = inject(DragStateService);
   private readonly layoutDirectionService = inject(LayoutDirectionService);
+  private readonly layoutSchedulerService = inject(LayoutSchedulerService);
 
   protected isLayoutReady = signal(false);
 
-  constructor() {
-    effect(() => {
-      this.layoutDirectionService.direction();
-
-      untracked(() => {
-        if (!this.isLayoutReady()) return;
-
-        this.diagramService
-          .transaction(
-            async () => {
-              await this.layoutService.applyLayout();
-            },
-            { waitForMeasurements: true },
-          )
-          .catch(console.error);
-      });
-    });
-  }
-
-  // Assign the custom OrgChartEdge type to every user-drawn edge so it uses our
-  // edge template (with visibility support for collapsed subtrees).
   config = {
     linking: {
       finalEdgeDataBuilder: (edge: Edge) => ({
@@ -97,6 +78,48 @@ export class DiagramComponent {
   edgeTemplateMap = new NgDiagramEdgeTemplateMap([[EdgeTemplateType.OrgChartEdge, EdgeComponent]]);
 
   model = initializeModel(diagramModel);
+
+  constructor() {
+    let isFirstRun = true;
+
+    effect(() => {
+      // Track direction changes — the value is consumed by layoutService internally.
+      this.layoutDirectionService.direction();
+
+      untracked(() => {
+        // Skip the initial eager run — onDiagramInit handles the first layout.
+        if (isFirstRun) {
+          isFirstRun = false;
+          return;
+        }
+
+        // Always mark pending, even before init (onDiagramInit will flush).
+        this.layoutSchedulerService.scheduleLayout();
+
+        if (!this.isLayoutReady()) return;
+        this.layoutSchedulerService.runPendingLayout();
+      });
+    });
+  }
+
+  /**
+   * Run the ELK tree layout inside a transaction (so measurements are
+   * up-to-date), then fit the viewport to show all nodes.
+   */
+  async onDiagramInit(_: DiagramInitEvent): Promise<void> {
+    await this.diagramService.transaction(
+      async () => {
+        await this.layoutService.applyLayout();
+      },
+      { waitForMeasurements: true },
+    );
+
+    this.viewportService.zoomToFit();
+    this.isLayoutReady.set(true);
+
+    // Pick up any direction changes that arrived during init.
+    this.layoutSchedulerService.runPendingLayout();
+  }
 
   /**
    * When the user draws a new edge, mark the source node as having children
@@ -153,22 +176,6 @@ export class DiagramComponent {
     if (changed) {
       await this.layoutService.applyLayout();
     }
-  }
-
-  /**
-   * Run the ELK tree layout inside a transaction (so measurements are
-   * up-to-date), then fit the viewport to show all nodes.
-   */
-  async onDiagramInit(_: DiagramInitEvent): Promise<void> {
-    await this.diagramService.transaction(
-      async () => {
-        await this.layoutService.applyLayout();
-      },
-      { waitForMeasurements: true },
-    );
-
-    this.viewportService.zoomToFit();
-    this.isLayoutReady.set(true);
   }
 
   onNodeDragStarted(event: NodeDragStartedEvent): void {

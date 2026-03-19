@@ -11,7 +11,11 @@ const elk = new ELK();
  * layout algorithm, and returns a new array of nodes with updated
  * positions.
  */
-export async function performLayout(nodes: Node[], edges: Edge[], direction: 'DOWN' | 'RIGHT' = 'DOWN') {
+export async function performLayout(
+  nodes: Node[],
+  edges: Edge[],
+  direction: 'DOWN' | 'RIGHT' = 'DOWN',
+) {
   const layoutOptions = {
     'elk.algorithm': 'mrtree',
     'elk.direction': direction,
