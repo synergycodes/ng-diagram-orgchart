@@ -55,7 +55,7 @@
   }
 }
 
-:host-context(.layout-horizontal) .add-btn {
+:host(.layout-horizontal) .add-btn {
   &--left {
     top: calc(-1 * var(--ngd-primitive-odd-15)); /* No Figma token - no designs */
     left: 50%;

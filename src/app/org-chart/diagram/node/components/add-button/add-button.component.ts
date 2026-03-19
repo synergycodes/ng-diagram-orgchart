@@ -18,10 +18,14 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   `,
   styleUrls: ['./add-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: {
+    style: 'display: contents',
+    '[class.layout-horizontal]': 'horizontal()',
+  },
 })
 export class AddButtonComponent {
   position = input.required<'left' | 'right' | 'bottom'>();
+  horizontal = input(false);
   add = output<MouseEvent>();
 
   onAdd(event: MouseEvent): void {
