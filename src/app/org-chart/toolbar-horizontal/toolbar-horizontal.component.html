@@ -1,10 +1,10 @@
-<div class="toolbar">
+<div class="toolbar" role="toolbar">
   <button
     class="toolbar-btn"
     type="button"
     [class.active]="isDown()"
     [attr.aria-pressed]="isDown()"
-    aria-label="Top-down layout"
+    aria-label="Vertical layout"
     (click)="layoutDirectionService.setDirection('DOWN')"
   >
     <span class="icon icon-vertical" aria-hidden="true"></span>
@@ -14,7 +14,7 @@
     type="button"
     [class.active]="isRight()"
     [attr.aria-pressed]="isRight()"
-    aria-label="Right-left layout"
+    aria-label="Horizontal layout"
     (click)="layoutDirectionService.setDirection('RIGHT')"
   >
     <span class="icon icon-horizontal" aria-hidden="true"></span>

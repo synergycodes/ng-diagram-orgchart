@@ -132,7 +132,7 @@
       transform: translateY(-50%);
 
       &.drop-indicator--no-toggle {
-        right: -18px;
+        right: var(--drop-indicator-horizontal-padding);
         bottom: auto;
       }
     }
