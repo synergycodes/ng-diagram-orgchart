@@ -1,11 +1,8 @@
 :host {
-  position: absolute;
-  top: var(--sidebar-top, 76px);
-  right: 12px;
-  bottom: 12px;
-  z-index: 15;
   pointer-events: none;
   width: 320px;
+  justify-self: end;
+  min-height: 0;
 }
 
 .sidebar {
