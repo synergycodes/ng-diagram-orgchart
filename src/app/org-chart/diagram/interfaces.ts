@@ -23,7 +23,7 @@ export enum OrgChartRole {
   ProductionCoordinator = 'Production Coordinator',
 }
 
-export interface OrgChartNodeData extends Record<string, unknown> {
+export interface OrgChartNodeData {
   fullName?: string;
   role?: OrgChartRole;
   description?: string;

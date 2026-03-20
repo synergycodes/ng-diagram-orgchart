@@ -14,6 +14,7 @@
 
     <app-form-field label="Role" fieldId="role">
       <app-select-dropdown
+        triggerId="role"
         [formControl]="form.controls.role"
         [options]="roleOptions"
         placeholder="Select a role"
@@ -37,7 +38,7 @@
     <span class="h10 section-title">Organization Structure</span>
 
     <app-form-field label="Reports to" fieldId="reportsTo">
-      <app-reports-to-field [node]="node" [formControl]="form.controls.reportsTo" />
+      <app-reports-to-field triggerId="reportsTo" [node]="node" [formControl]="form.controls.reportsTo" />
     </app-form-field>
   </div>
 }

@@ -1,6 +1,10 @@
-<aside class="sidebar" [class.expanded]="sidebarExpanded()">
+<aside
+  class="sidebar"
+  aria-labelledby="properties-sidebar-title"
+  [class.expanded]="sidebarExpanded()"
+>
   <div class="sidebar-header">
-    <span class="h7 sidebar-title">Properties</span>
+    <span id="properties-sidebar-title" class="h7 sidebar-title">Properties</span>
     <button
       class="sidebar-toggle"
       (click)="toggle()"
@@ -16,7 +20,11 @@
       @if (state() === 'single') {
         <app-sidebar-form />
       } @else {
-        <div class="placeholder-wrapper" [class.placeholder-enter]="shouldAnimatePlaceholder()">
+        <div
+          class="placeholder-wrapper"
+          [class.placeholder-enter]="shouldAnimatePlaceholder()"
+          (animationend)="onPlaceholderAnimationEnd()"
+        >
           @if (state() === 'empty') {
             <app-sidebar-placeholder
               title="No selection"

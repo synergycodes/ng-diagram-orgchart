@@ -7,16 +7,24 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule, type ControlValueAccessor } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  FormControl,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+  type ControlValueAccessor,
+} from '@angular/forms';
 import { NgDiagramModelService, type Node } from 'ng-diagram';
 import { type OrgChartNodeData } from '../../../diagram/interfaces';
 import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
 import {
+  SelectDropdownNullOptionDef,
+  SelectDropdownOptionDef,
+} from '../../../shared/select-dropdown/select-dropdown-option.directive';
+import {
   SelectDropdownComponent,
   type SelectDropdownOption,
 } from '../../../shared/select-dropdown/select-dropdown.component';
-import { SelectDropdownOptionDef, SelectDropdownNullOptionDef } from '../../../shared/select-dropdown/select-dropdown-option.directive';
 
 @Component({
   selector: 'app-reports-to-field',
@@ -43,6 +51,7 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
   private readonly destroyRef = inject(DestroyRef);
 
   node = input.required<Node<OrgChartNodeData>>();
+  triggerId = input<string>();
 
   protected readonly innerControl = new FormControl<string | null>(null);
 
@@ -76,5 +85,9 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
 
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    isDisabled ? this.innerControl.disable() : this.innerControl.enable();
   }
 }

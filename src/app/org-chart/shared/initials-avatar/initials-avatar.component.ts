@@ -20,10 +20,21 @@ export class InitialsAvatarComponent {
   protected readonly initials = computed(() => {
     const name = this.fullName();
     if (!name) return '';
-    return name
-      .split(' ')
-      .map((word) => word[0])
+    return this.getInitials(name);
+  });
+
+  private getInitials(name: string, maxInitials = 2): string {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+
+    if (parts.length === 0) return '';
+
+    const picks = [parts[0], ...parts.slice(1).reverse()];
+    const uniqueValues = [...new Map(picks.map((p) => [p, p])).values()];
+
+    return uniqueValues
+      .slice(0, maxInitials)
+      .map((p) => p[0])
       .join('')
       .toUpperCase();
-  });
+  }
 }

@@ -1,25 +1,24 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  effect,
-  inject,
-  untracked,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgDiagramModelService } from 'ng-diagram';
 import { OrgChartRole, type OrgChartNodeData } from '../../../diagram/interfaces';
-import { PropertiesSidebarService } from '../../properties-sidebar.service';
-import { FormFieldComponent } from '../form-field/form-field.component';
-import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
 import {
   SelectDropdownComponent,
   type SelectDropdownOption,
 } from '../../../shared/select-dropdown/select-dropdown.component';
+import { PropertiesSidebarService } from '../../properties-sidebar.service';
+import { FormFieldComponent } from '../form-field/form-field.component';
+import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
 
 @Component({
   selector: 'app-sidebar-form',
-  imports: [ReactiveFormsModule, FormFieldComponent, ReportsToFieldComponent, SelectDropdownComponent],
+  imports: [
+    ReactiveFormsModule,
+    FormFieldComponent,
+    ReportsToFieldComponent,
+    SelectDropdownComponent,
+  ],
   templateUrl: './sidebar-form.component.html',
   styleUrl: './sidebar-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,9 +30,9 @@ export class SidebarFormComponent {
 
   protected readonly selectedNode = this.sidebarService.selectedNode;
 
-  protected readonly roleOptions: SelectDropdownOption<OrgChartRole>[] = Object.values(OrgChartRole).map(
-    (role) => ({ value: role, label: role }),
-  );
+  protected readonly roleOptions: SelectDropdownOption<OrgChartRole>[] = Object.values(
+    OrgChartRole,
+  ).map((role) => ({ value: role, label: role }));
 
   protected readonly form = new FormGroup({
     fullName: new FormControl('', { nonNullable: true }),
@@ -46,10 +45,9 @@ export class SidebarFormComponent {
   private previousNodeId: string | null = null;
 
   constructor() {
-    effect(() => {
-      const node = this.sidebarService.selectedNode();
-
-      untracked(() => {
+    toObservable(this.sidebarService.selectedNode)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((node) => {
         this.flush();
 
         if (node) {
@@ -68,9 +66,8 @@ export class SidebarFormComponent {
           this.previousNodeId = null;
         }
       });
-    });
 
-    this.form.valueChanges.subscribe(() => {
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.scheduleCommit();
     });
 

@@ -17,7 +17,7 @@
   flex-direction: column;
   max-height: 100%;
   overflow: hidden;
-  interpolate-size: allow-keywords;
+  interpolate-size: allow-keywords; /* Chromium 129+; Firefox/Safari fall back to instant height change */
   transition: height 150ms ease;
 
   &.expanded {

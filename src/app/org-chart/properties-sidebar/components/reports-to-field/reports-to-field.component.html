@@ -1,4 +1,9 @@
-<app-select-dropdown [formControl]="innerControl" [options]="candidates()" placeholder="None">
+<app-select-dropdown
+  [formControl]="innerControl"
+  [options]="candidates()"
+  [triggerId]="triggerId()"
+  placeholder="None"
+>
   <ng-template appSelectNullOption>
     <app-initials-avatar size="sm" />
     <span class="option-label placeholder">None</span>

@@ -52,9 +52,8 @@
   max-height: 200px;
   overflow-y: auto;
   padding: 4px 0;
-  box-shadow: var(--ngd-token-shadow-shadow-s-x, 0) var(--ngd-token-shadow-shadow-s-y, 8px)
-    var(--ngd-token-shadow-shadow-s-blur, 16px) var(--ngd-token-shadow-shadow-s-spread, -4px)
-    var(--ngd-shadow, rgba(7, 7, 8, 0.5));
+  box-shadow: var(--ngd-token-shadow-shadow-s-x) var(--ngd-token-shadow-shadow-s-y)
+    var(--ngd-token-shadow-shadow-s-blur) var(--ngd-token-shadow-shadow-s-spread) var(--ngd-shadow);
 }
 
 .dropdown-option {
@@ -69,12 +68,17 @@
   cursor: pointer;
   text-align: left;
 
-  &:hover {
-    background: var(--ngd-ui-bg-secondary-default, rgba(255, 255, 255, 0.06));
+  &:hover,
+  &.focused {
+    background: var(--ngd-ui-bg-secondary-default);
   }
 
   &.selected {
-    background: var(--ngd-ui-bg-secondary-default, rgba(255, 255, 255, 0.06));
+    background: var(--ngd-ui-bg-tertiary-default);
+  }
+
+  &.selected.focused {
+    background: var(--ngd-ui-bg-tertiary-default);
   }
 }
 

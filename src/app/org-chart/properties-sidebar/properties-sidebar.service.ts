@@ -1,4 +1,4 @@
-import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
+import { computed, inject, Injectable, linkedSignal } from '@angular/core';
 import {
   NgDiagramModelService,
   NgDiagramSelectionService,
@@ -13,11 +13,14 @@ export class PropertiesSidebarService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly diagramService = inject(NgDiagramService);
 
-  readonly isExpanded = signal(false);
-
   readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(
     () => this.selectionService.selection().nodes.at(0) as Node<OrgChartNodeData> | undefined,
   );
+
+  readonly isExpanded = linkedSignal({
+    source: this.selectedNode,
+    computation: (node, previous) => (node ? true : (previous?.value ?? false)),
+  });
 
   readonly sidebarState = computed<'empty' | 'single' | 'multi'>(() => {
     const sel = this.selectionService.selection();
@@ -26,19 +29,8 @@ export class PropertiesSidebarService {
     return 'single';
   });
 
-  constructor() {
-    effect(() => {
-      const node = this.selectedNode();
-
-      untracked(() => {
-        if (node) {
-          this.isExpanded.set(true);
-        }
-      });
-    });
-  }
-
-  updateNodeData(id: string, data: OrgChartNodeData): void {
+  // `& Record<string, unknown>` here is fix for `updateNodeData` constrains
+  updateNodeData(id: string, data: OrgChartNodeData & Record<string, unknown>): void {
     this.diagramService.transaction(() => {
       this.modelService.updateNodeData(id, data);
     });
