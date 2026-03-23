@@ -40,7 +40,9 @@ export interface SelectDropdownOption<SelectDropdownOptionValue = unknown> {
     '(document:click)': 'onDocumentClick($event)',
   },
 })
-export class SelectDropdownComponent<SelectDropdownOptionValue = unknown> implements ControlValueAccessor {
+export class SelectDropdownComponent<
+  SelectDropdownOptionValue = unknown,
+> implements ControlValueAccessor {
   private readonly elRef = inject(ElementRef);
 
   options = input.required<SelectDropdownOption<SelectDropdownOptionValue>[]>();
