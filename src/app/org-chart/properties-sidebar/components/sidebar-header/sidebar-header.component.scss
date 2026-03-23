@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: var(--ngd-primitive-4rule-16); /* No Figma token */
 }
 
 .sidebar-title {
@@ -15,8 +15,8 @@
   justify-content: center;
   background: transparent;
   border: none;
-  border-radius: var(--ngd-token-radius-button-l);
-  padding: 4px;
+  border-radius: var(--ngd-token-radius-button-s); /* No Figma token - wrong token */
+  padding: var(--ngd-token-spacing-button-s-v-pad-2); /* No Figma token - wrong token */
   cursor: pointer;
   transition: background 150ms ease;
 
@@ -26,9 +26,10 @@
 }
 
 .icon {
+  --icon-size: 18px; /* No Figma token */
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: var(--icon-size);
+  height: var(--icon-size);
   background-color: var(--ngd-nav-button-icon-primary-default);
   mask-size: contain;
   mask-repeat: no-repeat;
