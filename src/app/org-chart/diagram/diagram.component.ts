@@ -15,12 +15,14 @@ import {
   type NgDiagramConfig,
   type NodeDragEndedEvent,
   type NodeDragStartedEvent,
+  type SelectionGestureEndedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
+import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
 import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
-import { isOrgChartNodeData } from './guards';
+import { isOrgChartNode, isOrgChartNodeData } from './guards';
 import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
 import { LayoutService } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
@@ -47,6 +49,7 @@ export class DiagramComponent {
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
   private readonly dragStateService = inject(DragStateService);
+  private readonly sidebarService = inject(PropertiesSidebarService);
 
   protected isLayoutReady = signal(false);
 
@@ -144,6 +147,13 @@ export class DiagramComponent {
 
     this.viewportService.zoomToFit();
     this.isLayoutReady.set(true);
+  }
+
+  onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {
+    const hasOrgChartNodes = event.nodes.some(isOrgChartNode);
+    if (hasOrgChartNodes) {
+      this.sidebarService.expandSidebar();
+    }
   }
 
   onNodeDragStarted(event: NodeDragStartedEvent): void {
