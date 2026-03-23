@@ -5,7 +5,9 @@ import {
   NgDiagramService,
   type Node,
 } from 'ng-diagram';
-import { type OrgChartNodeData } from '../diagram/interfaces';
+import { isOrgChartNode, isVacantNode } from '../diagram/guards';
+import { OrgChartRole, type OrgChartNodeData } from '../diagram/interfaces';
+import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
 
 @Injectable()
 export class PropertiesSidebarService {
@@ -16,8 +18,21 @@ export class PropertiesSidebarService {
   readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(
     () => this.selectionService.selection().nodes.at(0) as Node<OrgChartNodeData> | undefined,
   );
+  readonly reportsToCandidateNodes = computed<Node<OrgChartNodeData>[]>(() => {
+    const selectedNode = this.selectedNode();
+    return this.modelService
+      .nodes()
+      .filter(
+        (node): node is Node<OrgChartNodeData> =>
+          node.id !== selectedNode?.id && isOrgChartNode(node) && !isVacantNode(node),
+      );
+  });
 
-  readonly isExpanded = linkedSignal({
+  readonly roleOptions: SelectDropdownOption<OrgChartRole>[] = Object.values(OrgChartRole).map(
+    (role) => ({ value: role, label: role }),
+  );
+
+  readonly isExpanded = linkedSignal<Node<OrgChartNodeData> | undefined, boolean>({
     source: this.selectedNode,
     computation: (node, previous) => (node ? true : (previous?.value ?? false)),
   });
@@ -36,7 +51,7 @@ export class PropertiesSidebarService {
     });
   }
 
-  toggle(): void {
+  toggleSidebarVisibility(): void {
     this.isExpanded.update((v) => !v);
   }
 }

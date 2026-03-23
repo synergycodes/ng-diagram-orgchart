@@ -40,10 +40,10 @@ export interface SelectDropdownOption<SelectDropdownOptionValue = unknown> {
     '(document:click)': 'onDocumentClick($event)',
   },
 })
-export class SelectDropdownComponent<T = unknown> implements ControlValueAccessor {
+export class SelectDropdownComponent<SelectDropdownOptionValue = unknown> implements ControlValueAccessor {
   private readonly elRef = inject(ElementRef);
 
-  options = input.required<SelectDropdownOption<T>[]>();
+  options = input.required<SelectDropdownOption<SelectDropdownOptionValue>[]>();
   placeholder = input('Select...');
   triggerId = input<string>();
 
@@ -53,7 +53,7 @@ export class SelectDropdownComponent<T = unknown> implements ControlValueAccesso
 
   protected readonly isOpen = signal(false);
   protected readonly disabled = signal(false);
-  protected readonly value = signal<T | null>(null);
+  protected readonly value = signal<SelectDropdownOptionValue | null>(null);
   protected readonly focusedIndex = signal(-1);
 
   protected readonly selectedOption = computed(() => {
@@ -62,14 +62,14 @@ export class SelectDropdownComponent<T = unknown> implements ControlValueAccesso
     return this.options().find((o) => o.value === value) ?? null;
   });
 
-  private onChange: (value: T | null) => void = () => {};
+  private onChange: (value: SelectDropdownOptionValue | null) => void = () => {};
   private onTouched: () => void = () => {};
 
-  writeValue(value: T | null): void {
+  writeValue(value: SelectDropdownOptionValue | null): void {
     this.value.set(value ?? null);
   }
 
-  registerOnChange(onChange: (value: T | null) => void): void {
+  registerOnChange(onChange: (value: SelectDropdownOptionValue | null) => void): void {
     this.onChange = onChange;
   }
 
@@ -97,7 +97,7 @@ export class SelectDropdownComponent<T = unknown> implements ControlValueAccesso
     });
   }
 
-  protected select(option: SelectDropdownOption<T> | null): void {
+  protected select(option: SelectDropdownOption<SelectDropdownOptionValue> | null): void {
     const newValue = option?.value ?? null;
     this.value.set(newValue);
     this.onChange(newValue);

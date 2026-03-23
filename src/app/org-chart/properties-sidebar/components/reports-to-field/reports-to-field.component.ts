@@ -14,8 +14,7 @@ import {
   ReactiveFormsModule,
   type ControlValueAccessor,
 } from '@angular/forms';
-import { NgDiagramModelService, type Node } from 'ng-diagram';
-import { isOrgChartNode, isVacantNode } from '../../../diagram/guards';
+import { type Node } from 'ng-diagram';
 import { type OrgChartNodeData } from '../../../diagram/interfaces';
 import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
 import {
@@ -48,25 +47,16 @@ import {
   styleUrl: './reports-to-field.component.scss',
 })
 export class ReportsToFieldComponent implements ControlValueAccessor {
-  private readonly modelService = inject(NgDiagramModelService);
   private readonly destroyRef = inject(DestroyRef);
 
-  node = input.required<Node<OrgChartNodeData>>();
+  candidateNodes = input.required<Node<OrgChartNodeData>[]>();
   triggerId = input<string>();
 
   protected readonly innerControl = new FormControl<string | null>(null);
 
-  protected readonly candidates = computed<SelectDropdownOption<string>[]>(() => {
-    const currentNode = this.node();
-    const nodes = this.modelService.nodes();
-
-    return nodes
-      .filter(
-        (node): node is Node<OrgChartNodeData> =>
-          this.isDifferentNode(currentNode, node) && !isVacantNode(node),
-      )
-      .map(this.mapNodeToOption);
-  });
+  protected readonly candidates = computed<SelectDropdownOption<string>[]>(() =>
+    this.candidateNodes().map(this.mapNodeToOption),
+  );
 
   private onChange: (value: string | null) => void = () => {};
   private onTouched: () => void = () => {};
@@ -88,17 +78,9 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
     isDisabled ? this.innerControl.disable() : this.innerControl.enable();
   }
 
-  private isDifferentNode = (node1: Node, node2: Node) => node1.id !== node2.id;
-
-  private mapNodeToOption = (node: Node<OrgChartNodeData>) => {
-    if (!isOrgChartNode(node)) {
-      throw new Error('Provided node is not of OrgChartNodeData type');
-    }
-
-    return {
-      value: node.id,
-      label: node.data.fullName!,
-      data: { color: node.data.color ?? '#999' },
-    };
-  };
+  private mapNodeToOption = (node: Node<OrgChartNodeData>): SelectDropdownOption<string> => ({
+    value: node.id,
+    label: node.data.fullName!,
+    data: { color: node.data.color ?? '#999' },
+  });
 }

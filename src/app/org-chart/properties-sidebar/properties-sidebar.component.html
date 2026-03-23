@@ -3,22 +3,15 @@
   aria-labelledby="properties-sidebar-title"
   [class.expanded]="sidebarExpanded()"
 >
-  <div class="sidebar-header">
-    <span id="properties-sidebar-title" class="h7 sidebar-title">Properties</span>
-    <button
-      class="sidebar-toggle"
-      (click)="toggle()"
-      [attr.aria-expanded]="isExpanded()"
-      aria-label="Toggle properties panel"
-    >
-      <span class="icon icon-sidebar"></span>
-    </button>
-  </div>
+  <app-sidebar-header [isExpanded]="isExpanded()" (toggle)="onHeaderToggle()" />
   <div class="sidebar-separator" [class.visible]="sidebarExpanded()"></div>
   @if (isExpanded()) {
     <div class="sidebar-content" animate.enter="sidebar-enter" animate.leave="sidebar-leave">
       @if (state() === 'single') {
-        <app-sidebar-form />
+        <app-sidebar-form
+          [reportsToCandidateNodes]="reportsToCandidateNodes()"
+          [roleOptions]="roleOptions"
+        />
       } @else {
         <div
           class="placeholder-wrapper"

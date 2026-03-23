@@ -1,16 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { NgDiagramModelService } from 'ng-diagram';
-import { isOrgChartNodeData } from '../../../diagram/guards';
-import { OrgChartRole, type OrgChartNodeData } from '../../../diagram/interfaces';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { type Node } from 'ng-diagram';
+import { type OrgChartNodeData, type OrgChartRole } from '../../../diagram/interfaces';
 import {
   SelectDropdownComponent,
   type SelectDropdownOption,
 } from '../../../shared/select-dropdown/select-dropdown.component';
-import { PropertiesSidebarService } from '../../properties-sidebar.service';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
+import { SidebarFormService } from './sidebar-form.service';
 
 @Component({
   selector: 'app-sidebar-form',
@@ -25,90 +23,14 @@ import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.co
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarFormComponent {
-  private readonly sidebarService = inject(PropertiesSidebarService);
-  private readonly modelService = inject(NgDiagramModelService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly formService = inject(SidebarFormService);
 
-  protected readonly selectedNode = this.sidebarService.selectedNode;
+  reportsToCandidateNodes = input.required<Node<OrgChartNodeData>[]>();
+  roleOptions = input.required<SelectDropdownOption<OrgChartRole>[]>();
 
-  protected readonly roleOptions: SelectDropdownOption<OrgChartRole>[] = Object.values(
-    OrgChartRole,
-  ).map((role) => ({ value: role, label: role }));
-
-  protected readonly form = new FormGroup({
-    fullName: new FormControl('', { nonNullable: true }),
-    role: new FormControl<OrgChartRole | null>(null),
-    description: new FormControl('', { nonNullable: true }),
-    reportsTo: new FormControl<string | null>(null),
-  });
-
-  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  private previousNodeId: string | null = null;
+  protected readonly form = this.formService.form;
 
   constructor() {
-    toObservable(this.sidebarService.selectedNode)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((node) => {
-        this.flush();
-
-        if (node) {
-          this.previousNodeId = node.id;
-          if (!isOrgChartNodeData(node.data)) {
-            return;
-          }
-          const dataWithDefaults = {
-            fullName: node.data.fullName ?? '',
-            role: node.data.role ?? null,
-            description: node.data.description ?? '',
-            reportsTo: node.data.reportsTo ?? null,
-          };
-          this.form.patchValue(dataWithDefaults, { emitEvent: false });
-        } else {
-          this.previousNodeId = null;
-        }
-      });
-
-    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.scheduleCommit();
-    });
-
-    this.destroyRef.onDestroy(() => this.flush());
-  }
-
-  flush(): void {
-    if (this.debounceTimer !== null) {
-      clearTimeout(this.debounceTimer);
-      this.debounceTimer = null;
-      this.commitCurrentValues();
-    }
-  }
-
-  private scheduleCommit(): void {
-    if (this.debounceTimer !== null) {
-      clearTimeout(this.debounceTimer);
-    }
-    this.debounceTimer = setTimeout(() => {
-      this.debounceTimer = null;
-      this.commitCurrentValues();
-    }, 300);
-  }
-
-  private commitCurrentValues(): void {
-    const nodeId = this.previousNodeId;
-    if (!nodeId) return;
-
-    const node = this.modelService.getNodeById(nodeId);
-    if (!node) return;
-
-    const formValue = this.form.getRawValue();
-    const currentData = node.data as OrgChartNodeData;
-
-    this.sidebarService.updateNodeData(nodeId, {
-      ...currentData,
-      fullName: formValue.fullName || undefined,
-      role: formValue.role ?? undefined,
-      description: formValue.description || undefined,
-      reportsTo: formValue.reportsTo ?? undefined,
-    });
+    this.formService.init(inject(DestroyRef));
   }
 }
