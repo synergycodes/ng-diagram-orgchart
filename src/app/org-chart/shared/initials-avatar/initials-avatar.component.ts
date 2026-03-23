@@ -6,8 +6,8 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   styleUrl: './initials-avatar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '[class.size-sm]': 'size() === "sm"',
-    '[class.size-md]': 'size() === "md"',
+    '[class.size-m]': 'size() === "md"',
+    '[class.size-xl]': 'size() === "xl"',
     '[class.vacant]': '!fullName()',
     '[style.--avatar-accent]': 'color()',
   },
@@ -15,7 +15,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 export class InitialsAvatarComponent {
   fullName = input<string>();
   color = input<string>();
-  size = input.required<'sm' | 'md'>();
+  size = input.required<'md' | 'xl'>();
 
   protected readonly initials = computed(() => {
     const name = this.fullName();

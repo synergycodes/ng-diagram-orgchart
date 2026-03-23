@@ -2,34 +2,36 @@
   <div class="form-section">
     <span class="h10 section-title">General Information</span>
 
-    <app-form-field label="Full Name" fieldId="fullName">
-      <input
-        id="fullName"
-        type="text"
-        class="form-input p10"
-        [formControl]="form.controls.fullName"
-        placeholder="Enter full name"
-      />
-    </app-form-field>
+    <div class="section-content">
+      <app-form-field label="Full Name" fieldId="fullName">
+        <input
+          id="fullName"
+          type="text"
+          class="form-input p10"
+          [formControl]="form.controls.fullName"
+          placeholder="Enter full name"
+        />
+      </app-form-field>
 
-    <app-form-field label="Role" fieldId="role">
-      <app-select-dropdown
-        triggerId="role"
-        [formControl]="form.controls.role"
-        [options]="roleOptions"
-        placeholder="Select a role"
-      />
-    </app-form-field>
+      <app-form-field label="Role" fieldId="role">
+        <app-select-dropdown
+          triggerId="role"
+          [formControl]="form.controls.role"
+          [options]="roleOptions"
+          placeholder="Select a role"
+        />
+      </app-form-field>
 
-    <app-form-field label="Description" fieldId="description">
-      <textarea
-        id="description"
-        class="form-input form-textarea p10"
-        [formControl]="form.controls.description"
-        placeholder="Enter description"
-        rows="3"
-      ></textarea>
-    </app-form-field>
+      <app-form-field label="Description" fieldId="description">
+        <textarea
+          id="description"
+          class="form-input form-textarea p10"
+          [formControl]="form.controls.description"
+          placeholder="Enter description"
+          rows="3"
+        ></textarea>
+      </app-form-field>
+    </div>
   </div>
 
   <div class="form-separator"></div>
@@ -37,8 +39,14 @@
   <div class="form-section">
     <span class="h10 section-title">Organization Structure</span>
 
-    <app-form-field label="Reports to" fieldId="reportsTo">
-      <app-reports-to-field triggerId="reportsTo" [node]="node" [formControl]="form.controls.reportsTo" />
-    </app-form-field>
+    <div class="section-content">
+      <app-form-field label="Reports to" fieldId="reportsTo">
+        <app-reports-to-field
+          triggerId="reportsTo"
+          [node]="node"
+          [formControl]="form.controls.reportsTo"
+        />
+      </app-form-field>
+    </div>
   </div>
 }

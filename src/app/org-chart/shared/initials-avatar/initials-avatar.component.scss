@@ -2,19 +2,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--ngd-token-radius-button-round); /* No Figma token */
   flex-shrink: 0;
 
-  &.size-sm {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
+  &.size-m {
+    --initials-size: 36px; /* No Figma token */
+    width: var(--initials-size);
+    height: var(--initials-size);
+    font-size: 16px;
     font-weight: 600;
   }
 
-  &.size-md {
-    width: 44px;
-    height: 44px;
+  &.size-xl {
+    --initials-size: 44px; /* No Figma token */
+    width: var(--initials-size);
+    height: var(--initials-size);
     padding: 10px;
   }
 

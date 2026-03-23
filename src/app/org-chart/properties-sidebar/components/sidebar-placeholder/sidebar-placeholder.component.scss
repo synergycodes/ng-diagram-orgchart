@@ -5,16 +5,16 @@
   justify-content: center;
   text-align: center;
   height: 100%;
-  padding: 48px 24px;
-  gap: 8px;
+  padding: 0 var(--ngd-primitive-4rule-16); /* No Figma token */
+  gap: var(--ngd-primitive-4rule-16); /* No Figma token */
 }
 
 .wrapper {
-  padding: 0 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 0 var(--ngd-primitive-4rule-24);
 }
 
 .title {

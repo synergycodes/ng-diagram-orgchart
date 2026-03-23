@@ -5,11 +5,11 @@
   placeholder="None"
 >
   <ng-template appSelectNullOption>
-    <app-initials-avatar size="sm" />
+    <app-initials-avatar size="md" />
     <span class="option-label placeholder">None</span>
   </ng-template>
   <ng-template appSelectOption let-option>
-    <app-initials-avatar [fullName]="option.label" [color]="option.data.color" size="sm" />
+    <app-initials-avatar [fullName]="option.label" [color]="option.data.color" size="md" />
     <span class="option-label">{{ option.label }}</span>
   </ng-template>
 </app-select-dropdown>

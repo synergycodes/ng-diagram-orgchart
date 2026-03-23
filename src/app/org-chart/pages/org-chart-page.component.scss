@@ -13,8 +13,12 @@
   gap: var(--ngd-primitive-even-14); /* No Figma token */
   pointer-events: none;
   z-index: 10;
-}
 
-.clickable {
-  pointer-events: all;
+  .top-navbar {
+    pointer-events: all;
+  }
+
+  .right-side-panel {
+    justify-self: end;
+  }
 }
