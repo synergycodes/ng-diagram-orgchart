@@ -12,8 +12,8 @@ import { LayoutService } from '../layout/layout.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
 import { FullNodeComponent } from './components/full-node/full-node.component';
-import { VacantNodeComponent } from './components/vacant-node/vacant-node.component';
 import { ToggleExpandButtonComponent } from './components/toggle-expand-button/toggle-expand-button.component';
+import { VacantNodeComponent } from './components/vacant-node/vacant-node.component';
 
 type NodeVariant = 'vacant' | 'compact' | 'full';
 
@@ -64,7 +64,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   showAddButtons = computed(() => !this.dragStateService.isDragging());
 
   variant = computed<NodeVariant>(() => {
-    if (isVacantNode(this.node().data)) return 'vacant';
+    if (isVacantNode(this.node())) return 'vacant';
     return this.viewportService.scale() < 1 ? 'compact' : 'full';
   });
 

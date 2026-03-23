@@ -41,3 +41,7 @@ export interface OrgChartNodeData {
 export interface OrgChartEdgeData {
   isHidden?: boolean;
 }
+
+export interface VacantNodeData extends OrgChartNodeData {
+  fullName: undefined;
+}

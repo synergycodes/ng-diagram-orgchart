@@ -15,6 +15,7 @@ import {
   type ControlValueAccessor,
 } from '@angular/forms';
 import { NgDiagramModelService, type Node } from 'ng-diagram';
+import { isOrgChartNode, isVacantNode } from '../../../diagram/guards';
 import { type OrgChartNodeData } from '../../../diagram/interfaces';
 import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
 import {
@@ -60,15 +61,11 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
     const nodes = this.modelService.nodes();
 
     return nodes
-      .filter((n) => n.id !== currentNode.id && (n.data as OrgChartNodeData).fullName)
-      .map((n) => {
-        const data = n.data as OrgChartNodeData;
-        return {
-          value: n.id,
-          label: data.fullName!,
-          data: { color: data.color ?? '#999' },
-        };
-      });
+      .filter(
+        (node): node is Node<OrgChartNodeData> =>
+          this.isDifferentNode(currentNode, node) && !isVacantNode(node),
+      )
+      .map(this.mapNodeToOption);
   });
 
   private onChange: (value: string | null) => void = () => {};
@@ -90,4 +87,18 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
   setDisabledState(isDisabled: boolean): void {
     isDisabled ? this.innerControl.disable() : this.innerControl.enable();
   }
+
+  private isDifferentNode = (node1: Node, node2: Node) => node1.id !== node2.id;
+
+  private mapNodeToOption = (node: Node<OrgChartNodeData>) => {
+    if (!isOrgChartNode(node)) {
+      throw new Error('Provided node is not of OrgChartNodeData type');
+    }
+
+    return {
+      value: node.id,
+      label: node.data.fullName!,
+      data: { color: node.data.color ?? '#999' },
+    };
+  };
 }

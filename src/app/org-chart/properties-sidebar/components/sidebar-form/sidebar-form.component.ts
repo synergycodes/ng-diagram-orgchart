@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NgDiagramModelService } from 'ng-diagram';
+import { isOrgChartNodeData } from '../../../diagram/guards';
 import { OrgChartRole, type OrgChartNodeData } from '../../../diagram/interfaces';
 import {
   SelectDropdownComponent,
@@ -52,16 +53,16 @@ export class SidebarFormComponent {
 
         if (node) {
           this.previousNodeId = node.id;
-          const data = node.data as OrgChartNodeData;
-          this.form.patchValue(
-            {
-              fullName: data.fullName ?? '',
-              role: data.role ?? null,
-              description: data.description ?? '',
-              reportsTo: data.reportsTo ?? null,
-            },
-            { emitEvent: false },
-          );
+          if (!isOrgChartNodeData(node.data)) {
+            return;
+          }
+          const dataWithDefaults = {
+            fullName: node.data.fullName ?? '',
+            role: node.data.role ?? null,
+            description: node.data.description ?? '',
+            reportsTo: node.data.reportsTo ?? null,
+          };
+          this.form.patchValue(dataWithDefaults, { emitEvent: false });
         } else {
           this.previousNodeId = null;
         }
@@ -96,7 +97,7 @@ export class SidebarFormComponent {
     const nodeId = this.previousNodeId;
     if (!nodeId) return;
 
-    const node = this.modelService.nodes().find((n) => n.id === nodeId);
+    const node = this.modelService.getNodeById(nodeId);
     if (!node) return;
 
     const formValue = this.form.getRawValue();
