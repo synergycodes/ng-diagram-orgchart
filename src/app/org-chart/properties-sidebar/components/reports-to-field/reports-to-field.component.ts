@@ -1,12 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  forwardRef,
-  inject,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, forwardRef, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -47,8 +39,6 @@ import {
   styleUrl: './reports-to-field.component.scss',
 })
 export class ReportsToFieldComponent implements ControlValueAccessor {
-  private readonly destroyRef = inject(DestroyRef);
-
   candidateNodes = input.required<Node<OrgChartNodeData>[]>();
   triggerId = input<string>();
 
@@ -61,13 +51,16 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
   private onChange: (value: string | null) => void = () => {};
   private onTouched: () => void = () => {};
 
+  constructor() {
+    this.innerControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((v) => this.onChange(v));
+  }
+
   writeValue(val: string | null): void {
     this.innerControl.setValue(val, { emitEvent: false });
   }
 
   registerOnChange(fn: (value: string | null) => void): void {
     this.onChange = fn;
-    this.innerControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(fn);
   }
 
   registerOnTouched(fn: () => void): void {

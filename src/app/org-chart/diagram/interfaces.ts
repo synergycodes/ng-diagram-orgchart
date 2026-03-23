@@ -43,5 +43,5 @@ export interface OrgChartEdgeData {
 }
 
 export interface VacantNodeData extends OrgChartNodeData {
-  fullName: undefined;
+  fullName?: undefined;
 }

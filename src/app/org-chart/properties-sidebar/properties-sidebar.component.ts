@@ -31,9 +31,9 @@ export class PropertiesSidebarComponent {
   protected readonly shouldAnimatePlaceholder = signal(false);
   protected readonly isExpanded = this.sidebarService.isExpanded;
   protected readonly state = this.sidebarService.sidebarState;
-  protected readonly sidebarExpanded = computed(() => this.isExpanded() || this.isCollapsing());
   protected readonly reportsToCandidateNodes = this.sidebarService.reportsToCandidateNodes;
   protected readonly roleOptions = this.sidebarService.roleOptions;
+  protected readonly sidebarExpanded = computed(() => this.isExpanded() || this.isCollapsing());
 
   constructor() {
     this.registerCleanup();
@@ -43,6 +43,9 @@ export class PropertiesSidebarComponent {
     if (this.isExpanded()) {
       this.isCollapsing.set(true);
       this.sidebarService.toggleSidebarVisibility();
+      if (this.collapseTimeout) {
+        clearTimeout(this.collapseTimeout);
+      }
       this.collapseTimeout = setTimeout(
         () => this.isCollapsing.set(false),
         this.getCollapseDuration(),
@@ -69,6 +72,7 @@ export class PropertiesSidebarComponent {
     const raw = getComputedStyle(this.elRef.nativeElement)
       .getPropertyValue('--sidebar-collapse-duration')
       .trim();
-    return parseFloat(raw) ?? 200;
+    const parsed = parseFloat(raw);
+    return Number.isNaN(parsed) ? 200 : parsed;
   }
 }

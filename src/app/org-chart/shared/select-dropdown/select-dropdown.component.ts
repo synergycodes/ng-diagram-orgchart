@@ -136,6 +136,9 @@ export class SelectDropdownComponent<SelectDropdownOptionValue = unknown> implem
         event.preventDefault();
         this.closePanel();
         break;
+      case 'Tab':
+        this.closePanel();
+        break;
       case 'Home':
         if (this.isOpen()) {
           event.preventDefault();

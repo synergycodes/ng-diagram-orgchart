@@ -25,8 +25,8 @@ import { SidebarFormService } from './sidebar-form.service';
 export class SidebarFormComponent {
   private readonly formService = inject(SidebarFormService);
 
-  reportsToCandidateNodes = input.required<Node<OrgChartNodeData>[]>();
-  roleOptions = input.required<SelectDropdownOption<OrgChartRole>[]>();
+  readonly reportsToCandidateNodes = input.required<Node<OrgChartNodeData>[]>();
+  readonly roleOptions = input.required<SelectDropdownOption<OrgChartRole>[]>();
 
   protected readonly form = this.formService.form;
 

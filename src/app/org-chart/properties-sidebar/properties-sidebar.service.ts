@@ -15,9 +15,10 @@ export class PropertiesSidebarService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly diagramService = inject(NgDiagramService);
 
-  readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(
-    () => this.selectionService.selection().nodes.at(0) as Node<OrgChartNodeData> | undefined,
-  );
+  readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(() => {
+    const node = this.selectionService.selection().nodes.at(0);
+    return isOrgChartNode(node) ? node : undefined;
+  });
   readonly reportsToCandidateNodes = computed<Node<OrgChartNodeData>[]>(() => {
     const selectedNode = this.selectedNode();
     return this.modelService

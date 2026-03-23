@@ -16,7 +16,7 @@ export function isOrgChartNode(node: Node | null | undefined): node is Node<OrgC
 }
 
 export function isVacantNodeData(data: unknown): data is VacantNodeData {
-  return typeof data === 'object' && data !== null && !('fullName' in data);
+  return isOrgChartNodeData(data) && data.fullName === undefined;
 }
 
 export function isVacantNode(node: Node | null | undefined): node is Node<VacantNodeData> {

@@ -29,7 +29,7 @@ export class InitialsAvatarComponent {
     if (parts.length === 0) return '';
 
     const picks = [parts[0], ...parts.slice(1).reverse()];
-    const uniqueValues = [...new Map(picks.map((p) => [p, p])).values()];
+    const uniqueValues = [...new Set(picks)];
 
     return uniqueValues
       .slice(0, maxInitials)

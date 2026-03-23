@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNodeData } from '../../../diagram/guards';
-import { OrgChartRole, type OrgChartNodeData } from '../../../diagram/interfaces';
+import { OrgChartRole } from '../../../diagram/interfaces';
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
 
 @Injectable()
@@ -85,13 +85,12 @@ export class SidebarFormService {
     if (!nodeId) return;
 
     const node = this.modelService.getNodeById(nodeId);
-    if (!node) return;
+    if (!node || !isOrgChartNodeData(node.data)) return;
 
     const formValue = this.form.getRawValue();
-    const currentData = node.data as OrgChartNodeData;
 
     this.sidebarService.updateNodeData(nodeId, {
-      ...currentData,
+      ...node.data,
       fullName: formValue.fullName || undefined,
       role: formValue.role ?? undefined,
       description: formValue.description || undefined,
