@@ -1,3 +1,10 @@
+:host {
+  --dropdown-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
+    var(--ngd-token-spacing-input-m-h-pad);
+  --dropdown-trigger-label-padding: var(--ngd-token-spacing-dropdown-item-s-v-pad)
+    var(--ngd-token-spacing-dropdown-item-s-h-pad);
+}
+
 .dropdown {
   position: relative;
 }
@@ -7,7 +14,7 @@
   align-items: center;
   gap: var(--ngd-primitive-4rule-12); /* No Figma token */
   width: 100%;
-  padding: var(--ngd-token-spacing-input-m-v-pad) var(--ngd-token-spacing-input-m-h-pad); /* No Figma token */
+  padding: var(--dropdown-trigger-padding);
   border: var(--ngd-primitive-odd-1) solid var(--ngd-input-stroke-primary-default); /* No Figma token */
   border-radius: var(--ngd-token-radius-input-m);
   background: var(--ngd-ui-bg-primary-default);
@@ -37,6 +44,10 @@
     mask-repeat: no-repeat;
     mask-position: center;
     pointer-events: none;
+  }
+
+  .option-label {
+    padding: var(--dropdown-trigger-label-padding);
   }
 }
 

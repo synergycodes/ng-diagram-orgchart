@@ -50,3 +50,9 @@
   min-height: 120px; /* No Figma token */
   font-family: inherit;
 }
+
+app-select-dropdown {
+  --dropdown-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
+    var(--ngd-token-spacing-input-m-h-pad);
+  --dropdown-trigger-label-padding: 0;
+}

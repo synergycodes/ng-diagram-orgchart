@@ -7,3 +7,7 @@
     color: var(--ngd-txt-secondary-default);
   }
 }
+
+app-select-dropdown {
+  --dropdown-trigger-padding: var(--ngd-primitive-even-6); /* No Figma token */
+}
