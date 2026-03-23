@@ -1,10 +1,5 @@
 import { computed, inject, Injectable, linkedSignal } from '@angular/core';
-import {
-  NgDiagramModelService,
-  NgDiagramSelectionService,
-  NgDiagramService,
-  type Node,
-} from 'ng-diagram';
+import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
 import { isOrgChartNode, isVacantNode } from '../diagram/guards';
 import { OrgChartRole, type OrgChartNodeData } from '../diagram/interfaces';
 import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
@@ -13,12 +8,13 @@ import { type SelectDropdownOption } from '../shared/select-dropdown/select-drop
 export class PropertiesSidebarService {
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly diagramService = inject(NgDiagramService);
 
-  readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(() => {
-    const node = this.selectionService.selection().nodes.at(0);
-    return isOrgChartNode(node) ? node : undefined;
-  });
+  readonly selectedOrgChartNodes = computed<Node<OrgChartNodeData>[]>(() =>
+    this.selectionService.selection().nodes.filter(isOrgChartNode),
+  );
+  readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(() =>
+    this.selectedOrgChartNodes().at(0),
+  );
   readonly reportsToCandidateNodes = computed<Node<OrgChartNodeData>[]>(() => {
     const selectedNode = this.selectedNode();
     return this.modelService
@@ -39,17 +35,15 @@ export class PropertiesSidebarService {
   });
 
   readonly sidebarState = computed<'empty' | 'single' | 'multi'>(() => {
-    const sel = this.selectionService.selection();
-    if (sel.nodes.length === 0) return 'empty';
-    if (sel.nodes.length > 1) return 'multi';
+    const selectedNodes = this.selectedOrgChartNodes();
+    if (selectedNodes.length === 0) return 'empty';
+    if (selectedNodes.length > 1) return 'multi';
     return 'single';
   });
 
   // `& Record<string, unknown>` here is fix for `updateNodeData` constrains
   updateNodeData(id: string, data: OrgChartNodeData & Record<string, unknown>): void {
-    this.diagramService.transaction(() => {
-      this.modelService.updateNodeData(id, data);
-    });
+    this.modelService.updateNodeData(id, data);
   }
 
   toggleSidebarVisibility(): void {

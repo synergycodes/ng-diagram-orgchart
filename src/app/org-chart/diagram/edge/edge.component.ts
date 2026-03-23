@@ -29,7 +29,7 @@ import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
   },
 })
 export class EdgeComponent implements NgDiagramEdgeTemplate<OrgChartEdgeData> {
-  private modelService = inject(NgDiagramModelService);
+  private readonly modelService = inject(NgDiagramModelService);
 
   edge = input.required<Edge<OrgChartEdgeData>>();
 

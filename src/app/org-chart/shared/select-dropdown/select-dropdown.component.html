@@ -13,13 +13,16 @@
   >
     @if (selectedOption(); as opt) {
       @if (optionTpl(); as tpl) {
-        <ng-container *ngTemplateOutlet="tpl.templateRef; context: { $implicit: opt }" />
+        <ng-container
+          [ngTemplateOutlet]="tpl.templateRef"
+          [ngTemplateOutletContext]="{ $implicit: opt }"
+        />
       } @else {
         <span class="option-label">{{ opt.label }}</span>
       }
     } @else {
       @if (nullOptionTpl(); as tpl) {
-        <ng-container *ngTemplateOutlet="tpl.templateRef" />
+        <ng-container [ngTemplateOutlet]="tpl.templateRef" />
       } @else {
         <span class="option-label placeholder">{{ placeholder() }}</span>
       }
@@ -39,7 +42,7 @@
         (click)="select(null)"
       >
         @if (nullOptionTpl(); as tpl) {
-          <ng-container *ngTemplateOutlet="tpl.templateRef" />
+          <ng-container [ngTemplateOutlet]="tpl.templateRef" />
         } @else {
           <span class="option-label placeholder">{{ placeholder() }}</span>
         }
@@ -56,7 +59,10 @@
           (click)="select(opt)"
         >
           @if (optionTpl(); as tpl) {
-            <ng-container *ngTemplateOutlet="tpl.templateRef; context: { $implicit: opt }" />
+            <ng-container
+              [ngTemplateOutlet]="tpl.templateRef"
+              [ngTemplateOutletContext]="{ $implicit: opt }"
+            />
           } @else {
             <span class="option-label">{{ opt.label }}</span>
           }
