@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable } from '@angular/core';
+import { afterNextRender, DestroyRef, ElementRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgDiagramModelService } from 'ng-diagram';
@@ -20,18 +20,24 @@ export class SidebarFormService {
 
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
   private previousNodeId: string | null = null;
+  private containerEl: HTMLElement | null = null;
 
-  init(destroyRef: DestroyRef): void {
+  init(destroyRef: DestroyRef, containerElRef: ElementRef<HTMLElement>): void {
+    this.syncFormWithSelectedNode(destroyRef);
+    this.enableAutoSave(destroyRef);
+    this.setupFocusManagement(containerElRef);
+
+    destroyRef.onDestroy(() => this.saveAndReset());
+  }
+
+  private syncFormWithSelectedNode(destroyRef: DestroyRef): void {
     toObservable(this.sidebarService.selectedNode)
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe((node) => {
-        this.flush();
+        this.commitPendingChanges();
 
         if (node) {
           this.previousNodeId = node.id;
-          if (!isOrgChartNodeData(node.data)) {
-            return;
-          }
           this.form.patchValue(
             {
               fullName: node.data.fullName ?? '',
@@ -41,46 +47,63 @@ export class SidebarFormService {
             },
             { emitEvent: false },
           );
+          queueMicrotask(() => this.focusFirstControl());
         } else {
           this.previousNodeId = null;
         }
       });
-
-    this.form.valueChanges.pipe(takeUntilDestroyed(destroyRef)).subscribe(() => {
-      this.scheduleCommit();
-    });
-
-    destroyRef.onDestroy(() => this.teardown());
   }
 
-  teardown(): void {
-    this.flush();
+  private enableAutoSave(destroyRef: DestroyRef): void {
+    this.form.valueChanges.pipe(takeUntilDestroyed(destroyRef)).subscribe(() => {
+      this.debounceSave();
+    });
+  }
+
+  private setupFocusManagement(containerElRef: ElementRef<HTMLElement>): void {
+    afterNextRender(() => {
+      this.containerEl = containerElRef.nativeElement;
+      this.focusFirstControl();
+    });
+  }
+
+  private saveAndReset(): void {
+    this.commitPendingChanges();
     this.previousNodeId = null;
+    this.containerEl = null;
     this.form.reset(
       { fullName: '', role: null, description: '', reportsTo: null },
       { emitEvent: false },
     );
   }
 
-  private flush(): void {
+  private focusFirstControl(): void {
+    if (!this.containerEl) return;
+    const focusable = this.containerEl.querySelector<HTMLElement>(
+      'input, textarea, select, [tabindex]',
+    );
+    focusable?.focus();
+  }
+
+  private commitPendingChanges(): void {
     if (this.debounceTimer !== null) {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = null;
-      this.commitCurrentValues();
+      this.saveFormToNode();
     }
   }
 
-  private scheduleCommit(): void {
+  private debounceSave(): void {
     if (this.debounceTimer !== null) {
       clearTimeout(this.debounceTimer);
     }
     this.debounceTimer = setTimeout(() => {
       this.debounceTimer = null;
-      this.commitCurrentValues();
+      this.saveFormToNode();
     }, 300);
   }
 
-  private commitCurrentValues(): void {
+  private saveFormToNode(): void {
     const nodeId = this.previousNodeId;
     if (!nodeId) return;
 

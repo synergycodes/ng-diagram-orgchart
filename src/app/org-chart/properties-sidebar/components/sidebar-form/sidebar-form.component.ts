@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, input } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { type Node } from 'ng-diagram';
 import { type OrgChartNodeData, type OrgChartRole } from '../../../diagram/interfaces';
@@ -31,6 +31,6 @@ export class SidebarFormComponent {
   protected readonly form = this.formService.form;
 
   constructor() {
-    this.formService.init(inject(DestroyRef));
+    this.formService.init(inject(DestroyRef), inject(ElementRef<HTMLElement>));
   }
 }
