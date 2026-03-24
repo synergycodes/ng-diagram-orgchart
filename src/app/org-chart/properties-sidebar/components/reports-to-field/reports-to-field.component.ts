@@ -49,7 +49,6 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
   );
 
   private onChange: (value: string | null) => void = () => {};
-  private onTouched: () => void = () => {};
 
   constructor() {
     this.innerControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((v) => this.onChange(v));
@@ -63,9 +62,7 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
+  registerOnTouched(): void {}
 
   setDisabledState(isDisabled: boolean): void {
     isDisabled ? this.innerControl.disable() : this.innerControl.enable();
@@ -73,7 +70,7 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
 
   private mapNodeToOption = (node: Node<OrgChartNodeData>): SelectDropdownOption<string> => ({
     value: node.id,
-    label: node.data.fullName!,
+    label: node.data.fullName ?? '',
     data: { color: node.data.color ?? '#999' },
   });
 }

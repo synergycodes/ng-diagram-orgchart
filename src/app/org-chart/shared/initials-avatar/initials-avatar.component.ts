@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   styleUrl: './initials-avatar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '[class.size-m]': 'size() === "md"',
+    '[class.size-md]': 'size() === "md"',
     '[class.size-xl]': 'size() === "xl"',
     '[class.vacant]': '!fullName()',
     '[style.--avatar-accent]': 'color()',

@@ -1,5 +1,5 @@
 :host {
-  --sidebar-collapse-duration: 200ms; /* Always use ms or update `getCollapseDuration` logic */
+  --sidebar-collapse-duration: var(--sidebar-content-transition-duration);
   pointer-events: none;
   width: var(--sidebar-width);
   min-height: 0;

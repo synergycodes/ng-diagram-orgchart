@@ -37,7 +37,7 @@ export class PropertiesSidebarService {
     return 'single';
   });
 
-  // `& Record<string, unknown>` here is fix for `updateNodeData` constrains
+  // TODO: fix when ng-diagram supports generic updateNodeData. `& Record<string, unknown>` here is fix for `updateNodeData` constrains
   updateNodeData(id: string, data: OrgChartNodeData & Record<string, unknown>): void {
     this.modelService.updateNodeData(id, data);
   }

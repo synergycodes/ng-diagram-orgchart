@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   contentChild,
+  DestroyRef,
   ElementRef,
   forwardRef,
   inject,
@@ -16,6 +17,8 @@ import {
   SelectDropdownNullOptionDef,
   SelectDropdownOptionDef,
 } from './select-dropdown-option.directive';
+
+let nextId = 0;
 
 export interface SelectDropdownOption<SelectDropdownOptionValue = unknown> {
   value: SelectDropdownOptionValue;
@@ -36,14 +39,13 @@ export interface SelectDropdownOption<SelectDropdownOptionValue = unknown> {
   templateUrl: './select-dropdown.component.html',
   styleUrl: './select-dropdown.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '(document:click)': 'onDocumentClick($event)',
-  },
 })
 export class SelectDropdownComponent<
   SelectDropdownOptionValue = unknown,
 > implements ControlValueAccessor {
   private readonly elRef = inject(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly uid = nextId++;
 
   options = input.required<SelectDropdownOption<SelectDropdownOptionValue>[]>();
   placeholder = input('Select...');
@@ -58,14 +60,27 @@ export class SelectDropdownComponent<
   protected readonly value = signal<SelectDropdownOptionValue | null>(null);
   protected readonly focusedIndex = signal(-1);
 
+  protected readonly listboxId = computed(() => this.triggerId() ?? `sd-${this.uid}`);
+
+  protected readonly activeDescendantId = computed(() => {
+    const idx = this.focusedIndex();
+    return this.isOpen() && idx >= 0 ? `${this.listboxId()}-opt-${idx}` : null;
+  });
+
   protected readonly selectedOption = computed(() => {
     const value = this.value();
     if (value == null) return null;
     return this.options().find((o) => o.value === value) ?? null;
   });
 
+  private removeDocumentClick: (() => void) | null = null;
+
   private onChange: (value: SelectDropdownOptionValue | null) => void = () => {};
   private onTouched: () => void = () => {};
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.removeDocumentClick?.());
+  }
 
   writeValue(value: SelectDropdownOptionValue | null): void {
     this.value.set(value ?? null);
@@ -83,20 +98,13 @@ export class SelectDropdownComponent<
     this.disabled.set(isDisabled);
   }
 
-  onDocumentClick(event: MouseEvent): void {
-    if (!this.elRef.nativeElement.contains(event.target)) {
-      this.closePanel();
-    }
-  }
-
   protected toggleOpen(): void {
     if (this.disabled()) return;
-    this.isOpen.update((value) => {
-      if (!value) {
-        this.initFocusedIndex();
-      }
-      return !value;
-    });
+    if (this.isOpen()) {
+      this.closePanel();
+    } else {
+      this.openPanel();
+    }
   }
 
   protected select(option: SelectDropdownOption<SelectDropdownOptionValue> | null): void {
@@ -112,8 +120,7 @@ export class SelectDropdownComponent<
       case 'ArrowDown':
         event.preventDefault();
         if (!this.isOpen()) {
-          this.isOpen.set(true);
-          this.initFocusedIndex();
+          this.openPanel();
         } else {
           this.moveFocus(1);
         }
@@ -128,8 +135,7 @@ export class SelectDropdownComponent<
       case ' ':
         event.preventDefault();
         if (!this.isOpen()) {
-          this.isOpen.set(true);
-          this.initFocusedIndex();
+          this.openPanel();
         } else {
           this.selectFocused();
         }
@@ -158,9 +164,28 @@ export class SelectDropdownComponent<
     }
   }
 
+  private openPanel(): void {
+    this.isOpen.set(true);
+    this.initFocusedIndex();
+    this.removeDocumentClick?.();
+    this.removeDocumentClick = this.listenForOutsideClicks();
+  }
+
   private closePanel(): void {
+    this.removeDocumentClick?.();
+    this.removeDocumentClick = null;
     this.isOpen.set(false);
     this.focusedIndex.set(-1);
+  }
+
+  private listenForOutsideClicks(): () => void {
+    const handler = (event: MouseEvent) => {
+      if (!this.elRef.nativeElement.contains(event.target)) {
+        this.closePanel();
+      }
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
   }
 
   private initFocusedIndex(): void {

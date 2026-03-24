@@ -5,6 +5,8 @@
     role="combobox"
     [attr.id]="triggerId()"
     [attr.aria-expanded]="isOpen()"
+    [attr.aria-activedescendant]="activeDescendantId()"
+    [attr.aria-controls]="isOpen() ? listboxId() + '-listbox' : null"
     [attr.disabled]="disabled() || null"
     [attr.aria-disabled]="disabled()"
     aria-haspopup="listbox"
@@ -31,11 +33,12 @@
   </button>
 
   @if (isOpen()) {
-    <div class="dropdown-panel" role="listbox">
+    <div class="dropdown-panel" role="listbox" [attr.id]="listboxId() + '-listbox'">
       <div
         #optionEl
         class="dropdown-option p10"
         role="option"
+        [attr.id]="listboxId() + '-opt-0'"
         [attr.aria-selected]="value() == null"
         [class.selected]="value() == null"
         [class.focused]="focusedIndex() === 0"
@@ -53,6 +56,7 @@
           #optionEl
           class="dropdown-option p10"
           role="option"
+          [attr.id]="listboxId() + '-opt-' + (i + 1)"
           [class.selected]="opt.value === value()"
           [class.focused]="focusedIndex() === i + 1"
           [attr.aria-selected]="opt.value === value()"
