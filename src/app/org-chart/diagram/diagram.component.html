@@ -1,4 +1,4 @@
-<div class="diagram" [class.ready]="isLayoutReady()">
+<div class="diagram" [class.ready]="isLayoutReady()" [class.sidebar-expanded]="isSidebarExpanded()">
   <ng-diagram
     [model]="model"
     [config]="config"

@@ -51,6 +51,7 @@ export class DiagramComponent {
   private readonly dragStateService = inject(DragStateService);
   private readonly sidebarService = inject(PropertiesSidebarService);
 
+  protected readonly isSidebarExpanded = this.sidebarService.isExpanded;
   protected isLayoutReady = signal(false);
 
   // Assign the custom OrgChartEdge type to every user-drawn edge so it uses our

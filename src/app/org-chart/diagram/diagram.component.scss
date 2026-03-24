@@ -17,4 +17,15 @@
     bottom: 10px;
     left: 10px;
   }
+
+  ::ng-deep ng-diagram-minimap {
+    // Collapse: delay so minimap waits for sidebar content to fade out first
+    transition: right 200ms ease 200ms;
+  }
+
+  &.sidebar-expanded ::ng-deep ng-diagram-minimap {
+    // Expand: immediate transition, no delay
+    transition: right 200ms ease;
+    right: calc(var(--sidebar-width) + var(--ngd-minimap-margin) + var(--ngd-primitive-4rule-12));
+  }
 }
