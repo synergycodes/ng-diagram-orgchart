@@ -34,9 +34,12 @@ export class SidebarFormService {
   init(injector: Injector): void {
     this.syncFormWithSelectedNode(injector);
     this.enableAutoSave(injector);
-    this.setupFocusManagement(injector.get(ElementRef<HTMLElement>));
 
-    injector.get(DestroyRef).onDestroy(() => this.saveAndReset());
+    const containerElRef = injector.get(ElementRef<HTMLElement>);
+    this.setupFocusManagement(containerElRef);
+
+    const destroyRef = injector.get(DestroyRef);
+    destroyRef.onDestroy(() => this.saveAndReset());
   }
 
   private syncFormWithSelectedNode(injector: Injector): void {
