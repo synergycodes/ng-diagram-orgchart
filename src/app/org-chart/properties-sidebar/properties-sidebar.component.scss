@@ -76,10 +76,6 @@
   }
 }
 
-.sidebar-leave {
-  animation: sidebar-leave var(--sidebar-collapse-duration) ease forwards;
-}
-
 @keyframes sidebar-leave {
   from {
     opacity: 1;

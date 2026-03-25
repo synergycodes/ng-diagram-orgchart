@@ -1,4 +1,4 @@
-<div class="diagram" [class.ready]="isLayoutReady()" [class.sidebar-expanded]="isSidebarExpanded()">
+<div class="diagram" [class.ready]="isLayoutReady()">
   <ng-diagram
     [model]="model"
     [config]="config"
@@ -13,5 +13,4 @@
   >
     <ng-diagram-background type="dots" />
   </ng-diagram>
-  <ng-diagram-minimap position="bottom-right" [showZoomControls]="true" />
 </div>

@@ -20,6 +20,7 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
   templateUrl: './properties-sidebar.component.html',
   styleUrl: './properties-sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.expanded]': 'sidebarExpanded()' },
 })
 export class PropertiesSidebarComponent {
   private readonly sidebarService = inject(PropertiesSidebarService);
