@@ -1,8 +1,16 @@
-import { afterNextRender, DestroyRef, ElementRef, inject, Injectable } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import {
+  afterNextRender,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  Injectable,
+  Injector,
+  untracked,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgDiagramModelService } from 'ng-diagram';
-import { distinctUntilChanged } from 'rxjs';
 import { isOrgChartNodeData } from '../../../diagram/guards';
 import { OrgChartRole } from '../../../diagram/interfaces';
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
@@ -23,39 +31,47 @@ export class SidebarFormService {
   private previousNodeId: string | null = null;
   private containerEl: HTMLElement | null = null;
 
-  init(destroyRef: DestroyRef, containerElRef: ElementRef<HTMLElement>): void {
-    this.syncFormWithSelectedNode(destroyRef);
+  init(injector: Injector): void {
+    const destroyRef = injector.get(DestroyRef);
+    const containerElRef = injector.get(ElementRef<HTMLElement>);
+
+    this.syncFormWithSelectedNode(injector);
     this.enableAutoSave(destroyRef);
     this.setupFocusManagement(containerElRef);
 
     destroyRef.onDestroy(() => this.saveAndReset());
   }
 
-  private syncFormWithSelectedNode(destroyRef: DestroyRef): void {
-    toObservable(this.sidebarService.selectedNode)
-      .pipe(
-        distinctUntilChanged((previous, current) => previous?.id === current?.id),
-        takeUntilDestroyed(destroyRef),
-      )
-      .subscribe((node) => {
-        this.commitPendingChanges();
+  private syncFormWithSelectedNode(injector: Injector): void {
+    effect(
+      () => {
+        const node = this.sidebarService.selectedNode();
+        untracked(() => {
+          if (node?.id === this.previousNodeId) {
+            return;
+          }
 
-        if (node) {
-          this.previousNodeId = node.id;
-          this.form.patchValue(
-            {
-              fullName: node.data.fullName ?? '',
-              role: node.data.role ?? null,
-              description: node.data.description ?? '',
-              reportsTo: node.data.reportsTo ?? null,
-            },
-            { emitEvent: false },
-          );
-          queueMicrotask(() => this.focusFirstControl());
-        } else {
-          this.previousNodeId = null;
-        }
-      });
+          this.commitPendingChanges();
+
+          if (node) {
+            this.previousNodeId = node.id;
+            this.form.patchValue(
+              {
+                fullName: node.data.fullName ?? '',
+                role: node.data.role ?? null,
+                description: node.data.description ?? '',
+                reportsTo: node.data.reportsTo ?? null,
+              },
+              { emitEvent: false },
+            );
+            queueMicrotask(() => this.focusFirstControl());
+          } else {
+            this.previousNodeId = null;
+          }
+        });
+      },
+      { injector },
+    );
   }
 
   private enableAutoSave(destroyRef: DestroyRef): void {
