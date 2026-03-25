@@ -8,7 +8,7 @@ import {
   Injector,
   untracked,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNodeData } from '../../../diagram/guards';
@@ -32,14 +32,11 @@ export class SidebarFormService {
   private containerEl: HTMLElement | null = null;
 
   init(injector: Injector): void {
-    const destroyRef = injector.get(DestroyRef);
-    const containerElRef = injector.get(ElementRef<HTMLElement>);
-
     this.syncFormWithSelectedNode(injector);
-    this.enableAutoSave(destroyRef);
-    this.setupFocusManagement(containerElRef);
+    this.enableAutoSave(injector);
+    this.setupFocusManagement(injector.get(ElementRef<HTMLElement>));
 
-    destroyRef.onDestroy(() => this.saveAndReset());
+    injector.get(DestroyRef).onDestroy(() => this.saveAndReset());
   }
 
   private syncFormWithSelectedNode(injector: Injector): void {
@@ -74,10 +71,20 @@ export class SidebarFormService {
     );
   }
 
-  private enableAutoSave(destroyRef: DestroyRef): void {
-    this.form.valueChanges.pipe(takeUntilDestroyed(destroyRef)).subscribe(() => {
-      this.debounceSave();
-    });
+  private enableAutoSave(injector: Injector): void {
+    const formValue = toSignal(this.form.valueChanges, { injector });
+
+    effect(
+      () => {
+        // Track value changes
+        formValue();
+
+        untracked(() => {
+          this.debounceSave();
+        });
+      },
+      { injector },
+    );
   }
 
   private setupFocusManagement(containerElRef: ElementRef<HTMLElement>): void {
