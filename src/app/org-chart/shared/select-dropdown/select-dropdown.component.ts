@@ -6,13 +6,13 @@ import {
   contentChild,
   DestroyRef,
   ElementRef,
-  forwardRef,
   inject,
   input,
+  model,
   signal,
   viewChildren,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
+import { type FormValueControl } from '@angular/forms/signals';
 import {
   SelectDropdownNullOptionDef,
   SelectDropdownOptionDef,
@@ -29,20 +29,13 @@ export interface SelectDropdownOption<SelectDropdownOptionValue = unknown> {
 @Component({
   selector: 'app-select-dropdown',
   imports: [NgTemplateOutlet],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => SelectDropdownComponent),
-      multi: true,
-    },
-  ],
   templateUrl: './select-dropdown.component.html',
   styleUrl: './select-dropdown.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectDropdownComponent<
   SelectDropdownOptionValue = unknown,
-> implements ControlValueAccessor {
+> implements FormValueControl<SelectDropdownOptionValue | null> {
   private readonly elRef = inject(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly uid = nextId++;
@@ -56,8 +49,8 @@ export class SelectDropdownComponent<
   private readonly optionElements = viewChildren<ElementRef<HTMLElement>>('optionEl');
 
   protected readonly isOpen = signal(false);
-  protected readonly disabled = signal(false);
-  protected readonly value = signal<SelectDropdownOptionValue | null>(null);
+  readonly disabled = input(false);
+  readonly value = model<SelectDropdownOptionValue | null>(null);
   protected readonly focusedIndex = signal(-1);
 
   protected readonly listboxId = computed(() => this.triggerId() ?? `sd-${this.uid}`);
@@ -75,27 +68,8 @@ export class SelectDropdownComponent<
 
   private removeDocumentClick: (() => void) | null = null;
 
-  private onChange: (value: SelectDropdownOptionValue | null) => void = () => {};
-  private onTouched: () => void = () => {};
-
   constructor() {
     this.destroyRef.onDestroy(() => this.removeDocumentClick?.());
-  }
-
-  writeValue(value: SelectDropdownOptionValue | null): void {
-    this.value.set(value ?? null);
-  }
-
-  registerOnChange(onChange: (value: SelectDropdownOptionValue | null) => void): void {
-    this.onChange = onChange;
-  }
-
-  registerOnTouched(onTouched: () => void): void {
-    this.onTouched = onTouched;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled.set(isDisabled);
   }
 
   protected toggleOpen(): void {
@@ -108,10 +82,7 @@ export class SelectDropdownComponent<
   }
 
   protected select(option: SelectDropdownOption<SelectDropdownOptionValue> | null): void {
-    const newValue = option?.value ?? null;
-    this.value.set(newValue);
-    this.onChange(newValue);
-    this.onTouched();
+    this.value.set(option?.value ?? null);
     this.closePanel();
   }
 

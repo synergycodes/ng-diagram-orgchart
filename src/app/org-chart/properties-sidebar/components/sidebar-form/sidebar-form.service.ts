@@ -1,121 +1,50 @@
-import {
-  afterNextRender,
-  DestroyRef,
-  effect,
-  ElementRef,
-  inject,
-  Injectable,
-  Injector,
-  untracked,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup } from '@angular/forms';
+import { DestroyRef, effect, inject, Injectable, signal, untracked } from '@angular/core';
+import { form } from '@angular/forms/signals';
 import { NgDiagramModelService } from 'ng-diagram';
-import { isOccupiedNodeData, isOrgChartNodeData } from '../../../diagram/guards';
-import { OrgChartRole } from '../../../diagram/interfaces';
+import { isOrgChartNodeData } from '../../../diagram/guards';
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
+import { EMPTY_FORM, formDataToNodeData, nodeDataToFormData, type SidebarFormData } from './sidebar-form.mappers';
 
 @Injectable()
 export class SidebarFormService {
   private readonly sidebarService = inject(PropertiesSidebarService);
   private readonly modelService = inject(NgDiagramModelService);
 
-  readonly form = new FormGroup({
-    fullName: new FormControl('', { nonNullable: true }),
-    role: new FormControl<OrgChartRole | null>(null),
-    description: new FormControl('', { nonNullable: true }),
-    reportsTo: new FormControl<string | null>(null),
-  });
+  readonly formModel = signal<SidebarFormData>({ ...EMPTY_FORM });
+  readonly fieldTree = form(this.formModel);
 
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  private previousNodeId: string | null = null;
-  private containerEl: HTMLElement | null = null;
+  private currentNodeId: string | null = null;
 
-  init(injector: Injector): void {
-    this.syncFormWithSelectedNode(injector);
-    this.enableAutoSave(injector);
-
-    const containerElRef = injector.get(ElementRef<HTMLElement>);
-    this.setupFocusManagement(containerElRef);
-
-    const destroyRef = injector.get(DestroyRef);
-    destroyRef.onDestroy(() => this.saveAndReset());
+  constructor() {
+    this.syncFormWithSelectedNode();
+    this.enableAutoSave();
+    inject(DestroyRef).onDestroy(() => this.flushPendingSave());
   }
 
-  private syncFormWithSelectedNode(injector: Injector): void {
-    effect(
-      () => {
-        const node = this.sidebarService.selectedNode();
-        untracked(() => {
-          if (node?.id === this.previousNodeId) {
-            return;
-          }
+  private syncFormWithSelectedNode(): void {
+    effect(() => {
+      const node = this.sidebarService.selectedNode();
+      untracked(() => {
+        if (node?.id === this.currentNodeId) {
+          return;
+        }
 
-          this.commitPendingChanges();
-
-          if (node) {
-            this.previousNodeId = node.id;
-            this.form.patchValue(
-              {
-                fullName: isOccupiedNodeData(node.data) ? node.data.fullName : '',
-                role: node.data.role ?? null,
-                description: node.data.description ?? '',
-                reportsTo: node.data.reportsTo ?? null,
-              },
-              { emitEvent: false },
-            );
-            queueMicrotask(() => this.focusFirstControl());
-          } else {
-            this.previousNodeId = null;
-          }
-        });
-      },
-      { injector },
-    );
-  }
-
-  private enableAutoSave(injector: Injector): void {
-    const formValue = toSignal(this.form.valueChanges, { injector });
-
-    effect(
-      () => {
-        // Track value changes
-        formValue();
-
-        untracked(() => {
-          this.debounceSave();
-        });
-      },
-      { injector },
-    );
-  }
-
-  private setupFocusManagement(containerElRef: ElementRef<HTMLElement>): void {
-    afterNextRender(() => {
-      this.containerEl = containerElRef.nativeElement;
-      this.focusFirstControl();
+        this.flushPendingSave();
+        this.currentNodeId = node?.id ?? null;
+        this.formModel.set(node ? nodeDataToFormData(node.data) : { ...EMPTY_FORM });
+      });
     });
   }
 
-  private saveAndReset(): void {
-    this.commitPendingChanges();
-    this.previousNodeId = null;
-    this.containerEl = null;
-    this.form.reset(
-      { fullName: '', role: null, description: '', reportsTo: null },
-      { emitEvent: false },
-    );
+  private enableAutoSave(): void {
+    effect(() => {
+      this.formModel();
+      untracked(() => this.debounceSave());
+    });
   }
 
-  private focusFirstControl(): void {
-    if (!this.containerEl) return;
-    const focusable = this.containerEl.querySelector<HTMLElement>(
-      'input, textarea, select, [tabindex]',
-    );
-    focusable?.focus();
-  }
-
-  private commitPendingChanges(): void {
+  private flushPendingSave(): void {
     if (this.debounceTimer !== null) {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = null;
@@ -134,37 +63,13 @@ export class SidebarFormService {
   }
 
   private saveFormToNode(): void {
-    const nodeId = this.previousNodeId;
+    const nodeId = this.currentNodeId;
     if (!nodeId) return;
 
     const node = this.modelService.getNodeById(nodeId);
     if (!node || !isOrgChartNodeData(node.data)) return;
 
-    const formValue = this.form.getRawValue();
-    const existingData = node.data;
-
-    const variantData = formValue.fullName
-      ? {
-          type: 'occupied' as const,
-          fullName: formValue.fullName,
-          color: isOccupiedNodeData(existingData) ? existingData.color : undefined,
-        }
-      : { type: 'vacant' as const };
-
-    const updatedNodeData = {
-      ...variantData,
-      role: formValue.role ?? undefined,
-      description: formValue.description || undefined,
-      reports: existingData.reports,
-      span: existingData.span,
-      shiftCapacity: existingData.shiftCapacity,
-      reportsTo: formValue.reportsTo ?? undefined,
-      isCollapsed: existingData.isCollapsed,
-      collapsedChildrenCount: existingData.collapsedChildrenCount,
-      hasChildren: existingData.hasChildren,
-      isHidden: existingData.isHidden,
-    };
-
-    this.sidebarService.updateNodeData(nodeId, updatedNodeData);
+    const updatedData = formDataToNodeData(this.formModel(), node.data);
+    this.sidebarService.updateNodeData(nodeId, updatedData);
   }
 }

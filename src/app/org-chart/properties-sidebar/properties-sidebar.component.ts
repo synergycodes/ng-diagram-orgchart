@@ -8,7 +8,6 @@ import {
   signal,
 } from '@angular/core';
 import { SidebarFormComponent } from './components/sidebar-form/sidebar-form.component';
-import { SidebarFormService } from './components/sidebar-form/sidebar-form.service';
 import { SidebarHeaderComponent } from './components/sidebar-header/sidebar-header.component';
 import { SidebarPlaceholderComponent } from './components/sidebar-placeholder/sidebar-placeholder.component';
 import { PropertiesSidebarService } from './properties-sidebar.service';
@@ -16,7 +15,6 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
 @Component({
   selector: 'app-properties-sidebar',
   imports: [SidebarHeaderComponent, SidebarPlaceholderComponent, SidebarFormComponent],
-  providers: [SidebarFormService],
   templateUrl: './properties-sidebar.component.html',
   styleUrl: './properties-sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
