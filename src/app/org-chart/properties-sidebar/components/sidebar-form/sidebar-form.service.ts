@@ -2,6 +2,7 @@ import { afterNextRender, DestroyRef, ElementRef, inject, Injectable } from '@an
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgDiagramModelService } from 'ng-diagram';
+import { distinctUntilChanged } from 'rxjs';
 import { isOrgChartNodeData } from '../../../diagram/guards';
 import { OrgChartRole } from '../../../diagram/interfaces';
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
@@ -32,7 +33,10 @@ export class SidebarFormService {
 
   private syncFormWithSelectedNode(destroyRef: DestroyRef): void {
     toObservable(this.sidebarService.selectedNode)
-      .pipe(takeUntilDestroyed(destroyRef))
+      .pipe(
+        distinctUntilChanged((previous, current) => previous?.id === current?.id),
+        takeUntilDestroyed(destroyRef),
+      )
       .subscribe((node) => {
         this.commitPendingChanges();
 
