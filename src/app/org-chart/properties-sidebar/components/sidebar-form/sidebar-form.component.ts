@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, Injector, input } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { type Node } from 'ng-diagram';
-import { type OrgChartNodeData, type OrgChartRole } from '../../../diagram/interfaces';
+import { type OrgChartOccupiedNodeData, type OrgChartRole } from '../../../diagram/interfaces';
 import {
   SelectDropdownComponent,
   type SelectDropdownOption,
@@ -25,7 +25,7 @@ import { SidebarFormService } from './sidebar-form.service';
 export class SidebarFormComponent {
   private readonly formService = inject(SidebarFormService);
 
-  readonly reportsToCandidateNodes = input.required<Node<OrgChartNodeData>[]>();
+  readonly reportsToCandidateNodes = input.required<Node<OrgChartOccupiedNodeData>[]>();
   readonly roleOptions = input.required<SelectDropdownOption<OrgChartRole>[]>();
 
   protected readonly form = this.formService.form;

@@ -6,7 +6,7 @@ import {
   type Node,
 } from 'ng-diagram';
 import { DragStateService } from '../drag-state.service';
-import { isVacantNode } from '../guards';
+import { isOccupiedNodeData, isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
@@ -66,6 +66,14 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node())) return 'vacant';
     return this.viewportService.scale() < 1 ? 'compact' : 'full';
+  });
+
+  occupiedData = computed(() => {
+    const data = this.node().data;
+    if (!isOccupiedNodeData(data)) {
+      return undefined;
+    }
+    return data;
   });
 
   /** Toggle the collapsed state of this node's subtree and re-layout. */

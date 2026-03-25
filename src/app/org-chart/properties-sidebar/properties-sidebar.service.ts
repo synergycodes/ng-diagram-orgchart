@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
-import { isOrgChartNode, isVacantNode } from '../diagram/guards';
-import { OrgChartRole, type OrgChartNodeData } from '../diagram/interfaces';
+import { isOccupiedNode, isOrgChartNode } from '../diagram/guards';
+import { OrgChartRole, type OrgChartNodeData, type OrgChartOccupiedNodeData } from '../diagram/interfaces';
 import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
 
 @Injectable()
@@ -16,13 +16,13 @@ export class PropertiesSidebarService {
   readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(() =>
     this.selectedOrgChartNodes().at(0),
   );
-  readonly reportsToCandidateNodes = computed<Node<OrgChartNodeData>[]>(() => {
+  readonly reportsToCandidateNodes = computed<Node<OrgChartOccupiedNodeData>[]>(() => {
     const selectedNode = this.selectedNode();
     return this.modelService
       .nodes()
       .filter(
-        (node): node is Node<OrgChartNodeData> =>
-          node.id !== selectedNode?.id && isOrgChartNode(node) && !isVacantNode(node),
+        (node): node is Node<OrgChartOccupiedNodeData> =>
+          node.id !== selectedNode?.id && isOccupiedNode(node),
       );
   });
 

@@ -36,6 +36,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Thomas Walter',
         role: OrgChartRole.PlantDirector,
         description: '',
@@ -52,6 +53,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Sarah Chen',
         role: OrgChartRole.OperationsManager,
         description: '',
@@ -69,6 +71,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Marcus Thompson',
         role: OrgChartRole.HseSafetyLead,
         description: '',
@@ -86,6 +89,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'James Rodriguez',
         role: OrgChartRole.MaintenanceHead,
         description: '',
@@ -103,6 +107,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Emily Watson',
         role: OrgChartRole.HrPayrollManager,
         description: '',
@@ -120,6 +125,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Michael Davis',
         role: OrgChartRole.ShiftASupervisor,
         description: '',
@@ -135,6 +141,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Diana Patel',
         role: OrgChartRole.ShiftBLead,
         description: '',
@@ -151,6 +158,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Carlos Martinez',
         role: OrgChartRole.HseInspector,
         description: '',
@@ -166,6 +174,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Thomas Green',
         role: OrgChartRole.SeniorElectrician,
         description: '',
@@ -181,6 +190,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'vacant',
         role: OrgChartRole.MaintenanceTechnician,
         description: '',
         reports: 0,
@@ -194,6 +204,7 @@ export const diagramModel: {
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
+        type: 'occupied',
         fullName: 'Patricia Moore',
         role: OrgChartRole.UnionRepresentative,
         description: '',

@@ -7,7 +7,7 @@ import {
   type ControlValueAccessor,
 } from '@angular/forms';
 import { type Node } from 'ng-diagram';
-import { type OrgChartNodeData } from '../../../diagram/interfaces';
+import { type OrgChartOccupiedNodeData } from '../../../diagram/interfaces';
 import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
 import {
   SelectDropdownNullOptionDef,
@@ -39,7 +39,7 @@ import {
   styleUrl: './reports-to-field.component.scss',
 })
 export class ReportsToFieldComponent implements ControlValueAccessor {
-  candidateNodes = input.required<Node<OrgChartNodeData>[]>();
+  candidateNodes = input.required<Node<OrgChartOccupiedNodeData>[]>();
   triggerId = input<string>();
 
   protected readonly innerControl = new FormControl<string | null>(null);
@@ -68,9 +68,9 @@ export class ReportsToFieldComponent implements ControlValueAccessor {
     isDisabled ? this.innerControl.disable() : this.innerControl.enable();
   }
 
-  private mapNodeToOption = (node: Node<OrgChartNodeData>): SelectDropdownOption<string> => ({
+  private mapNodeToOption = (node: Node<OrgChartOccupiedNodeData>): SelectDropdownOption<string> => ({
     value: node.id,
-    label: node.data.fullName ?? '',
+    label: node.data.fullName,
     data: { color: node.data.color ?? '#999' },
   });
 }

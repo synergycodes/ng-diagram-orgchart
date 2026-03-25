@@ -11,7 +11,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { NgDiagramModelService } from 'ng-diagram';
-import { isOrgChartNodeData } from '../../../diagram/guards';
+import { isOccupiedNodeData, isOrgChartNodeData } from '../../../diagram/guards';
 import { OrgChartRole } from '../../../diagram/interfaces';
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
 
@@ -57,7 +57,7 @@ export class SidebarFormService {
             this.previousNodeId = node.id;
             this.form.patchValue(
               {
-                fullName: node.data.fullName ?? '',
+                fullName: isOccupiedNodeData(node.data) ? node.data.fullName : '',
                 role: node.data.role ?? null,
                 description: node.data.description ?? '',
                 reportsTo: node.data.reportsTo ?? null,
@@ -141,13 +141,30 @@ export class SidebarFormService {
     if (!node || !isOrgChartNodeData(node.data)) return;
 
     const formValue = this.form.getRawValue();
+    const existingData = node.data;
 
-    this.sidebarService.updateNodeData(nodeId, {
-      ...node.data,
-      fullName: formValue.fullName || undefined,
+    const variantData = formValue.fullName
+      ? {
+          type: 'occupied' as const,
+          fullName: formValue.fullName,
+          color: isOccupiedNodeData(existingData) ? existingData.color : undefined,
+        }
+      : { type: 'vacant' as const };
+
+    const updatedNodeData = {
+      ...variantData,
       role: formValue.role ?? undefined,
       description: formValue.description || undefined,
+      reports: existingData.reports,
+      span: existingData.span,
+      shiftCapacity: existingData.shiftCapacity,
       reportsTo: formValue.reportsTo ?? undefined,
-    });
+      isCollapsed: existingData.isCollapsed,
+      collapsedChildrenCount: existingData.collapsedChildrenCount,
+      hasChildren: existingData.hasChildren,
+      isHidden: existingData.isHidden,
+    };
+
+    this.sidebarService.updateNodeData(nodeId, updatedNodeData);
   }
 }

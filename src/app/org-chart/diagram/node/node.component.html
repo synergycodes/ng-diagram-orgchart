@@ -4,16 +4,16 @@
   }
   @case ('compact') {
     <app-compact-node
-      [fullName]="node().data.fullName"
+      [fullName]="occupiedData()?.fullName"
       [role]="node().data.role"
-      [color]="node().data.color"
+      [color]="occupiedData()?.color"
     />
   }
   @case ('full') {
     <app-full-node
-      [fullName]="node().data.fullName"
+      [fullName]="occupiedData()?.fullName"
       [role]="node().data.role"
-      [color]="node().data.color"
+      [color]="occupiedData()?.color"
       [reports]="node().data.reports"
       [span]="node().data.span"
       [shiftCapacity]="node().data.shiftCapacity"
