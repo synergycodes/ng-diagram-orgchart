@@ -29,25 +29,18 @@ export function formDataToNodeData(
   formData: SidebarFormData,
   existingData: OrgChartNodeData,
 ): OrgChartNodeData & Record<string, unknown> {
+  const { type, role, description, reportsTo, ...base } = existingData;
+  const color = isOccupiedNodeData(existingData) ? existingData.color : undefined;
+
   const variantData = formData.fullName
-    ? {
-        type: 'occupied' as const,
-        fullName: formData.fullName,
-        color: isOccupiedNodeData(existingData) ? existingData.color : undefined,
-      }
+    ? { type: 'occupied' as const, fullName: formData.fullName, color }
     : { type: 'vacant' as const };
 
   return {
+    ...base,
     ...variantData,
     role: formData.role ?? undefined,
     description: formData.description || undefined,
-    reports: existingData.reports,
-    span: existingData.span,
-    shiftCapacity: existingData.shiftCapacity,
     reportsTo: formData.reportsTo ?? undefined,
-    isCollapsed: existingData.isCollapsed,
-    collapsedChildrenCount: existingData.collapsedChildrenCount,
-    hasChildren: existingData.hasChildren,
-    isHidden: existingData.isHidden,
   };
 }
