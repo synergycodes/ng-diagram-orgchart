@@ -7,7 +7,7 @@
         id="fullName"
         type="text"
         class="form-input p10"
-        [formControl]="form.controls.fullName"
+        [formField]="fieldTree.fullName"
         placeholder="Enter full name"
       />
     </app-form-field>
@@ -15,7 +15,7 @@
     <app-form-field label="Role" fieldId="role">
       <app-select-dropdown
         triggerId="role"
-        [formControl]="form.controls.role"
+        [formField]="fieldTree.role"
         [options]="roleOptions()"
         placeholder="Select a role"
       />
@@ -25,7 +25,7 @@
       <textarea
         id="description"
         class="form-input form-textarea p10"
-        [formControl]="form.controls.description"
+        [formField]="fieldTree.description"
         placeholder="Enter description"
         rows="3"
       ></textarea>
@@ -43,7 +43,7 @@
       <app-reports-to-field
         triggerId="reportsTo"
         [candidateNodes]="reportsToCandidateNodes()"
-        [formControl]="form.controls.reportsTo"
+        [formField]="fieldTree.reportsTo"
       />
     </app-form-field>
   </div>

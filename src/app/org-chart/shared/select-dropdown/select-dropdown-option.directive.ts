@@ -1,7 +1,7 @@
 import { Directive, inject, TemplateRef } from '@angular/core';
 import { type SelectDropdownOption } from './select-dropdown.component';
 
-export interface SelectDropdownOptionContext<T = unknown> {
+interface SelectDropdownOptionContext<T = unknown> {
   $implicit: SelectDropdownOption<T>;
 }
 
