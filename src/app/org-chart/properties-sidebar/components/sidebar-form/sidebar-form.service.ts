@@ -40,7 +40,9 @@ export class SidebarFormService {
   private enableAutoSave(): void {
     effect(() => {
       this.formModel();
-      untracked(() => this.debounceSave());
+      if (this.fieldTree().dirty()) {
+        untracked(() => this.debounceSave());
+      }
     });
   }
 
