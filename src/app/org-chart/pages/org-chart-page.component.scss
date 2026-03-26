@@ -1,5 +1,4 @@
 :host {
-  --sidebar-content-transition-duration: 200ms; /* Always use ms or update `getCollapseDuration` logic */
   --sidebar-width: 320px; /* No Figma token */
   position: relative;
   display: block;

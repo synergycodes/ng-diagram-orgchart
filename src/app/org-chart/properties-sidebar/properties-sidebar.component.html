@@ -1,12 +1,8 @@
-<aside
-  class="sidebar"
-  aria-labelledby="properties-sidebar-title"
-  [class.expanded]="sidebarExpanded()"
->
+<aside class="sidebar" aria-labelledby="properties-sidebar-title">
   <app-sidebar-header [isExpanded]="isExpanded()" (toggle)="onHeaderToggle()" />
-  <div class="sidebar-separator" [class.visible]="sidebarExpanded()"></div>
   @if (isExpanded()) {
-    <div class="sidebar-content" animate.enter="sidebar-enter" animate.leave="sidebar-leave">
+    <div class="sidebar-separator"></div>
+    <div class="sidebar-content sidebar-enter">
       @if (state() === 'single') {
         <app-sidebar-form
           [reportsToCandidateNodes]="reportsToCandidateNodes()"
