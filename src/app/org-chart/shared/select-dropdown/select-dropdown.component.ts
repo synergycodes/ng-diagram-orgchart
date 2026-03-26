@@ -95,18 +95,6 @@ export class SelectDropdownComponent<
     return item.value === this.value();
   }
 
-  protected optionId(index: number): string {
-    return `${this.listboxId()}-opt-${index}`;
-  }
-
-  protected panelId(): string {
-    return `${this.listboxId()}-listbox`;
-  }
-
-  protected isSelected(item: DropdownItem<SelectDropdownOptionValue>): boolean {
-    return item.value === this.value();
-  }
-
   protected toggleOpen(): void {
     if (this.isOpen()) {
       this.closePanel();

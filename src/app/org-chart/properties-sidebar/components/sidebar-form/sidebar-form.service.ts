@@ -3,7 +3,12 @@ import { form } from '@angular/forms/signals';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNodeData } from '../../../diagram/guards';
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
-import { EMPTY_FORM, formDataToNodeData, nodeDataToFormData, type SidebarFormData } from './sidebar-form.mappers';
+import {
+  EMPTY_FORM,
+  formDataToNodeData,
+  nodeDataToFormData,
+  type SidebarFormData,
+} from './sidebar-form.mappers';
 
 @Injectable()
 export class SidebarFormService {

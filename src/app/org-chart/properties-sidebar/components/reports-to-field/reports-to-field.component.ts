@@ -34,7 +34,9 @@ export class ReportsToFieldComponent implements FormValueControl<string | null> 
     this.candidateNodes().map(this.mapNodeToOption),
   );
 
-  private mapNodeToOption = (node: Node<OrgChartOccupiedNodeData>): SelectDropdownOption<string> => ({
+  private mapNodeToOption = (
+    node: Node<OrgChartOccupiedNodeData>,
+  ): SelectDropdownOption<string> => ({
     value: node.id,
     label: node.data.fullName,
     data: { color: node.data.color ?? '#999' },

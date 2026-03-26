@@ -1,7 +1,11 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
 import { isOccupiedNode, isOrgChartNode } from '../diagram/guards';
-import { OrgChartRole, type OrgChartNodeData, type OrgChartOccupiedNodeData } from '../diagram/interfaces';
+import {
+  OrgChartRole,
+  type OrgChartNodeData,
+  type OrgChartOccupiedNodeData,
+} from '../diagram/interfaces';
 import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
 
 @Injectable()

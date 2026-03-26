@@ -24,12 +24,7 @@ import { SidebarFormService } from './sidebar-form.service';
 
 @Component({
   selector: 'app-sidebar-form',
-  imports: [
-    FormField,
-    FormFieldComponent,
-    ReportsToFieldComponent,
-    SelectDropdownComponent,
-  ],
+  imports: [FormField, FormFieldComponent, ReportsToFieldComponent, SelectDropdownComponent],
   providers: [SidebarFormService],
   templateUrl: './sidebar-form.component.html',
   styleUrl: './sidebar-form.component.scss',

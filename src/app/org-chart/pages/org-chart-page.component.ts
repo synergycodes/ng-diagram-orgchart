@@ -7,7 +7,12 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
 
 @Component({
   selector: 'app-org-chart-page',
-  imports: [DiagramComponent, PropertiesSidebarComponent, TopNavbarComponent, NgDiagramMinimapComponent],
+  imports: [
+    DiagramComponent,
+    PropertiesSidebarComponent,
+    TopNavbarComponent,
+    NgDiagramMinimapComponent,
+  ],
   templateUrl: './org-chart-page.component.html',
   styleUrl: './org-chart-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
