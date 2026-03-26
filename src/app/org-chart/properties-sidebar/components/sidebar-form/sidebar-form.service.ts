@@ -1,5 +1,5 @@
 import { DestroyRef, effect, inject, Injectable, signal, untracked } from '@angular/core';
-import { form } from '@angular/forms/signals';
+import { debounce, form } from '@angular/forms/signals';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNodeData } from '../../../diagram/guards';
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
@@ -10,21 +10,28 @@ import {
   type SidebarFormData,
 } from './sidebar-form.mappers';
 
+const DEBOUNCE_TIME_MS = 300;
+const DEBOUNCED_FIELDS: (keyof SidebarFormData)[] = ['fullName', 'description'];
+
 @Injectable()
 export class SidebarFormService {
   private readonly sidebarService = inject(PropertiesSidebarService);
   private readonly modelService = inject(NgDiagramModelService);
 
   readonly formModel = signal<SidebarFormData>({ ...EMPTY_FORM });
-  readonly fieldTree = form(this.formModel);
 
-  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  readonly fieldTree = form(this.formModel, (schemaPath) => {
+    DEBOUNCED_FIELDS.forEach((fieldName) => {
+      debounce(schemaPath[fieldName], DEBOUNCE_TIME_MS);
+    });
+  });
+
   private currentNodeId: string | null = null;
 
   constructor() {
     this.syncFormWithSelectedNode();
     this.enableAutoSave();
-    inject(DestroyRef).onDestroy(() => this.flushPendingSave());
+    inject(DestroyRef).onDestroy(() => this.flushDebouncedFields());
   }
 
   private syncFormWithSelectedNode(): void {
@@ -35,38 +42,32 @@ export class SidebarFormService {
           return;
         }
 
-        this.flushPendingSave();
-        this.currentNodeId = node?.id ?? null;
-        this.formModel.set(node ? nodeDataToFormData(node.data) : { ...EMPTY_FORM });
+        this.flushDebouncedFields();
+        queueMicrotask(() => {
+          this.saveFormToNode();
+          this.currentNodeId = node?.id ?? null;
+          this.formModel.set(node ? nodeDataToFormData(node.data) : { ...EMPTY_FORM });
+        });
       });
+    });
+  }
+
+  private flushDebouncedFields(): void {
+    DEBOUNCED_FIELDS.forEach((fieldName) => {
+      this.fieldTree[fieldName]().markAsTouched();
     });
   }
 
   private enableAutoSave(): void {
     effect(() => {
       this.formModel();
-      if (this.fieldTree().dirty()) {
-        untracked(() => this.debounceSave());
-      }
+
+      untracked(() => {
+        if (this.fieldTree().dirty()) {
+          this.saveFormToNode();
+        }
+      });
     });
-  }
-
-  private flushPendingSave(): void {
-    if (this.debounceTimer !== null) {
-      clearTimeout(this.debounceTimer);
-      this.debounceTimer = null;
-      this.saveFormToNode();
-    }
-  }
-
-  private debounceSave(): void {
-    if (this.debounceTimer !== null) {
-      clearTimeout(this.debounceTimer);
-    }
-    this.debounceTimer = setTimeout(() => {
-      this.debounceTimer = null;
-      this.saveFormToNode();
-    }, 300);
   }
 
   private saveFormToNode(): void {
