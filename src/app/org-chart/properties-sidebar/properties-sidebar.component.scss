@@ -1,5 +1,4 @@
 :host {
-  --sidebar-collapse-duration: var(--sidebar-content-transition-duration);
   pointer-events: none;
   width: var(--sidebar-width);
   min-height: 0;
@@ -17,23 +16,15 @@
   flex-direction: column;
   max-height: 100%;
   overflow: hidden;
-  interpolate-size: allow-keywords; /* Chromium 129+; Firefox/Safari fall back to instant height change */
-  transition: height 150ms ease;
+}
 
-  &.expanded {
-    height: 100%;
-  }
+:host.expanded .sidebar {
+  height: 100%;
 }
 
 .sidebar-separator {
   height: 1px;
   background: var(--ngd-ui-separator-primary-default);
-  opacity: 0;
-  transition: opacity 200ms ease;
-
-  &.visible {
-    opacity: 1;
-  }
 }
 
 .sidebar-content {
@@ -43,24 +34,9 @@
   overflow-y: auto;
 }
 
-.placeholder-wrapper {
+app-sidebar-placeholder {
   flex: 1;
   display: flex;
-}
-
-.placeholder-enter {
-  animation: placeholder-enter 200ms ease 150ms both;
-}
-
-@keyframes placeholder-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .sidebar-enter {
@@ -73,18 +49,5 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-.sidebar-leave {
-  animation: sidebar-leave var(--sidebar-collapse-duration) ease forwards;
-}
-
-@keyframes sidebar-leave {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
   }
 }

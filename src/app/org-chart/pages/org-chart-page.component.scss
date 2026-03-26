@@ -1,5 +1,4 @@
 :host {
-  --sidebar-content-transition-duration: 200ms; /* Always use ms or update `getCollapseDuration` logic */
   --sidebar-width: 320px; /* No Figma token */
   position: relative;
   display: block;
@@ -20,7 +19,31 @@
     pointer-events: all;
   }
 
-  .right-side-panel {
-    justify-self: end;
+  .content-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--ngd-primitive-4rule-12);
+    min-height: 0;
+
+    &:has(app-properties-sidebar.expanded) {
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: flex-end;
+
+      app-properties-sidebar {
+        align-self: stretch;
+        order: 2;
+      }
+
+      ng-diagram-minimap {
+        order: 1;
+      }
+    }
+  }
+
+  ng-diagram-minimap {
+    position: static;
+    margin-top: auto;
   }
 }

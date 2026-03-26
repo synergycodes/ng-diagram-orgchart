@@ -5,7 +5,6 @@ import {
   NgDiagramBackgroundComponent,
   NgDiagramComponent,
   NgDiagramEdgeTemplateMap,
-  NgDiagramMinimapComponent,
   NgDiagramModelService,
   NgDiagramNodeTemplateMap,
   NgDiagramService,
@@ -37,7 +36,7 @@ import { NodeComponent } from './node/node.component';
  */
 @Component({
   selector: 'app-diagram',
-  imports: [NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent],
+  imports: [NgDiagramComponent, NgDiagramBackgroundComponent],
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,7 +50,6 @@ export class DiagramComponent {
   private readonly dragStateService = inject(DragStateService);
   private readonly sidebarService = inject(PropertiesSidebarService);
 
-  protected readonly isSidebarExpanded = this.sidebarService.isExpanded;
   protected isLayoutReady = signal(false);
 
   // Assign the custom OrgChartEdge type to every user-drawn edge so it uses our
