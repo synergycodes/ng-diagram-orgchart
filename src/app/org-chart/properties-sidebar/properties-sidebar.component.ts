@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { SidebarFormComponent } from './components/sidebar-form/sidebar-form.component';
 import { SidebarFormService } from './components/sidebar-form/sidebar-form.service';
 import { SidebarHeaderComponent } from './components/sidebar-header/sidebar-header.component';
@@ -17,20 +17,12 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
 export class PropertiesSidebarComponent {
   private readonly sidebarService = inject(PropertiesSidebarService);
 
-  protected readonly shouldAnimatePlaceholder = signal(false);
   protected readonly isExpanded = this.sidebarService.isExpanded;
   protected readonly state = this.sidebarService.sidebarState;
   protected readonly reportsToCandidateNodes = this.sidebarService.reportsToCandidateNodes;
   protected readonly roleOptions = this.sidebarService.roleOptions;
 
   protected onHeaderToggle(): void {
-    if (!this.isExpanded()) {
-      this.shouldAnimatePlaceholder.set(true);
-    }
     this.sidebarService.toggleSidebarVisibility();
-  }
-
-  protected onPlaceholderAnimationEnd(): void {
-    this.shouldAnimatePlaceholder.set(false);
   }
 }

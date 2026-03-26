@@ -8,24 +8,16 @@
           [reportsToCandidateNodes]="reportsToCandidateNodes()"
           [roleOptions]="roleOptions"
         />
+      } @else if (state() === 'empty') {
+        <app-sidebar-placeholder
+          title="No selection"
+          description="Select an employee card on the canvas to view their details."
+        />
       } @else {
-        <div
-          class="placeholder-wrapper"
-          [class.placeholder-enter]="shouldAnimatePlaceholder()"
-          (animationend)="onPlaceholderAnimationEnd()"
-        >
-          @if (state() === 'empty') {
-            <app-sidebar-placeholder
-              title="No selection"
-              description="Select an employee card on the canvas to view their details."
-            />
-          } @else {
-            <app-sidebar-placeholder
-              title="Multiple items selected."
-              description="Please select a single node to view properties."
-            />
-          }
-        </div>
+        <app-sidebar-placeholder
+          title="Multiple items selected."
+          description="Please select a single node to view properties."
+        />
       }
     </div>
   }
