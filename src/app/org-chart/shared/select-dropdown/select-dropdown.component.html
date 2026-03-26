@@ -7,8 +7,6 @@
     [attr.aria-expanded]="isOpen()"
     [attr.aria-activedescendant]="activeDescendantId()"
     [attr.aria-controls]="isOpen() ? listboxId() + '-listbox' : null"
-    [attr.disabled]="disabled() || null"
-    [attr.aria-disabled]="disabled()"
     aria-haspopup="listbox"
     (click)="toggleOpen()"
     (keydown)="onKeydown($event)"

@@ -49,7 +49,6 @@ export class SelectDropdownComponent<
   private readonly optionElements = viewChildren<ElementRef<HTMLElement>>('optionEl');
 
   protected readonly isOpen = signal(false);
-  readonly disabled = input(false);
   readonly value = model<SelectDropdownOptionValue | null>(null);
   protected readonly focusedIndex = signal(-1);
 
@@ -73,7 +72,6 @@ export class SelectDropdownComponent<
   }
 
   protected toggleOpen(): void {
-    if (this.disabled()) return;
     if (this.isOpen()) {
       this.closePanel();
     } else {
