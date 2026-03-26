@@ -50,6 +50,7 @@ export class SidebarFormService {
           this.currentNodeId = node?.id ?? null;
           const parentId = node ? this.hierarchyService.getParentId(node.id) : null;
           this.formModel.set(node ? nodeDataToFormData(node.data, parentId) : { ...EMPTY_FORM });
+          this.fieldTree().reset();
         });
       });
     });
@@ -79,17 +80,15 @@ export class SidebarFormService {
   }
 
   private updateHierarchyOnChange(): void {
-    let previousReportsTo: string | null = null;
-
     effect(() => {
-      const reportsTo = this.formModel().reportsTo;
+      const reportsTo = this.fieldTree.reportsTo().value();
+
       untracked(() => {
-        if (!this.fieldTree().dirty() || reportsTo === previousReportsTo) return;
+        if (!this.fieldTree().dirty()) return;
 
         const nodeId = this.currentNodeId;
-        previousReportsTo = reportsTo;
+        if (!nodeId) return;
 
-        if (!nodeId || reportsTo === undefined) return;
         this.hierarchyService.updateNodeManager(nodeId, reportsTo);
       });
     });
