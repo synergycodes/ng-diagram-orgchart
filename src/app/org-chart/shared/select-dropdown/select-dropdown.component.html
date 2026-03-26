@@ -6,7 +6,7 @@
     [attr.id]="triggerId()"
     [attr.aria-expanded]="isOpen()"
     [attr.aria-activedescendant]="activeDescendantId()"
-    [attr.aria-controls]="isOpen() ? listboxId() + '-listbox' : null"
+    [attr.aria-controls]="isOpen() ? panelId() : null"
     aria-haspopup="listbox"
     (click)="toggleOpen()"
     (keydown)="onKeydown($event)"
@@ -31,42 +31,33 @@
   </button>
 
   @if (isOpen()) {
-    <div class="dropdown-panel" role="listbox" [attr.id]="listboxId() + '-listbox'">
-      <div
-        #optionEl
-        class="dropdown-option p10"
-        role="option"
-        [attr.id]="listboxId() + '-opt-0'"
-        [attr.aria-selected]="value() == null"
-        [class.selected]="value() == null"
-        [class.focused]="focusedIndex() === 0"
-        (click)="select(null)"
-      >
-        @if (nullOptionTpl(); as tpl) {
-          <ng-container [ngTemplateOutlet]="tpl.templateRef" />
-        } @else {
-          <span class="option-label placeholder">{{ placeholder() }}</span>
-        }
-      </div>
-
-      @for (opt of options(); track opt.value; let i = $index) {
+    <div class="dropdown-panel" role="listbox" [attr.id]="panelId()">
+      @for (item of allOptions(); track item.value; let i = $index) {
         <div
           #optionEl
           class="dropdown-option p10"
           role="option"
-          [attr.id]="listboxId() + '-opt-' + (i + 1)"
-          [class.selected]="opt.value === value()"
-          [class.focused]="focusedIndex() === i + 1"
-          [attr.aria-selected]="opt.value === value()"
-          (click)="select(opt)"
+          [attr.id]="optionId(i)"
+          [attr.aria-selected]="isSelected(item)"
+          [class.selected]="isSelected(item)"
+          [class.focused]="focusedIndex() === i"
+          (click)="select(item)"
         >
-          @if (optionTpl(); as tpl) {
-            <ng-container
-              [ngTemplateOutlet]="tpl.templateRef"
-              [ngTemplateOutletContext]="{ $implicit: opt }"
-            />
+          @if (item.type === 'null') {
+            @if (nullOptionTpl(); as tpl) {
+              <ng-container [ngTemplateOutlet]="tpl.templateRef" />
+            } @else {
+              <span class="option-label placeholder">{{ placeholder() }}</span>
+            }
           } @else {
-            <span class="option-label">{{ opt.label }}</span>
+            @if (optionTpl(); as tpl) {
+              <ng-container
+                [ngTemplateOutlet]="tpl.templateRef"
+                [ngTemplateOutletContext]="{ $implicit: item.option }"
+              />
+            } @else {
+              <span class="option-label">{{ item.option.label }}</span>
+            }
           }
         </div>
       }

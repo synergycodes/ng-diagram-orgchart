@@ -26,6 +26,10 @@ export interface SelectDropdownOption<SelectDropdownOptionValue = unknown> {
   data?: unknown;
 }
 
+type DropdownItem<DropdownItemValue> =
+  | { type: 'null'; value: null }
+  | { type: 'option'; value: DropdownItemValue; option: SelectDropdownOption<DropdownItemValue> };
+
 @Component({
   selector: 'app-select-dropdown',
   imports: [NgTemplateOutlet],
@@ -53,10 +57,18 @@ export class SelectDropdownComponent<
   protected readonly focusedIndex = signal(-1);
 
   protected readonly listboxId = computed(() => this.triggerId() ?? `sd-${this.uid}`);
+  protected readonly allOptions = computed<DropdownItem<SelectDropdownOptionValue>[]>(() => [
+    { type: 'null', value: null },
+    ...this.options().map((option) => ({
+      type: 'option' as const,
+      value: option.value,
+      option: option,
+    })),
+  ]);
 
   protected readonly activeDescendantId = computed(() => {
     const idx = this.focusedIndex();
-    return this.isOpen() && idx >= 0 ? `${this.listboxId()}-opt-${idx}` : null;
+    return this.isOpen() && idx >= 0 ? this.optionId(idx) : null;
   });
 
   protected readonly selectedOption = computed(() => {
@@ -71,6 +83,18 @@ export class SelectDropdownComponent<
     this.destroyRef.onDestroy(() => this.removeDocumentClick?.());
   }
 
+  protected optionId(index: number): string {
+    return `${this.listboxId()}-opt-${index}`;
+  }
+
+  protected panelId(): string {
+    return `${this.listboxId()}-listbox`;
+  }
+
+  protected isSelected(item: DropdownItem<SelectDropdownOptionValue>): boolean {
+    return item.value === this.value();
+  }
+
   protected toggleOpen(): void {
     if (this.isOpen()) {
       this.closePanel();
@@ -79,56 +103,46 @@ export class SelectDropdownComponent<
     }
   }
 
-  protected select(option: SelectDropdownOption<SelectDropdownOptionValue> | null): void {
-    this.value.set(option?.value ?? null);
+  protected select(item: DropdownItem<SelectDropdownOptionValue>): void {
+    this.value.set(item.value);
     this.closePanel();
   }
 
   protected onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Tab') {
+      this.closePanel();
+      return;
+    }
+
+    if (!this.isOpen()) {
+      if (['ArrowDown', 'Enter', ' '].includes(event.key)) {
+        event.preventDefault();
+        this.openPanel();
+      }
+      return;
+    }
+
+    event.preventDefault();
+
     switch (event.key) {
       case 'ArrowDown':
-        event.preventDefault();
-        if (!this.isOpen()) {
-          this.openPanel();
-        } else {
-          this.moveFocus(1);
-        }
+        this.moveFocus(1);
         break;
       case 'ArrowUp':
-        event.preventDefault();
-        if (this.isOpen()) {
-          this.moveFocus(-1);
-        }
+        this.moveFocus(-1);
+        break;
+      case 'Home':
+        this.moveFocusTo(0);
+        break;
+      case 'End':
+        this.moveFocusTo(this.allOptions().length - 1);
         break;
       case 'Enter':
       case ' ':
-        event.preventDefault();
-        if (!this.isOpen()) {
-          this.openPanel();
-        } else {
-          this.selectFocused();
-        }
+        this.selectFocused();
         break;
       case 'Escape':
-        event.preventDefault();
         this.closePanel();
-        break;
-      case 'Tab':
-        this.closePanel();
-        break;
-      case 'Home':
-        if (this.isOpen()) {
-          event.preventDefault();
-          this.focusedIndex.set(0);
-          this.scrollFocusedIntoView();
-        }
-        break;
-      case 'End':
-        if (this.isOpen()) {
-          event.preventDefault();
-          this.focusedIndex.set(this.options().length);
-          this.scrollFocusedIntoView();
-        }
         break;
     }
   }
@@ -159,19 +173,18 @@ export class SelectDropdownComponent<
 
   private initFocusedIndex(): void {
     const value = this.value();
-    if (value == null) {
-      this.focusedIndex.set(0);
-    } else {
-      const index = this.options().findIndex((option) => option.value === value);
-      this.focusedIndex.set(index === -1 ? 0 : index + 1);
-    }
+    const index = this.allOptions().findIndex((item) => item.value === value);
+    this.focusedIndex.set(index === -1 ? 0 : index);
     this.scrollFocusedIntoView();
   }
 
   private moveFocus(delta: number): void {
-    const total = this.options().length + 1; // +1 for null option
-    const next = this.focusedIndex() + delta;
-    this.focusedIndex.set(Math.max(0, Math.min(next, total - 1)));
+    this.moveFocusTo(this.focusedIndex() + delta);
+  }
+
+  private moveFocusTo(index: number): void {
+    const optionsLength = this.allOptions().length;
+    this.focusedIndex.set(Math.max(0, Math.min(index, optionsLength - 1)));
     this.scrollFocusedIntoView();
   }
 
@@ -184,14 +197,7 @@ export class SelectDropdownComponent<
   }
 
   private selectFocused(): void {
-    const index = this.focusedIndex();
-    if (index === 0) {
-      this.select(null);
-    } else {
-      const option = this.options()[index - 1];
-      if (option) {
-        this.select(option);
-      }
-    }
+    const item = this.allOptions()[this.focusedIndex()];
+    this.select(item);
   }
 }

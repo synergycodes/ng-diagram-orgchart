@@ -18,8 +18,7 @@
   border-radius: var(--ngd-token-radius-button-s); /* No Figma token - wrong token */
   padding: var(--ngd-token-spacing-button-s-v-pad-2); /* No Figma token - wrong token */
   cursor: pointer;
-  transition: background 150ms ease;
-
+  
   &:hover {
     background: var(--ngd-ui-bg-tertiary-default);
   }

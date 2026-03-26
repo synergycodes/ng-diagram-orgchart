@@ -18,15 +18,4 @@
     left: 10px;
   }
 
-  // TODO: fix to use minimap position when the ng-diagram supports it
-  ::ng-deep ng-diagram-minimap {
-    // Collapse: delay so minimap waits for sidebar content to fade out first
-    transition: right 200ms ease var(--sidebar-content-transition-duration);
-  }
-
-  &.sidebar-expanded ::ng-deep ng-diagram-minimap {
-    // Expand: immediate transition, no delay
-    transition: right 200ms ease;
-    right: calc(var(--sidebar-width) + var(--ngd-minimap-margin) + var(--ngd-primitive-4rule-12));
-  }
 }
