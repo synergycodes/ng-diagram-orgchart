@@ -49,7 +49,6 @@ export class SidebarFormComponent {
   protected readonly fieldTree = this.formService.fieldTree;
 
   constructor() {
-    afterNextRender(() => this.focusFirstControl());
     this.focusOnNodeChange();
   }
 
