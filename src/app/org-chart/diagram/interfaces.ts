@@ -49,5 +49,4 @@ interface OrgChartBaseNodeData {
   collapsedChildrenCount?: number;
   hasChildren?: boolean;
   isHidden?: boolean;
-  reportsTo?: string;
 }

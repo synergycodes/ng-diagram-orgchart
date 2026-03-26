@@ -2,6 +2,7 @@ import { DestroyRef, effect, inject, Injectable, signal, untracked } from '@angu
 import { debounce, form } from '@angular/forms/signals';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNodeData } from '../../../diagram/guards';
+import { HierarchyService } from '../../../hierarchy/hierarchy.service';
 import { PropertiesSidebarService } from '../../properties-sidebar.service';
 import {
   EMPTY_FORM,
@@ -17,6 +18,7 @@ const DEBOUNCED_FIELDS: (keyof SidebarFormData)[] = ['fullName', 'description'];
 export class SidebarFormService {
   private readonly sidebarService = inject(PropertiesSidebarService);
   private readonly modelService = inject(NgDiagramModelService);
+  private readonly hierarchyService = inject(HierarchyService);
 
   readonly formModel = signal<SidebarFormData>({ ...EMPTY_FORM });
 
@@ -46,7 +48,8 @@ export class SidebarFormService {
         queueMicrotask(() => {
           this.saveFormToNode();
           this.currentNodeId = node?.id ?? null;
-          this.formModel.set(node ? nodeDataToFormData(node.data) : { ...EMPTY_FORM });
+          const parentId = node ? this.hierarchyService.getParentId(node.id) : null;
+          this.formModel.set(node ? nodeDataToFormData(node.data, parentId) : { ...EMPTY_FORM });
         });
       });
     });
@@ -59,6 +62,11 @@ export class SidebarFormService {
   }
 
   private enableAutoSave(): void {
+    this.updateDataOnChange();
+    this.updateHierarchyOnChange();
+  }
+
+  private updateDataOnChange() {
     effect(() => {
       this.formModel();
 
@@ -66,6 +74,23 @@ export class SidebarFormService {
         if (this.fieldTree().dirty()) {
           this.saveFormToNode();
         }
+      });
+    });
+  }
+
+  private updateHierarchyOnChange(): void {
+    let previousReportsTo: string | null = null;
+
+    effect(() => {
+      const reportsTo = this.formModel().reportsTo;
+      untracked(() => {
+        if (!this.fieldTree().dirty() || reportsTo === previousReportsTo) return;
+
+        const nodeId = this.currentNodeId;
+        previousReportsTo = reportsTo;
+
+        if (!nodeId || reportsTo === undefined) return;
+        this.hierarchyService.updateNodeManager(nodeId, reportsTo);
       });
     });
   }

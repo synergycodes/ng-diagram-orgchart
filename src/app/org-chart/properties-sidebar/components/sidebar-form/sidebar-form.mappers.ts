@@ -15,12 +15,12 @@ export const EMPTY_FORM: SidebarFormData = {
   reportsTo: null,
 };
 
-export function nodeDataToFormData(data: OrgChartNodeData): SidebarFormData {
+export function nodeDataToFormData(data: OrgChartNodeData, parentId: string | null): SidebarFormData {
   return {
     fullName: isOccupiedNodeData(data) ? data.fullName : '',
     role: data.role ?? null,
     description: data.description ?? '',
-    reportsTo: data.reportsTo ?? null,
+    reportsTo: parentId,
   };
 }
 
@@ -29,7 +29,7 @@ export function formDataToNodeData(
   formData: SidebarFormData,
   existingData: OrgChartNodeData,
 ): OrgChartNodeData & Record<string, unknown> {
-  const { type, role, description, reportsTo, ...base } = existingData;
+  const { type, role, description, ...base } = existingData;
   const color = isOccupiedNodeData(existingData) ? existingData.color : undefined;
 
   const variantData = formData.fullName
@@ -41,6 +41,5 @@ export function formDataToNodeData(
     ...variantData,
     role: formData.role ?? undefined,
     description: formData.description || undefined,
-    reportsTo: formData.reportsTo ?? undefined,
   };
 }

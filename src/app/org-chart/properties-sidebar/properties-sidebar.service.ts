@@ -6,12 +6,14 @@ import {
   type OrgChartNodeData,
   type OrgChartOccupiedNodeData,
 } from '../diagram/interfaces';
+import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
 
 @Injectable()
 export class PropertiesSidebarService {
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly modelService = inject(NgDiagramModelService);
+  private readonly hierarchyService = inject(HierarchyService);
 
   readonly isExpanded = signal(false);
   readonly selectedOrgChartNodes = computed<Node<OrgChartNodeData>[]>(() =>
@@ -22,11 +24,13 @@ export class PropertiesSidebarService {
   );
   readonly reportsToCandidateNodes = computed<Node<OrgChartOccupiedNodeData>[]>(() => {
     const selectedNode = this.selectedNode();
+    if (!selectedNode) return [];
+    const descendantIds = this.hierarchyService.getDescendantIds(selectedNode.id);
     return this.modelService
       .nodes()
       .filter(
         (node): node is Node<OrgChartOccupiedNodeData> =>
-          node.id !== selectedNode?.id && isOccupiedNode(node),
+          node.id !== selectedNode.id && !descendantIds.has(node.id) && isOccupiedNode(node),
       );
   });
 
