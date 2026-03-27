@@ -1,14 +1,14 @@
-import { DestroyRef, effect, inject, Injectable, signal, untracked } from '@angular/core';
+import { effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { debounce, form } from '@angular/forms/signals';
-import { EMPTY_FORM, type SidebarFormData } from './sidebar-form.mappers';
+import { EMPTY_FORM, ON_FIELD_CHANGE, type SidebarFormData } from './sidebar-form.mappers';
 
 const DEBOUNCE_TIME_MS = 300;
 const DEBOUNCED_FIELDS: (keyof SidebarFormData)[] = ['fullName', 'description'];
 
-type OnFieldChange = (fields: (keyof SidebarFormData)[], formData: SidebarFormData) => void;
-
 @Injectable()
 export class SidebarFormService {
+  private readonly onFieldChange = inject(ON_FIELD_CHANGE);
+
   readonly formModel = signal<SidebarFormData>({ ...EMPTY_FORM });
 
   readonly fieldTree = form(this.formModel, (schemaPath) => {
@@ -17,37 +17,36 @@ export class SidebarFormService {
     });
   });
 
-  private onFieldChange: OnFieldChange | null = null;
   private lastEmittedModel: SidebarFormData = { ...EMPTY_FORM };
+  private currentNodeId: string | null = null;
 
   constructor() {
     this.watchForChanges();
-
-    inject(DestroyRef).onDestroy(() => {
-      this.flushDebouncedFields();
-    });
   }
 
-  registerChangeCallback(cb: OnFieldChange): void {
-    this.onFieldChange = cb;
-  }
-
-  loadFormData(data: SidebarFormData): void {
-    this.flushDebouncedFields();
+  loadFormData(nodeId: string, data: SidebarFormData): void {
+    this.flush();
 
     const model = this.formModel();
     const diffs = this.getDiffs(model);
-    this.onFieldChange?.(diffs, model);
+    this.emitChange(diffs, model);
 
+    this.currentNodeId = nodeId;
     this.lastEmittedModel = { ...data };
     this.formModel.set(data);
     this.fieldTree().reset();
   }
 
-  private flushDebouncedFields(): void {
+  flush(): void {
     DEBOUNCED_FIELDS.forEach((fieldName) => {
       this.fieldTree[fieldName]().markAsTouched();
     });
+  }
+
+  private emitChange(diffs: (keyof SidebarFormData)[], formData: SidebarFormData): void {
+    if (this.currentNodeId) {
+      this.onFieldChange({ nodeId: this.currentNodeId, fields: diffs, formData });
+    }
   }
 
   private watchForChanges(): void {
@@ -57,7 +56,7 @@ export class SidebarFormService {
       untracked(() => {
         if (this.fieldTree().dirty()) {
           const diffs = this.getDiffs(model);
-          this.onFieldChange?.(diffs, model);
+          this.emitChange(diffs, model);
           this.lastEmittedModel = { ...model };
         }
       });

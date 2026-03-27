@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { SidebarFormComponent } from './components/sidebar-form/sidebar-form.component';
-import { type SidebarFieldChange } from './components/sidebar-form/sidebar-form.mappers';
+import { ON_FIELD_CHANGE, type SidebarFieldChange } from './components/sidebar-form/sidebar-form.mappers';
+import { SidebarFormService } from './components/sidebar-form/sidebar-form.service';
 import { SidebarHeaderComponent } from './components/sidebar-header/sidebar-header.component';
 import { SidebarPlaceholderComponent } from './components/sidebar-placeholder/sidebar-placeholder.component';
 import { PropertiesSidebarService } from './properties-sidebar.service';
@@ -8,6 +9,16 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
 @Component({
   selector: 'app-properties-sidebar',
   imports: [SidebarHeaderComponent, SidebarPlaceholderComponent, SidebarFormComponent],
+  providers: [
+    SidebarFormService,
+    {
+      provide: ON_FIELD_CHANGE,
+      useFactory: () => {
+        const sidebarService = inject(PropertiesSidebarService);
+        return (change: SidebarFieldChange) => sidebarService.handleFieldChange(change);
+      },
+    },
+  ],
   templateUrl: './properties-sidebar.component.html',
   styleUrl: './properties-sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,9 +37,5 @@ export class PropertiesSidebarComponent {
 
   protected onHeaderToggle(): void {
     this.sidebarService.toggleSidebarVisibility();
-  }
-
-  protected onFieldChange(change: SidebarFieldChange): void {
-    this.sidebarService.handleFieldChange(change);
   }
 }
