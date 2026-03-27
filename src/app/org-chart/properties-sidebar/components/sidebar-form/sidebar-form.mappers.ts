@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { isOccupiedNodeData } from '../../../diagram/guards';
 import { type OrgChartNodeData, type OrgChartRole } from '../../../diagram/interfaces';
 
@@ -6,6 +7,10 @@ export interface SidebarFieldChange {
   fields: (keyof SidebarFormData)[];
   formData: SidebarFormData;
 }
+
+export const ON_FIELD_CHANGE = new InjectionToken<(change: SidebarFieldChange) => void>(
+  'ON_FIELD_CHANGE',
+);
 
 export interface SidebarFormData {
   fullName: string;

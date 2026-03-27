@@ -2,12 +2,12 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
   Injector,
   input,
-  output,
   untracked,
 } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
@@ -23,17 +23,12 @@ import {
 } from '../../../shared/select-dropdown/select-dropdown.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
-import {
-  nodeDataToFormData,
-  SidebarFormData,
-  type SidebarFieldChange,
-} from './sidebar-form.mappers';
+import { nodeDataToFormData } from './sidebar-form.mappers';
 import { SidebarFormService } from './sidebar-form.service';
 
 @Component({
   selector: 'app-sidebar-form',
   imports: [FormField, FormFieldComponent, ReportsToFieldComponent, SelectDropdownComponent],
-  providers: [SidebarFormService],
   templateUrl: './sidebar-form.component.html',
   styleUrl: './sidebar-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,29 +38,22 @@ export class SidebarFormComponent {
   private readonly el = inject(ElementRef<HTMLElement>).nativeElement;
   private readonly injector = inject(Injector);
 
-  private currentNodeId: string | null = null;
-
   readonly nodeId = input.required<string>();
   readonly nodeData = input.required<OrgChartNodeData>();
   readonly nodeParentId = input.required<string | null>();
   readonly reportsToCandidateNodes = input.required<Node<OrgChartOccupiedNodeData>[]>();
   readonly roleOptions = input.required<SelectDropdownOption<OrgChartRole>[]>();
 
-  readonly fieldChange = output<SidebarFieldChange>();
-
   protected readonly fieldTree = this.formService.fieldTree;
 
   constructor() {
-    this.formService.registerChangeCallback(this.changeCallback);
     this.syncFormWithInputs();
     this.focusOnNodeChange();
-  }
 
-  private changeCallback = (field: (keyof SidebarFormData)[], formData: SidebarFormData) => {
-    if (this.currentNodeId) {
-      this.fieldChange.emit({ nodeId: this.currentNodeId, fields: field, formData });
-    }
-  };
+    inject(DestroyRef).onDestroy(() => {
+      this.formService.flush();
+    });
+  }
 
   private syncFormWithInputs(): void {
     effect(() => {
@@ -75,8 +63,7 @@ export class SidebarFormComponent {
 
       untracked(() => {
         const formData = nodeDataToFormData(nodeData, parentId);
-        this.formService.loadFormData(formData);
-        this.currentNodeId = nodeId;
+        this.formService.loadFormData(nodeId, formData);
       });
     });
   }
