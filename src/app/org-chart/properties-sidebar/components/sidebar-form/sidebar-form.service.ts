@@ -44,7 +44,7 @@ export class SidebarFormService {
   }
 
   private emitChange(diffs: (keyof SidebarFormData)[], formData: SidebarFormData): void {
-    if (this.currentNodeId) {
+    if (this.currentNodeId && diffs.length) {
       this.onFieldChange({ nodeId: this.currentNodeId, fields: diffs, formData });
     }
   }
@@ -56,8 +56,8 @@ export class SidebarFormService {
       untracked(() => {
         if (this.fieldTree().dirty()) {
           const diffs = this.getDiffs(model);
-          this.emitChange(diffs, model);
           this.lastEmittedModel = { ...model };
+          this.emitChange(diffs, model);
         }
       });
     });
