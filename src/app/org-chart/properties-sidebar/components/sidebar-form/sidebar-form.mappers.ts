@@ -1,6 +1,12 @@
 import { isOccupiedNodeData } from '../../../diagram/guards';
 import { type OrgChartNodeData, type OrgChartRole } from '../../../diagram/interfaces';
 
+export interface SidebarFieldChange {
+  nodeId: string;
+  fields: (keyof SidebarFormData)[];
+  formData: SidebarFormData;
+}
+
 export interface SidebarFormData {
   fullName: string;
   role: OrgChartRole | null;
@@ -15,7 +21,10 @@ export const EMPTY_FORM: SidebarFormData = {
   reportsTo: null,
 };
 
-export function nodeDataToFormData(data: OrgChartNodeData, parentId: string | null): SidebarFormData {
+export function nodeDataToFormData(
+  data: OrgChartNodeData,
+  parentId: string | null,
+): SidebarFormData {
   return {
     fullName: isOccupiedNodeData(data) ? data.fullName : '',
     role: data.role ?? null,

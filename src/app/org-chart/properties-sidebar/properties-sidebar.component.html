@@ -5,8 +5,12 @@
     <div class="sidebar-content sidebar-enter">
       @if (state() === 'single') {
         <app-sidebar-form
+          [nodeId]="selectedNodeId()!"
+          [nodeData]="selectedNodeData()!"
+          [nodeParentId]="selectedNodeParentId()"
           [reportsToCandidateNodes]="reportsToCandidateNodes()"
           [roleOptions]="roleOptions"
+          (fieldChange)="onFieldChange($event)"
         />
       } @else if (state() === 'empty') {
         <app-sidebar-placeholder

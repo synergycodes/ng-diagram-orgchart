@@ -38,15 +38,18 @@ export class HierarchyService {
   }
 
   async updateNodeManager(nodeId: string, newParentId: string | null): Promise<void> {
+    const currentParentId = this.getParentId(nodeId);
+    if (newParentId === currentParentId) {
+      return;
+    }
     await this.diagramService.transaction(
       async () => await this.changeManager(nodeId, newParentId),
       { waitForMeasurements: true },
     );
 
-    await this.diagramService.transaction(
-      async () => await this.layoutService.applyLayout(),
-      { waitForMeasurements: true },
-    );
+    await this.diagramService.transaction(async () => await this.layoutService.applyLayout(), {
+      waitForMeasurements: true,
+    });
 
     this.viewportService.centerOnNode(nodeId);
   }

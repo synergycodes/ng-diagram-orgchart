@@ -1,25 +1,14 @@
 import { DestroyRef, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { debounce, form } from '@angular/forms/signals';
-import { NgDiagramModelService } from 'ng-diagram';
-import { isOrgChartNodeData } from '../../../diagram/guards';
-import { HierarchyService } from '../../../hierarchy/hierarchy.service';
-import { PropertiesSidebarService } from '../../properties-sidebar.service';
-import {
-  EMPTY_FORM,
-  formDataToNodeData,
-  nodeDataToFormData,
-  type SidebarFormData,
-} from './sidebar-form.mappers';
+import { EMPTY_FORM, type SidebarFormData } from './sidebar-form.mappers';
 
 const DEBOUNCE_TIME_MS = 300;
 const DEBOUNCED_FIELDS: (keyof SidebarFormData)[] = ['fullName', 'description'];
 
+type OnFieldChange = (fields: (keyof SidebarFormData)[], formData: SidebarFormData) => void;
+
 @Injectable()
 export class SidebarFormService {
-  private readonly sidebarService = inject(PropertiesSidebarService);
-  private readonly modelService = inject(NgDiagramModelService);
-  private readonly hierarchyService = inject(HierarchyService);
-
   readonly formModel = signal<SidebarFormData>({ ...EMPTY_FORM });
 
   readonly fieldTree = form(this.formModel, (schemaPath) => {
@@ -28,32 +17,31 @@ export class SidebarFormService {
     });
   });
 
-  private currentNodeId: string | null = null;
+  private onFieldChange: OnFieldChange | null = null;
+  private lastEmittedModel: SidebarFormData = { ...EMPTY_FORM };
 
   constructor() {
-    this.syncFormWithSelectedNode();
-    this.enableAutoSave();
-    inject(DestroyRef).onDestroy(() => this.flushDebouncedFields());
+    this.watchForChanges();
+
+    inject(DestroyRef).onDestroy(() => {
+      this.flushDebouncedFields();
+    });
   }
 
-  private syncFormWithSelectedNode(): void {
-    effect(() => {
-      const node = this.sidebarService.selectedNode();
-      untracked(() => {
-        if (node?.id === this.currentNodeId) {
-          return;
-        }
+  registerChangeCallback(cb: OnFieldChange): void {
+    this.onFieldChange = cb;
+  }
 
-        this.flushDebouncedFields();
-        queueMicrotask(() => {
-          this.saveFormToNode();
-          this.currentNodeId = node?.id ?? null;
-          const parentId = node ? this.hierarchyService.getParentId(node.id) : null;
-          this.formModel.set(node ? nodeDataToFormData(node.data, parentId) : { ...EMPTY_FORM });
-          this.fieldTree().reset();
-        });
-      });
-    });
+  loadFormData(data: SidebarFormData): void {
+    this.flushDebouncedFields();
+
+    const model = this.formModel();
+    const diffs = this.getDiffs(model);
+    this.onFieldChange?.(diffs, model);
+
+    this.lastEmittedModel = { ...data };
+    this.formModel.set(data);
+    this.fieldTree().reset();
   }
 
   private flushDebouncedFields(): void {
@@ -62,50 +50,23 @@ export class SidebarFormService {
     });
   }
 
-  private enableAutoSave(): void {
-    this.updateDataOnChange();
-    this.updateHierarchyOnChange();
-  }
-
-  private updateDataOnChange() {
+  private watchForChanges(): void {
     effect(() => {
-      this.formModel();
+      const model = this.formModel();
 
       untracked(() => {
         if (this.fieldTree().dirty()) {
-          this.saveFormToNode();
+          const diffs = this.getDiffs(model);
+          this.onFieldChange?.(diffs, model);
+          this.lastEmittedModel = { ...model };
         }
       });
     });
   }
 
-  private updateHierarchyOnChange(): void {
-    effect(() => {
-      const reportsTo = this.fieldTree.reportsTo().value();
-
-      untracked(() => {
-        if (this.fieldTree().dirty()) {
-          this.saveFormToNodeHierarchy(reportsTo);
-        }
-      });
-    });
-  }
-
-  private saveFormToNode(): void {
-    const nodeId = this.currentNodeId;
-    if (!nodeId) return;
-
-    const node = this.modelService.getNodeById(nodeId);
-    if (!node || !isOrgChartNodeData(node.data)) return;
-
-    const updatedData = formDataToNodeData(this.formModel(), node.data);
-    this.sidebarService.updateNodeData(nodeId, updatedData);
-  }
-
-  private saveFormToNodeHierarchy(reportsTo: string | null): void {
-    const nodeId = this.currentNodeId;
-    if (!nodeId) return;
-
-    this.hierarchyService.updateNodeManager(nodeId, reportsTo);
+  private getDiffs(model: SidebarFormData): (keyof SidebarFormData)[] {
+    return (Object.keys(model) as (keyof SidebarFormData)[]).filter(
+      (key) => model[key] !== this.lastEmittedModel[key],
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
-import { isOccupiedNode, isOrgChartNode } from '../diagram/guards';
+import { isOccupiedNode, isOrgChartNode, isOrgChartNodeData } from '../diagram/guards';
 import {
   OrgChartRole,
   type OrgChartNodeData,
@@ -8,6 +8,10 @@ import {
 } from '../diagram/interfaces';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
+import {
+  formDataToNodeData,
+  type SidebarFieldChange,
+} from './components/sidebar-form/sidebar-form.mappers';
 
 @Injectable()
 export class PropertiesSidebarService {
@@ -38,6 +42,11 @@ export class PropertiesSidebarService {
     (role) => ({ value: role, label: role }),
   );
 
+  readonly selectedNodeParentId = computed<string | null>(() => {
+    const node = this.selectedNode();
+    return node ? this.hierarchyService.getParentId(node.id) : null;
+  });
+
   readonly sidebarState = computed<'empty' | 'single' | 'multi'>(() => {
     const selectedNodes = this.selectedOrgChartNodes();
     if (selectedNodes.length === 0) return 'empty';
@@ -57,4 +66,26 @@ export class PropertiesSidebarService {
   toggleSidebarVisibility(): void {
     this.isExpanded.update((v) => !v);
   }
+
+  handleFieldChange(change: SidebarFieldChange): void {
+    const node = this.modelService.getNodeById(change.nodeId);
+    if (!node || !isOrgChartNodeData(node.data)) return;
+
+    if (this.hasHierarchicalChanges(change)) {
+      this.hierarchyService.updateNodeManager(change.nodeId, change.formData.reportsTo);
+    }
+
+    if (this.hasNodeDataChanges(change)) {
+      const updatedNodeData = formDataToNodeData(change.formData, node.data);
+      this.updateNodeData(change.nodeId, updatedNodeData);
+    }
+  }
+
+  private hasHierarchicalChanges = (change: SidebarFieldChange) => {
+    return change.fields.includes('reportsTo');
+  };
+
+  private hasNodeDataChanges = (change: SidebarFieldChange) => {
+    return change.fields.some((f) => f !== 'reportsTo');
+  };
 }
