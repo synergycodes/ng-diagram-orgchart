@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { SidebarFormComponent } from './components/sidebar-form/sidebar-form.component';
 import { ON_FIELD_CHANGE, type SidebarFieldChange } from './components/sidebar-form/sidebar-form.mappers';
 import { SidebarFormService } from './components/sidebar-form/sidebar-form.service';
@@ -29,8 +29,7 @@ export class PropertiesSidebarComponent {
 
   protected readonly isExpanded = this.sidebarService.isExpanded;
   protected readonly state = this.sidebarService.sidebarState;
-  protected readonly selectedNodeId = computed(() => this.sidebarService.selectedNode()?.id);
-  protected readonly selectedNodeData = computed(() => this.sidebarService.selectedNode()?.data);
+  protected readonly selectedNode = this.sidebarService.selectedNode;
   protected readonly selectedNodeParentId = this.sidebarService.selectedNodeParentId;
   protected readonly reportsToCandidateNodes = this.sidebarService.reportsToCandidateNodes;
   protected readonly roleOptions = this.sidebarService.roleOptions;

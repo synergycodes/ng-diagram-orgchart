@@ -71,13 +71,13 @@ export class PropertiesSidebarService {
     const node = this.modelService.getNodeById(change.nodeId);
     if (!node || !isOrgChartNodeData(node.data)) return;
 
-    if (this.hasHierarchicalChanges(change)) {
-      this.hierarchyService.updateNodeParent(change.nodeId, change.formData.reportsTo);
-    }
-
     if (this.hasNodeDataChanges(change)) {
       const updatedNodeData = formDataToNodeData(change.formData, node.data);
       this.updateNodeData(change.nodeId, updatedNodeData);
+    }
+
+    if (this.hasHierarchicalChanges(change)) {
+      this.hierarchyService.updateNodeParent(change.nodeId, change.formData.reportsTo);
     }
   }
 
