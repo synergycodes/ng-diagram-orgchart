@@ -27,10 +27,6 @@ export class SidebarFormService {
   loadFormData(nodeId: string, data: SidebarFormData): void {
     this.flush();
 
-    const model = this.formModel();
-    const diffs = this.getDiffs(model);
-    this.emitChange(diffs, model);
-
     this.currentNodeId = nodeId;
     this.lastEmittedModel = { ...data };
     this.formModel.set(data);
@@ -41,12 +37,6 @@ export class SidebarFormService {
     DEBOUNCED_FIELDS.forEach((fieldName) => {
       this.fieldTree[fieldName]().markAsTouched();
     });
-  }
-
-  private emitChange(diffs: (keyof SidebarFormData)[], formData: SidebarFormData): void {
-    if (this.currentNodeId && diffs.length) {
-      this.onFieldChange({ nodeId: this.currentNodeId, fields: diffs, formData });
-    }
   }
 
   private watchForChanges(): void {
@@ -61,6 +51,12 @@ export class SidebarFormService {
         }
       });
     });
+  }
+
+  private emitChange(diffs: (keyof SidebarFormData)[], formData: SidebarFormData): void {
+    if (this.currentNodeId && diffs.length) {
+      this.onFieldChange({ nodeId: this.currentNodeId, fields: diffs, formData });
+    }
   }
 
   private getDiffs(model: SidebarFormData): (keyof SidebarFormData)[] {

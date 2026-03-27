@@ -197,7 +197,10 @@ export class SelectDropdownComponent<
   }
 
   private selectFocused(): void {
-    const item = this.allOptions()[this.focusedIndex()];
+    const item = this.allOptions().at(this.focusedIndex());
+    if (!item) {
+      return;
+    }
     this.select(item);
   }
 }
