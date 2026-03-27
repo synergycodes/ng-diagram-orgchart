@@ -72,7 +72,7 @@ export class PropertiesSidebarService {
     if (!node || !isOrgChartNodeData(node.data)) return;
 
     if (this.hasHierarchicalChanges(change)) {
-      this.hierarchyService.updateNodeManager(change.nodeId, change.formData.reportsTo);
+      this.hierarchyService.updateNodeParent(change.nodeId, change.formData.reportsTo);
     }
 
     if (this.hasNodeDataChanges(change)) {
