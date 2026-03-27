@@ -84,12 +84,9 @@ export class SidebarFormService {
       const reportsTo = this.fieldTree.reportsTo().value();
 
       untracked(() => {
-        if (!this.fieldTree().dirty()) return;
-
-        const nodeId = this.currentNodeId;
-        if (!nodeId) return;
-
-        this.hierarchyService.updateNodeManager(nodeId, reportsTo);
+        if (this.fieldTree().dirty()) {
+          this.saveFormToNodeHierarchy(reportsTo);
+        }
       });
     });
   }
@@ -103,5 +100,12 @@ export class SidebarFormService {
 
     const updatedData = formDataToNodeData(this.formModel(), node.data);
     this.sidebarService.updateNodeData(nodeId, updatedData);
+  }
+
+  private saveFormToNodeHierarchy(reportsTo: string | null): void {
+    const nodeId = this.currentNodeId;
+    if (!nodeId) return;
+
+    this.hierarchyService.updateNodeManager(nodeId, reportsTo);
   }
 }
