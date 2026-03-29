@@ -59,7 +59,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
 
   isLayoutReady = this.layoutService.isReady;
 
-  isHorizontal = computed(() => this.layoutService.direction() === 'RIGHT');
+  isHorizontal = this.layoutService.isHorizontal;
 
   showDropIndicators = computed(
     () =>
