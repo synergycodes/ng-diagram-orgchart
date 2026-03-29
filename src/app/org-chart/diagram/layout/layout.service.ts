@@ -1,60 +1,66 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
-import { LayoutDirectionService } from '../../layout-direction.service';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 import { countAllDescendants } from './expand-collapse';
 import { performLayout } from './perform-layout';
 
+export type LayoutDirection = 'DOWN' | 'RIGHT';
+
 /**
- * Manages org-chart layout and expand/collapse behaviour.
+ * Manages org-chart layout, direction, and expand/collapse behaviour.
  *
  * Uses ELK.js (via `performLayout`) to position visible nodes in a
- * top-down hierarchy. Hidden nodes (inside collapsed subtrees) are excluded
+ * tree hierarchy. Hidden nodes (inside collapsed subtrees) are excluded
  * from the layout pass so the chart stays compact.
+ *
+ * All layout runs go through `runLayout()`, which guards against
+ * concurrent execution with a simple `isRunning` flag.
  */
 @Injectable()
 export class LayoutService {
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly layoutDirectionService = inject(LayoutDirectionService);
+
+  private readonly _direction = signal<LayoutDirection>('DOWN');
+  readonly direction = this._direction.asReadonly();
+
+  private readonly _isReady = signal(false);
+  readonly isReady = this._isReady.asReadonly();
+
+  private isRunning = false;
+
+  markReady(): void {
+    this._isReady.set(true);
+  }
 
   /**
-   * Run the ELK layout on all visible nodes and edges.
-   * The root node is pinned to its current position so the chart
-   * doesn't jump after a re-layout.
+   * Update the layout direction and re-layout if the diagram is ready.
+   * No-op when the value hasn't changed.
    */
-  async applyLayout(): Promise<void> {
-    // Use getModel() to read the latest committed state directly.
-    // Signal-based accessors (modelService.nodes/edges) may not yet
-    // reflect updates made within the current transaction.
-    const model = this.modelService.getModel();
-    const visibleNodes = model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden);
-    const visibleEdges = model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden);
+  setDirection(value: LayoutDirection): void {
+    if (this._direction() === value) return;
+    this._direction.set(value);
+    if (this._isReady()) {
+      void this.runLayout();
+    }
+  }
 
-    const positionedNodes = await performLayout(
-      visibleNodes,
-      visibleEdges,
-      this.layoutDirectionService.direction(),
-    );
-
-    const rootNode = this.findRootNode();
-    if (rootNode) {
-      // Offset every node so the root stays where it was before layout.
-      const newRoot = positionedNodes.find((n) => n.id === rootNode.id);
-      if (!newRoot) return;
-
-      const newRootPosition = newRoot.position;
-      const dx = rootNode.position.x - newRootPosition.x;
-      const dy = rootNode.position.y - newRootPosition.y;
-
-      this.modelService.updateNodes(
-        positionedNodes.map((n) => ({
-          id: n.id,
-          position: { x: n.position.x + dx, y: n.position.y + dy },
-        })),
+  /**
+   * Run the ELK tree layout inside a diagram transaction.
+   * Skips silently when another layout is already in progress.
+   */
+  async runLayout(): Promise<void> {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    try {
+      await this.diagramService.transaction(
+        async () => {
+          await this.applyLayout();
+        },
+        { waitForMeasurements: true },
       );
-    } else {
-      this.modelService.updateNodes(positionedNodes);
+    } finally {
+      this.isRunning = false;
     }
   }
 
@@ -87,7 +93,47 @@ export class LayoutService {
       this.updateVisibility(subtreeIds, newCollapsed, !newCollapsed ? node.position : undefined);
     });
 
-    await this.applyLayout();
+    await this.runLayout();
+  }
+
+  /**
+   * Run the ELK layout on all visible nodes and edges.
+   * The root node is pinned to its current position so the chart
+   * doesn't jump after a re-layout.
+   */
+  private async applyLayout(): Promise<void> {
+    // Use getModel() to read the latest committed state directly.
+    // Signal-based accessors (modelService.nodes/edges) may not yet
+    // reflect updates made within the current transaction.
+    const model = this.modelService.getModel();
+    const visibleNodes = model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden);
+    const visibleEdges = model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden);
+
+    const positionedNodes = await performLayout(
+      visibleNodes,
+      visibleEdges,
+      this._direction(),
+    );
+
+    const rootNode = this.findRootNode();
+    if (rootNode) {
+      // Offset every node so the root stays where it was before layout.
+      const newRoot = positionedNodes.find((n) => n.id === rootNode.id);
+      if (!newRoot) return;
+
+      const newRootPosition = newRoot.position;
+      const dx = rootNode.position.x - newRootPosition.x;
+      const dy = rootNode.position.y - newRootPosition.y;
+
+      this.modelService.updateNodes(
+        positionedNodes.map((n) => ({
+          id: n.id,
+          position: { x: n.position.x + dx, y: n.position.y + dy },
+        })),
+      );
+    } else {
+      this.modelService.updateNodes(positionedNodes);
+    }
   }
 
   /**

@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  signal,
-  untracked,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -24,13 +17,11 @@ import {
   type NodeDragStartedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
-import { LayoutDirectionService } from '../layout-direction.service';
 import { diagramModel } from './data';
 import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
 import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
-import { LayoutSchedulerService } from './layout/layout-scheduler.service';
-import { LayoutService } from './layout/layout.service';
+import { type LayoutDirection, LayoutService } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
 
 /**
@@ -47,7 +38,7 @@ import { NodeComponent } from './node/node.component';
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNgDiagram(), LayoutService, DragStateService, LayoutSchedulerService],
+  providers: [provideNgDiagram(), LayoutService, DragStateService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);
@@ -55,10 +46,10 @@ export class DiagramComponent {
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
   private readonly dragStateService = inject(DragStateService);
-  private readonly layoutDirectionService = inject(LayoutDirectionService);
-  private readonly layoutSchedulerService = inject(LayoutSchedulerService);
 
-  protected isLayoutReady = signal(false);
+  protected readonly isLayoutReady = this.layoutService.isReady;
+
+  readonly direction = this.layoutService.direction;
 
   config = {
     linking: {
@@ -78,27 +69,8 @@ export class DiagramComponent {
 
   model = initializeModel(diagramModel);
 
-  constructor() {
-    let isFirstRun = true;
-
-    effect(() => {
-      // Track direction changes — the value is consumed by layoutService internally.
-      this.layoutDirectionService.direction();
-
-      untracked(() => {
-        // Skip the initial eager run — onDiagramInit handles the first layout.
-        if (isFirstRun) {
-          isFirstRun = false;
-          return;
-        }
-
-        // Always mark pending, even before init (onDiagramInit will flush).
-        this.layoutSchedulerService.scheduleLayout();
-
-        if (!this.isLayoutReady()) return;
-        this.layoutSchedulerService.runPendingLayout();
-      });
-    });
+  changeDirection(value: LayoutDirection): void {
+    this.layoutService.setDirection(value);
   }
 
   /**
@@ -106,18 +78,9 @@ export class DiagramComponent {
    * up-to-date), then fit the viewport to show all nodes.
    */
   async onDiagramInit(_: DiagramInitEvent): Promise<void> {
-    await this.diagramService.transaction(
-      async () => {
-        await this.layoutService.applyLayout();
-      },
-      { waitForMeasurements: true },
-    );
-
+    await this.layoutService.runLayout();
     this.viewportService.zoomToFit();
-    this.isLayoutReady.set(true);
-
-    // Pick up any direction changes that arrived during init.
-    this.layoutSchedulerService.runPendingLayout();
+    this.layoutService.markReady();
   }
 
   /**
@@ -152,7 +115,7 @@ export class DiagramComponent {
     });
 
     if (changed) {
-      await this.layoutService.applyLayout();
+      await this.layoutService.runLayout();
     }
   }
 

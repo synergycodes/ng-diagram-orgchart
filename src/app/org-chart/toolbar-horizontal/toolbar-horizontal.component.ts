@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { LayoutDirectionService } from '../layout-direction.service';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { type LayoutDirection } from '../diagram/layout/layout.service';
 
 @Component({
   selector: 'app-toolbar-horizontal',
@@ -8,16 +8,17 @@ import { LayoutDirectionService } from '../layout-direction.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolbarHorizontalComponent {
-  private readonly layoutDirectionService = inject(LayoutDirectionService);
+  direction = input.required<LayoutDirection>();
+  directionChange = output<LayoutDirection>();
 
-  protected readonly isDown = computed(() => this.layoutDirectionService.direction() === 'DOWN');
-  protected readonly isRight = computed(() => this.layoutDirectionService.direction() === 'RIGHT');
+  protected readonly isDown = computed(() => this.direction() === 'DOWN');
+  protected readonly isRight = computed(() => this.direction() === 'RIGHT');
 
   protected setVerticalLayout(): void {
-    this.layoutDirectionService.setDirection('DOWN');
+    this.directionChange.emit('DOWN');
   }
 
   protected setHorizontalLayout(): void {
-    this.layoutDirectionService.setDirection('RIGHT');
+    this.directionChange.emit('RIGHT');
   }
 }
