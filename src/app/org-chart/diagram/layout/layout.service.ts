@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
+import { NgDiagramModelService, NgDiagramService, NgDiagramViewportService } from 'ng-diagram';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 import { countAllDescendants } from './expand-collapse';
 import { performLayout } from './perform-layout';
@@ -20,38 +20,56 @@ export type LayoutDirection = 'DOWN' | 'RIGHT';
 export class LayoutService {
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
-
+  private readonly viewportService = inject(NgDiagramViewportService);
   private readonly _direction = signal<LayoutDirection>('DOWN');
   readonly direction = this._direction.asReadonly();
+
+  private readonly _isInitialized = signal(false);
+  readonly isInitialized = this._isInitialized.asReadonly();
 
   private readonly _isReady = signal(false);
   readonly isReady = this._isReady.asReadonly();
 
-  private isRunning = false;
-
-  markReady(): void {
+  /**
+   * Run the first layout and mark the service as ready.
+   * Subsequent layouts go through `runLayout()`.
+   */
+  async init(): Promise<void> {
+    await this.diagramService.transaction(
+      async () => {
+        await this.applyLayout();
+      },
+      { waitForMeasurements: true },
+    );
+    this._isInitialized.set(true);
     this._isReady.set(true);
   }
 
   /**
-   * Update the layout direction and re-layout if the diagram is ready.
+   * Update the layout direction and re-layout.
    * No-op when the value hasn't changed.
+   *
+   * Layout is deferred to the next animation frame so the browser
+   * can paint the recreated port components (via `@if` in the node
+   * template) before the layout transaction measures their positions.
    */
   setDirection(value: LayoutDirection): void {
     if (this._direction() === value) return;
     this._direction.set(value);
-    if (this._isReady()) {
-      void this.runLayout();
-    }
+    // TODO: remove requestAnimationFrame once ng-diagram fixes port dynamic side update
+    requestAnimationFrame(async () => {
+      await this.runLayout();
+      this.viewportService.zoomToFit();
+    });
   }
 
   /**
    * Run the ELK tree layout inside a diagram transaction.
-   * Skips silently when another layout is already in progress.
+   * Skips when not yet initialized or when another layout is in progress.
    */
   async runLayout(): Promise<void> {
-    if (this.isRunning) return;
-    this.isRunning = true;
+    if (!this._isReady()) return;
+    this._isReady.set(false);
     try {
       await this.diagramService.transaction(
         async () => {
@@ -60,7 +78,7 @@ export class LayoutService {
         { waitForMeasurements: true },
       );
     } finally {
-      this.isRunning = false;
+      this._isReady.set(this._isInitialized());
     }
   }
 
@@ -109,11 +127,7 @@ export class LayoutService {
     const visibleNodes = model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden);
     const visibleEdges = model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden);
 
-    const positionedNodes = await performLayout(
-      visibleNodes,
-      visibleEdges,
-      this._direction(),
-    );
+    const positionedNodes = await performLayout(visibleNodes, visibleEdges, this._direction());
 
     const rootNode = this.findRootNode();
     if (rootNode) {

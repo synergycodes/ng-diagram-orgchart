@@ -9,6 +9,7 @@ import { type LayoutDirection } from '../diagram/layout/layout.service';
 })
 export class ToolbarHorizontalComponent {
   direction = input.required<LayoutDirection>();
+  disabled = input(false);
   directionChange = output<LayoutDirection>();
 
   protected readonly isDown = computed(() => this.direction() === 'DOWN');

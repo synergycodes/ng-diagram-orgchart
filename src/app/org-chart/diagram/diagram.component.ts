@@ -47,7 +47,8 @@ export class DiagramComponent {
   private readonly layoutService = inject(LayoutService);
   private readonly dragStateService = inject(DragStateService);
 
-  protected readonly isLayoutReady = this.layoutService.isReady;
+  protected readonly isLayoutInitialized = this.layoutService.isInitialized;
+  readonly isLayoutReady = this.layoutService.isReady;
 
   readonly direction = this.layoutService.direction;
 
@@ -78,21 +79,19 @@ export class DiagramComponent {
    * up-to-date), then fit the viewport to show all nodes.
    */
   async onDiagramInit(_: DiagramInitEvent): Promise<void> {
-    await this.layoutService.runLayout();
+    await this.layoutService.init();
     this.viewportService.zoomToFit();
-    this.layoutService.markReady();
   }
 
   /**
    * When the user deletes edges, check whether each affected source node
    * still has outgoing edges. If not, clear `hasChildren` so the toggle
-   * button is removed. Re-layout only if at least one node was updated.
+   * button is removed. Always re-layout to reposition remaining nodes.
    */
   async onSelectionRemoved(event: SelectionRemovedEvent): Promise<void> {
     if (event.deletedEdges.length === 0) return;
 
     const affectedSourceIds = new Set(event.deletedEdges.map((e) => e.source));
-    let changed = false;
 
     // Await the transaction to ensure hasChildren updates are committed
     // to the model before re-layout reads them.
@@ -109,14 +108,11 @@ export class DiagramComponent {
             ...(node.data as OrgChartNodeData),
             hasChildren: false,
           });
-          changed = true;
         }
       }
     });
 
-    if (changed) {
-      await this.layoutService.runLayout();
-    }
+    await this.layoutService.runLayout();
   }
 
   onNodeDragStarted(event: NodeDragStartedEvent): void {
