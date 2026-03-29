@@ -54,10 +54,19 @@ export class LayoutService {
    */
   setDirection(value: LayoutDirection): void {
     if (this._direction() === value) return;
+    this._isReady.set(false);
+    this._isInitialized.set(false);
     this._direction.set(value);
     requestAnimationFrame(async () => {
-      await this.runLayout();
-      this.viewportService.zoomToFit();
+      try {
+        await this.layoutInTransaction();
+        this.viewportService.zoomToFit();
+      } catch (error) {
+        console.error('Layout failed during direction change:', error);
+      } finally {
+        this._isInitialized.set(true);
+        this._isReady.set(true);
+      }
     });
   }
 
@@ -66,6 +75,8 @@ export class LayoutService {
     this._isReady.set(false);
     try {
       await this.layoutInTransaction();
+    } catch (error) {
+      console.error('Layout failed:', error);
     } finally {
       this._isReady.set(this._isInitialized());
     }
@@ -104,6 +115,8 @@ export class LayoutService {
         },
         { waitForMeasurements: true },
       );
+    } catch (error) {
+      console.error('Layout failed during toggle:', error);
     } finally {
       this._isReady.set(this._isInitialized());
     }
