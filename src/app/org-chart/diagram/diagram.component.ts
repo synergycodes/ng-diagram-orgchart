@@ -19,7 +19,6 @@ import {
   NgDiagramViewportService,
   provideNgDiagram,
   type Edge,
-  type EdgeDrawnEvent,
   type NgDiagramConfig,
   type NodeDragEndedEvent,
   type NodeDragStartedEvent,
@@ -119,27 +118,6 @@ export class DiagramComponent {
 
     // Pick up any direction changes that arrived during init.
     this.layoutSchedulerService.runPendingLayout();
-  }
-
-  /**
-   * When the user draws a new edge, mark the source node as having children
-   * so the expand/collapse toggle button appears. Re-layout only if the
-   * flag actually changed.
-   */
-  async onEdgeDrawn(event: EdgeDrawnEvent): Promise<void> {
-    const sourceData = event.source.data as OrgChartNodeData;
-    if (!sourceData.hasChildren) {
-      // Await the transaction to ensure hasChildren is committed
-      // to the model before re-layout reads it.
-      await this.diagramService.transaction(async () => {
-        this.modelService.updateNodeData(event.source.id, {
-          ...sourceData,
-          hasChildren: true,
-        });
-      });
-
-      await this.layoutService.applyLayout();
-    }
   }
 
   /**
