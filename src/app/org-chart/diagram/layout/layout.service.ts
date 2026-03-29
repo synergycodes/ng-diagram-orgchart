@@ -1,5 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { NgDiagramModelService, NgDiagramService, NgDiagramViewportService } from 'ng-diagram';
+import {
+  NgDiagramModelService,
+  NgDiagramService,
+  NgDiagramViewportService,
+  type Edge,
+  type Node as DiagramNode,
+} from 'ng-diagram';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 import { countAllDescendants } from './expand-collapse';
 import { performLayout } from './perform-layout';
@@ -84,70 +90,107 @@ export class LayoutService {
 
   /**
    * Toggle the collapsed state of a node and update the visibility
-   * of its subtree. The collapsed flag and child visibility are
-   * batched in a single transaction, followed by a re-layout.
+   * of its subtree. Positions are pre-computed so the visibility
+   * change and layout can be applied in a single transaction —
+   * children appear directly at their final positions (no flash).
    */
   async toggleCollapsed(nodeId: string): Promise<void> {
-    const node = this.modelService.getNodeById(nodeId);
+    if (!this._isReady()) return;
 
-    if (!node) {
-      return;
-    }
+    const node = this.modelService.getNodeById(nodeId);
+    if (!node) return;
 
     const newCollapsed = !(node.data as OrgChartNodeData).isCollapsed;
     const subtreeIds = this.computeAvailableSubtreeIds(nodeId);
 
-    // Await the transaction to ensure all updates (collapsed flag +
-    // visibility) are committed to the model before re-layout reads them.
-    await this.diagramService.transaction(async () => {
-      this.modelService.updateNodeData(nodeId, {
-        ...(node.data as OrgChartNodeData),
-        isCollapsed: newCollapsed,
-        collapsedChildrenCount: newCollapsed
-          ? countAllDescendants(nodeId, this.modelService)
-          : undefined,
-      });
+    // Pre-compute positions for the future visible set (before committing
+    // the visibility change) so we can apply everything in one transaction.
+    const model = this.modelService.getModel();
+    const allNodes = model.getNodes();
+    const allEdges = model.getEdges();
 
-      this.updateVisibility(subtreeIds, newCollapsed, !newCollapsed ? node.position : undefined);
+    const futureVisibleNodes = allNodes.filter((n) => {
+      const data = n.data as OrgChartNodeData;
+      if (newCollapsed) {
+        return !data.isHidden && !subtreeIds.has(n.id);
+      }
+      return !data.isHidden || subtreeIds.has(n.id);
     });
 
-    await this.runLayout();
+    const futureVisibleEdges = allEdges.filter((e) => {
+      const data = e.data as OrgChartEdgeData;
+      if (newCollapsed) {
+        return !data.isHidden && !subtreeIds.has(e.target);
+      }
+      return !data.isHidden || subtreeIds.has(e.target);
+    });
+
+    this._isReady.set(false);
+    const positionUpdates = await this.computePositions(futureVisibleNodes, futureVisibleEdges);
+
+    try {
+      await this.diagramService.transaction(
+        async () => {
+          this.modelService.updateNodeData(nodeId, {
+            ...(node.data as OrgChartNodeData),
+            isCollapsed: newCollapsed,
+            collapsedChildrenCount: newCollapsed
+              ? countAllDescendants(nodeId, this.modelService)
+              : undefined,
+          });
+
+          this.updateVisibility(subtreeIds, newCollapsed);
+          this.modelService.updateNodes(positionUpdates);
+        },
+        { waitForMeasurements: true },
+      );
+    } finally {
+      this._isReady.set(this._isInitialized());
+    }
   }
 
   /**
-   * Run the ELK layout on all visible nodes and edges.
-   * The root node is pinned to its current position so the chart
-   * doesn't jump after a re-layout.
+   * Run the ELK layout on all visible nodes and edges, then update
+   * the model with the computed positions.
    */
   private async applyLayout(): Promise<void> {
-    // Use getModel() to read the latest committed state directly.
-    // Signal-based accessors (modelService.nodes/edges) may not yet
-    // reflect updates made within the current transaction.
     const model = this.modelService.getModel();
     const visibleNodes = model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden);
     const visibleEdges = model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden);
 
-    const positionedNodes = await performLayout(visibleNodes, visibleEdges, this._direction());
+    const positionUpdates = await this.computePositions(visibleNodes, visibleEdges);
+    this.modelService.updateNodes(positionUpdates);
+  }
+
+  /**
+   * Compute layout positions for the given nodes and edges.
+   * The root node is pinned to its current position so the chart
+   * doesn't jump after a re-layout.
+   */
+  private async computePositions(
+    nodes: DiagramNode[],
+    edges: Edge[],
+  ): Promise<{ id: string; position: { x: number; y: number } }[]> {
+    const positionedNodes = await performLayout(nodes, edges, this._direction());
 
     const rootNode = this.findRootNode();
     if (rootNode) {
-      // Offset every node so the root stays where it was before layout.
       const newRoot = positionedNodes.find((n) => n.id === rootNode.id);
-      if (!newRoot) return;
+      if (!newRoot) return [];
 
-      const newRootPosition = newRoot.position;
-      const dx = rootNode.position.x - newRootPosition.x;
-      const dy = rootNode.position.y - newRootPosition.y;
+      const dx = rootNode.position.x - newRoot.position.x;
+      const dy = rootNode.position.y - newRoot.position.y;
 
-      this.modelService.updateNodes(
-        positionedNodes.map((n) => ({
-          id: n.id,
-          position: { x: n.position.x + dx, y: n.position.y + dy },
-        })),
-      );
-    } else {
-      this.modelService.updateNodes(positionedNodes);
+      return positionedNodes.map((n) => ({
+        id: n.id,
+        position: { x: n.position.x + dx, y: n.position.y + dy },
+      }));
     }
+
+    return positionedNodes.map((n) => ({
+      id: n.id,
+      position: n.position,
+    }));
   }
 
   /**
@@ -190,15 +233,9 @@ export class LayoutService {
    * edges. Only touches elements in `subtreeIds` — edges are matched
    * by target so the parent-to-child edge follows the child's visibility.
    */
-  private updateVisibility(
-    subtreeIds: Set<string>,
-    hidden: boolean,
-    parentPosition?: { x: number; y: number },
-  ): void {
+  private updateVisibility(subtreeIds: Set<string>, hidden: boolean): void {
     this.modelService.updateNodes(
-      [...subtreeIds].reduce<
-        { id: string; data: OrgChartNodeData; position?: { x: number; y: number } }[]
-      >((acc, id) => {
+      [...subtreeIds].reduce<{ id: string; data: OrgChartNodeData }[]>((acc, id) => {
         const node = this.modelService.getNodeById(id);
         if (!node) return acc;
 
@@ -208,10 +245,6 @@ export class LayoutService {
             ...(node.data as OrgChartNodeData),
             isHidden: hidden,
           },
-          // When expanding, place children at the parent's position so they
-          // fan out from it once the layout runs — avoids a visual blink
-          // from a random previous position.
-          ...(parentPosition ? { position: parentPosition } : {}),
         });
 
         return acc;
