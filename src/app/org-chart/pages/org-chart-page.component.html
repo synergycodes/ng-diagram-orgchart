@@ -4,7 +4,7 @@
   <app-toolbar-horizontal
     class="clickable"
     [direction]="diagram.direction()"
-    [disabled]="!diagram.isLayoutReady()"
+    [disabled]="!diagram.isLayoutIdle()"
     (directionChange)="diagram.changeDirection($event)"
   />
 </div>

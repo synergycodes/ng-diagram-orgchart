@@ -13,14 +13,19 @@ import { performLayout } from './perform-layout';
 export type LayoutDirection = 'DOWN' | 'RIGHT';
 
 /**
+ * - `uninitialized` — before first layout; hides everything.
+ * - `idle`          — ready for input.
+ * - `layouting`     — layout running; canvas stays visible; buttons disabled.
+ * - `rebuilding`    — direction change; canvas hidden; buttons disabled.
+ */
+export type LayoutState = 'uninitialized' | 'idle' | 'layouting' | 'rebuilding';
+
+/**
  * Manages org-chart layout, direction, and expand/collapse behaviour.
  *
  * Uses ELK.js (via `performLayout`) to position visible nodes in a tree
  * hierarchy. Hidden nodes (inside collapsed subtrees) are excluded from
  * the layout pass so the chart stays compact.
- *
- * All public methods guard on `isReady` — which is `false` before
- * `init()` completes and during any layout run.
  */
 @Injectable()
 export class LayoutService {
@@ -32,16 +37,15 @@ export class LayoutService {
   readonly direction = this._direction.asReadonly();
   readonly isHorizontal = computed(() => this._direction() === 'RIGHT');
 
-  private readonly _isInitialized = signal(false);
-  readonly isInitialized = this._isInitialized.asReadonly();
-
-  private readonly _isReady = signal(false);
-  readonly isReady = this._isReady.asReadonly();
+  private readonly _state = signal<LayoutState>('uninitialized');
+  readonly state = this._state.asReadonly();
+  readonly isInitialized = computed(() => this._state() !== 'uninitialized');
+  readonly isIdle = computed(() => this._state() === 'idle');
+  readonly isRebuilding = computed(() => this._state() === 'rebuilding');
 
   async init(): Promise<void> {
     await this.layoutInTransaction();
-    this._isInitialized.set(true);
-    this._isReady.set(true);
+    this._state.set('idle');
   }
 
   /**
@@ -54,8 +58,7 @@ export class LayoutService {
    */
   setDirection(value: LayoutDirection): void {
     if (this._direction() === value) return;
-    this._isReady.set(false);
-    this._isInitialized.set(false);
+    this._state.set('rebuilding');
     this._direction.set(value);
     requestAnimationFrame(async () => {
       try {
@@ -64,21 +67,20 @@ export class LayoutService {
       } catch (error) {
         console.error('Layout failed during direction change:', error);
       } finally {
-        this._isInitialized.set(true);
-        this._isReady.set(true);
+        this._state.set('idle');
       }
     });
   }
 
   async runLayout(): Promise<void> {
-    if (!this._isReady()) return;
-    this._isReady.set(false);
+    if (!this.isIdle()) return;
+    this._state.set('layouting');
     try {
       await this.layoutInTransaction();
     } catch (error) {
       console.error('Layout failed:', error);
     } finally {
-      this._isReady.set(this._isInitialized());
+      this._state.set('idle');
     }
   }
 
@@ -88,7 +90,7 @@ export class LayoutService {
    * are applied in a single transaction (no flash).
    */
   async toggleCollapsed(nodeId: string): Promise<void> {
-    if (!this._isReady()) return;
+    if (!this.isIdle()) return;
 
     const node = this.modelService.getNodeById(nodeId);
     if (!node) return;
@@ -97,7 +99,7 @@ export class LayoutService {
     const subtreeIds = this.computeSubtreeIds(nodeId);
     const { nodes, edges } = this.getFutureVisibleSet(subtreeIds, newCollapsed);
 
-    this._isReady.set(false);
+    this._state.set('layouting');
     const positions = await this.computePositions(nodes, edges);
 
     try {
@@ -118,7 +120,7 @@ export class LayoutService {
     } catch (error) {
       console.error('Layout failed during toggle:', error);
     } finally {
-      this._isReady.set(this._isInitialized());
+      this._state.set('idle');
     }
   }
 

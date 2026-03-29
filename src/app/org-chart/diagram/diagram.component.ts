@@ -48,7 +48,8 @@ export class DiagramComponent {
   private readonly dragStateService = inject(DragStateService);
 
   protected readonly isLayoutInitialized = this.layoutService.isInitialized;
-  readonly isLayoutReady = this.layoutService.isReady;
+  protected readonly isRebuilding = this.layoutService.isRebuilding;
+  readonly isLayoutIdle = this.layoutService.isIdle;
 
   readonly direction = this.layoutService.direction;
 
