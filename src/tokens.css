@@ -303,7 +303,7 @@ html[data-theme='light'] {
   --ngd-input-bg-primary-success: var(--ngd-colors-green-400-10);
   --ngd-input-stroke-primary-default: var(--ngd-colors-gray-400);
   --ngd-input-stroke-primary-error: var(--ngd-colors-red-400);
-  --ngd-input-stroke-primary-focus: var(--ngd-colors-acc1-500);
+  --ngd-input-stroke-primary-focus: var(--ngd-colors-acc4-500);
   --ngd-input-stroke-primary-success: var(--ngd-colors-green-400);
   --ngd-multiuser-bg-user-1: var(--ngd-colors-acc1-400);
   --ngd-multiuser-bg-user-2: var(--ngd-colors-acc2-400);
@@ -480,7 +480,7 @@ html[data-theme='dark'] {
   --ngd-input-bg-primary-success: var(--ngd-colors-green-400-10);
   --ngd-input-stroke-primary-default: var(--ngd-colors-gray-600);
   --ngd-input-stroke-primary-error: var(--ngd-colors-red-400);
-  --ngd-input-stroke-primary-focus: var(--ngd-colors-acc1-500);
+  --ngd-input-stroke-primary-focus: var(--ngd-colors-acc4-500);
   --ngd-input-stroke-primary-success: var(--ngd-colors-green-400);
   --ngd-multiuser-bg-user-1: var(--ngd-colors-acc1-400);
   --ngd-multiuser-bg-user-2: var(--ngd-colors-acc2-400);

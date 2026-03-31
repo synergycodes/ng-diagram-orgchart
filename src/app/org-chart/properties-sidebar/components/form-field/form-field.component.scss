@@ -1,0 +1,9 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ngd-primitive-4rule-4); /* No Figma token */
+}
+
+label {
+  color: var(--ngd-txt-secondary-default);
+}

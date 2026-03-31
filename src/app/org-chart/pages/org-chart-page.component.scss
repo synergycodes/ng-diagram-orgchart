@@ -1,0 +1,49 @@
+:host {
+  --sidebar-width: 320px; /* No Figma token */
+  position: relative;
+  display: block;
+  height: 100%;
+}
+
+.ui-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  padding: var(--ngd-primitive-4rule-12); /* No Figma token */
+  gap: var(--ngd-primitive-even-14); /* No Figma token */
+  pointer-events: none;
+  z-index: 10;
+
+  .top-navbar {
+    pointer-events: all;
+  }
+
+  .content-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--ngd-primitive-4rule-12);
+    min-height: 0;
+
+    &:has(app-properties-sidebar.expanded) {
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: flex-end;
+
+      app-properties-sidebar {
+        align-self: stretch;
+        order: 2;
+      }
+
+      ng-diagram-minimap {
+        order: 1;
+      }
+    }
+  }
+
+  ng-diagram-minimap {
+    position: static;
+    margin-top: auto;
+  }
+}

@@ -1,0 +1,108 @@
+:host {
+  --dropdown-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
+    var(--ngd-token-spacing-input-m-h-pad);
+  --dropdown-trigger-label-padding: var(--ngd-token-spacing-dropdown-item-s-v-pad)
+    var(--ngd-token-spacing-dropdown-item-s-h-pad);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--ngd-primitive-4rule-12); /* No Figma token */
+  width: 100%;
+  padding: var(--dropdown-trigger-padding);
+  border: var(--ngd-primitive-odd-1) solid var(--ngd-input-stroke-primary-default); /* No Figma token */
+  border-radius: var(--ngd-token-radius-input-m);
+  background: var(--ngd-ui-bg-primary-default);
+  color: var(--ngd-txt-primary-default);
+  outline: none;
+  transition: border-color 150ms ease;
+  box-sizing: border-box;
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+
+  &:focus {
+    border-color: var(--ngd-input-stroke-primary-focus);
+  }
+
+  .caret-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 9px;
+    height: 5px;
+    background-color: var(--ngd-txt-secondary-default);
+    mask-image: url('/assets/caret-down.svg');
+    -webkit-mask-image: url('/assets/caret-down.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    pointer-events: none;
+  }
+
+  .option-label {
+    padding: var(--dropdown-trigger-label-padding);
+  }
+}
+
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + var(--ngd-token-spacing-dropdown-wrap-s-gap));
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: var(--ngd-ui-bg-primary-default);
+  border: 1px solid var(--ngd-input-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-input-m);
+  max-height: 220px; /* No Figma token */
+  overflow-y: auto;
+  padding: var(--ngd-token-spacing-dropdown-wrap-s-gap) 0;
+  box-shadow: var(--ngd-token-shadow-shadow-s-x) var(--ngd-token-shadow-shadow-s-y)
+    var(--ngd-token-shadow-shadow-s-blur) var(--ngd-token-shadow-shadow-s-spread) var(--ngd-shadow);
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--ngd-token-spacing-dropdown-wrap-s-v-pad)
+    var(--ngd-token-spacing-dropdown-wrap-s-h-pad);
+  gap: var(--ngd-token-spacing-dropdown-wrap-s-gap);
+
+  border: none;
+  background: transparent;
+  color: var(--ngd-txt-primary-default);
+  cursor: pointer;
+  text-align: left;
+
+  &:hover,
+  &.focused {
+    background: var(--ngd-ui-bg-secondary-default);
+  }
+
+  &.selected {
+    background: var(--ngd-ui-bg-tertiary-default);
+  }
+
+  &.selected.focused {
+    background: var(--ngd-ui-bg-tertiary-default);
+  }
+}
+
+.option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: var(--ngd-token-spacing-dropdown-item-s-v-pad)
+    var(--ngd-token-spacing-dropdown-item-s-h-pad);
+
+  &.placeholder {
+    color: var(--ngd-txt-secondary-default);
+  }
+}

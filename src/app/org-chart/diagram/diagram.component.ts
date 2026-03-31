@@ -5,23 +5,24 @@ import {
   NgDiagramBackgroundComponent,
   NgDiagramComponent,
   NgDiagramEdgeTemplateMap,
-  NgDiagramMinimapComponent,
   NgDiagramModelService,
   NgDiagramNodeTemplateMap,
   NgDiagramService,
   NgDiagramViewportService,
-  provideNgDiagram,
   type Edge,
   type EdgeDrawnEvent,
   type NgDiagramConfig,
   type NodeDragEndedEvent,
   type NodeDragStartedEvent,
+  type SelectionGestureEndedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
+import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
 import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
-import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
+import { isOrgChartNode, isOrgChartNodeData } from './guards';
+import { EdgeTemplateType, NodeTemplateType } from './interfaces';
 import { LayoutService } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
 
@@ -35,11 +36,11 @@ import { NodeComponent } from './node/node.component';
  */
 @Component({
   selector: 'app-diagram',
-  imports: [NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent],
+  imports: [NgDiagramComponent, NgDiagramBackgroundComponent],
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNgDiagram(), LayoutService, DragStateService],
+  providers: [DragStateService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);
@@ -47,6 +48,7 @@ export class DiagramComponent {
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
   private readonly dragStateService = inject(DragStateService);
+  private readonly sidebarService = inject(PropertiesSidebarService);
 
   protected isLayoutReady = signal(false);
 
@@ -76,7 +78,10 @@ export class DiagramComponent {
    * flag actually changed.
    */
   async onEdgeDrawn(event: EdgeDrawnEvent): Promise<void> {
-    const sourceData = event.source.data as OrgChartNodeData;
+    if (!isOrgChartNodeData(event.source.data)) {
+      throw new Error('Event source data is not of type `OrgChartNodeData`!');
+    }
+    const sourceData = event.source.data;
     if (!sourceData.hasChildren) {
       // Await the transaction to ensure hasChildren is committed
       // to the model before re-layout reads it.
@@ -112,9 +117,9 @@ export class DiagramComponent {
         if (stillHasChildren) continue;
 
         const node = this.modelService.getNodeById(sourceId);
-        if (node && (node.data as OrgChartNodeData).hasChildren) {
+        if (node && isOrgChartNodeData(node.data) && node.data.hasChildren) {
           this.modelService.updateNodeData(sourceId, {
-            ...(node.data as OrgChartNodeData),
+            ...node.data,
             hasChildren: false,
           });
           changed = true;
@@ -141,6 +146,13 @@ export class DiagramComponent {
 
     this.viewportService.zoomToFit();
     this.isLayoutReady.set(true);
+  }
+
+  onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {
+    const hasOrgChartNodes = event.nodes.some(isOrgChartNode);
+    if (hasOrgChartNodes) {
+      this.sidebarService.expandSidebar();
+    }
   }
 
   onNodeDragStarted(event: NodeDragStartedEvent): void {

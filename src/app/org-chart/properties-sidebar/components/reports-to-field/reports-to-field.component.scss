@@ -1,0 +1,13 @@
+.option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.placeholder {
+    color: var(--ngd-txt-secondary-default);
+  }
+}
+
+app-select-dropdown {
+  --dropdown-trigger-padding: var(--ngd-primitive-even-6); /* No Figma token */
+}

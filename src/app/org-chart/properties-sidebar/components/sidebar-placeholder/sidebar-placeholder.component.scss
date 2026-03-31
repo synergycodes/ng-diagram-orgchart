@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: 0 var(--ngd-primitive-4rule-16); /* No Figma token */
+  gap: var(--ngd-primitive-4rule-16); /* No Figma token */
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--ngd-primitive-4rule-24);
+}
+
+.title {
+  color: var(--ngd-txt-primary-default);
+  text-align: center;
+}
+
+.description {
+  color: var(--ngd-txt-primary-default);
+  text-align: center;
+}

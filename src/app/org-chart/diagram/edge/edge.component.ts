@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { NgDiagramBaseEdgeComponent, NgDiagramModelService, type NgDiagramEdgeTemplate, type Edge } from 'ng-diagram';
+import {
+  NgDiagramBaseEdgeComponent,
+  NgDiagramModelService,
+  type Edge,
+  type NgDiagramEdgeTemplate,
+} from 'ng-diagram';
 import { isVacantNode } from '../guards';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 
@@ -12,7 +17,10 @@ import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
  */
 @Component({
   imports: [NgDiagramBaseEdgeComponent],
-  template: `<ng-diagram-base-edge [edge]="edge()" [strokeDasharray]="isVacant() ? '5 5' : undefined" />`,
+  template: `<ng-diagram-base-edge
+    [edge]="edge()"
+    [strokeDasharray]="isVacant() ? '5 5' : undefined"
+  />`,
   styleUrl: './edge.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -21,12 +29,12 @@ import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
   },
 })
 export class EdgeComponent implements NgDiagramEdgeTemplate<OrgChartEdgeData> {
-  private modelService = inject(NgDiagramModelService);
+  private readonly modelService = inject(NgDiagramModelService);
 
   edge = input.required<Edge<OrgChartEdgeData>>();
 
   isVacant = computed(() => {
-    const target = this.modelService.getNodeById(this.edge().target);
-    return isVacantNode(target?.data as OrgChartNodeData | undefined);
+    const targetNode = this.modelService.getNodeById(this.edge().target);
+    return isVacantNode(targetNode);
   });
 }

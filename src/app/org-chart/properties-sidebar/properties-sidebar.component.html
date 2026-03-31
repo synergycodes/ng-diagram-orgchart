@@ -1,0 +1,27 @@
+<aside class="sidebar" aria-labelledby="properties-sidebar-title">
+  <app-sidebar-header [isExpanded]="isExpanded()" (toggle)="onHeaderToggle()" />
+  @if (isExpanded()) {
+    <div class="sidebar-separator"></div>
+    <div class="sidebar-content sidebar-enter">
+      @if (state() === 'single' && selectedNode(); as node) {
+        <app-sidebar-form
+          [nodeId]="node.id"
+          [nodeData]="node.data"
+          [nodeParentId]="selectedNodeParentId()"
+          [reportsToCandidateNodes]="reportsToCandidateNodes()"
+          [roleOptions]="roleOptions"
+        />
+      } @else if (state() === 'empty') {
+        <app-sidebar-placeholder
+          title="No selection"
+          description="Select an employee card on the canvas to view their details."
+        />
+      } @else {
+        <app-sidebar-placeholder
+          title="Multiple items selected."
+          description="Please select a single node to view properties."
+        />
+      }
+    </div>
+  }
+</aside>

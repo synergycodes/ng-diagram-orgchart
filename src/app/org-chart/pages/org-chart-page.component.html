@@ -1,2 +1,8 @@
 <app-diagram />
-<app-top-navbar />
+<div class="ui-overlay">
+  <app-top-navbar class="top-navbar" />
+  <div class="content-area">
+    <app-properties-sidebar />
+    <ng-diagram-minimap [showZoomControls]="true" />
+  </div>
+</div>

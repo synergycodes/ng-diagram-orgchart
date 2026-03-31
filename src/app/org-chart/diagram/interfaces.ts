@@ -23,20 +23,30 @@ export enum OrgChartRole {
   ProductionCoordinator = 'Production Coordinator',
 }
 
-export interface OrgChartNodeData {
-  fullName?: string;
+export type OrgChartNodeData = OrgChartOccupiedNodeData | OrgChartVacantNodeData;
+
+export interface OrgChartEdgeData {
+  isHidden?: boolean;
+}
+
+export interface OrgChartOccupiedNodeData extends OrgChartBaseNodeData {
+  type: 'occupied';
+  fullName: string;
+  color?: string;
+}
+
+export interface OrgChartVacantNodeData extends OrgChartBaseNodeData {
+  type: 'vacant';
+}
+
+interface OrgChartBaseNodeData {
   role?: OrgChartRole;
   description?: string;
   reports: number;
   span: number;
   shiftCapacity: number;
-  color?: string;
   isCollapsed?: boolean;
   collapsedChildrenCount?: number;
   hasChildren?: boolean;
-  isHidden?: boolean;
-}
-
-export interface OrgChartEdgeData {
   isHidden?: boolean;
 }

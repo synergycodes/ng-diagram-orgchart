@@ -1,0 +1,42 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ngd-token-radius-button-round); /* No Figma token */
+  flex-shrink: 0;
+
+  &.size-md {
+    --initials-size: 36px; /* No Figma token */
+    width: var(--initials-size);
+    height: var(--initials-size);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  &.size-xl {
+    --initials-size: 44px; /* No Figma token */
+    width: var(--initials-size);
+    height: var(--initials-size);
+    padding: 10px;
+  }
+
+  background: color-mix(in srgb, var(--avatar-accent, var(--ngd-colors-acc3-400)) 20%, transparent);
+  border: 2px solid
+    color-mix(in srgb, var(--avatar-accent, var(--ngd-colors-acc3-400)) 30%, transparent);
+  color: var(--avatar-accent, var(--ngd-colors-acc3-400));
+
+  :host-context(html[data-theme='dark']) & {
+    background: var(--ngd-node-bg-secondary-default);
+  }
+
+  &.vacant {
+    background: var(--ngd-colors-gray-900-5);
+    border: 2px solid var(--ngd-colors-gray-900-10);
+    color: var(--ngd-txt-secondary-default);
+
+    :host-context(html[data-theme='dark']) & {
+      background: var(--ngd-colors-gray-100-10);
+      border: 2px solid var(--ngd-colors-gray-100-20);
+    }
+  }
+}

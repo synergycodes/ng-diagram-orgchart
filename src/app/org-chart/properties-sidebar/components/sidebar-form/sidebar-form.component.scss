@@ -1,0 +1,58 @@
+.form-section {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ngd-primitive-4rule-16); /* No Figma token */
+}
+
+.section-title {
+  color: var(--ngd-txt-primary-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+  padding-block-end: var(--ngd-primitive-4rule-12); /* No Figma token */
+  height: var(--ngd-primitive-4rule-32); /* No Figma token */
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ngd-primitive-4rule-8); /* No Figma token */
+}
+
+.form-separator {
+  height: var(--ngd-primitive-odd-1); /* No Figma token */
+  background: var(--ngd-ui-separator-primary-default);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--ngd-token-spacing-input-m-v-pad) var(--ngd-token-spacing-input-m-h-pad); /* No Figma token - wrong tokens */
+  border: var(--ngd-primitive-odd-1) solid var(--ngd-input-stroke-primary-default); /* No Figma token - border width */
+  border-radius: var(--ngd-token-radius-input-m);
+  background: var(--ngd-ui-bg-primary-default);
+  color: var(--ngd-txt-primary-default);
+  outline: none;
+  transition: border-color 150ms ease;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: var(--ngd-txt-tertiary-default);
+  }
+
+  &:focus {
+    border-color: var(--ngd-input-stroke-primary-focus);
+  }
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px; /* No Figma token */
+  font-family: inherit;
+}
+
+app-select-dropdown {
+  --dropdown-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
+    var(--ngd-token-spacing-input-m-h-pad);
+  --dropdown-trigger-label-padding: 0;
+}
