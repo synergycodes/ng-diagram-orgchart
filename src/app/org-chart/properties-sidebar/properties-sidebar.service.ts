@@ -81,11 +81,11 @@ export class PropertiesSidebarService {
     }
   }
 
-  private hasHierarchicalChanges = (change: SidebarFieldChange) => {
+  private hasHierarchicalChanges(change: SidebarFieldChange): boolean {
     return change.fields.includes('reportsTo');
-  };
+  }
 
-  private hasNodeDataChanges = (change: SidebarFieldChange) => {
+  private hasNodeDataChanges(change: SidebarFieldChange): boolean {
     return change.fields.some((f) => f !== 'reportsTo');
-  };
+  }
 }
