@@ -3,8 +3,11 @@
   @if (isExpanded()) {
     <div class="sidebar-separator"></div>
     <div class="sidebar-content sidebar-enter">
-      @if (state() === 'single') {
+      @if (state() === 'single' && selectedNode(); as node) {
         <app-sidebar-form
+          [nodeId]="node.id"
+          [nodeData]="node.data"
+          [nodeParentId]="selectedNodeParentId()"
           [reportsToCandidateNodes]="reportsToCandidateNodes()"
           [roleOptions]="roleOptions"
         />

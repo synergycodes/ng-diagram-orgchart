@@ -22,7 +22,7 @@ import { diagramModel } from './data';
 import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
 import { isOrgChartNode, isOrgChartNodeData } from './guards';
-import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
+import { EdgeTemplateType, NodeTemplateType } from './interfaces';
 import { LayoutService } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
 
@@ -40,7 +40,7 @@ import { NodeComponent } from './node/node.component';
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [LayoutService, DragStateService],
+  providers: [DragStateService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);

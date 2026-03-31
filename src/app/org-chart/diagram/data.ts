@@ -63,7 +63,6 @@ export const diagramModel: {
         color: '#3AB0F6',
         isCollapsed: false,
         hasChildren: true,
-        reportsTo: thomasWalterId,
       },
     },
     {
@@ -81,7 +80,6 @@ export const diagramModel: {
         isCollapsed: false,
         hasChildren: true,
         color: '#EB8147',
-        reportsTo: thomasWalterId,
       },
     },
     {
@@ -99,7 +97,6 @@ export const diagramModel: {
         color: '#EB8147',
         isCollapsed: false,
         hasChildren: true,
-        reportsTo: thomasWalterId,
       },
     },
     {
@@ -117,7 +114,6 @@ export const diagramModel: {
         color: '#A977FF',
         isCollapsed: false,
         hasChildren: true,
-        reportsTo: thomasWalterId,
       },
     },
     {
@@ -133,7 +129,6 @@ export const diagramModel: {
         span: 0,
         shiftCapacity: 75,
         color: '#3AB0F6',
-        reportsTo: sarahChenId,
       },
     },
     {
@@ -150,7 +145,6 @@ export const diagramModel: {
         shiftCapacity: 55,
         color: '#3AB0F6',
         isCollapsed: false,
-        reportsTo: sarahChenId,
       },
     },
     {
@@ -166,7 +160,6 @@ export const diagramModel: {
         span: 0,
         shiftCapacity: 65,
         color: '#EB8147',
-        reportsTo: marcusThompsonId,
       },
     },
     {
@@ -182,7 +175,6 @@ export const diagramModel: {
         span: 0,
         shiftCapacity: 80,
         color: '#EB8147',
-        reportsTo: jamesRodriguezId,
       },
     },
     {
@@ -196,7 +188,6 @@ export const diagramModel: {
         reports: 0,
         span: 0,
         shiftCapacity: 0,
-        reportsTo: jamesRodriguezId,
       },
     },
     {
@@ -212,7 +203,6 @@ export const diagramModel: {
         span: 0,
         shiftCapacity: 50,
         color: '#A977FF',
-        reportsTo: emilyWatsonId,
       },
     },
   ],
