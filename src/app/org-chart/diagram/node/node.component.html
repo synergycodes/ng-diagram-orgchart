@@ -4,16 +4,16 @@
   }
   @case ('compact') {
     <app-compact-node
-      [fullName]="node().data.fullName"
+      [fullName]="occupiedData()?.fullName"
       [role]="node().data.role"
-      [color]="node().data.color"
+      [color]="occupiedData()?.color"
     />
   }
   @case ('full') {
     <app-full-node
-      [fullName]="node().data.fullName"
+      [fullName]="occupiedData()?.fullName"
       [role]="node().data.role"
-      [color]="node().data.color"
+      [color]="occupiedData()?.color"
       [reports]="node().data.reports"
       [span]="node().data.span"
       [shiftCapacity]="node().data.shiftCapacity"
@@ -31,8 +31,14 @@
   />
 }
 
-<div class="drop-indicator drop-indicator--left" [class.drop-indicator--visible]="showDropIndicators()"></div>
-<div class="drop-indicator drop-indicator--right" [class.drop-indicator--visible]="showDropIndicators()"></div>
+<div
+  class="drop-indicator drop-indicator--left"
+  [class.drop-indicator--visible]="showDropIndicators()"
+></div>
+<div
+  class="drop-indicator drop-indicator--right"
+  [class.drop-indicator--visible]="showDropIndicators()"
+></div>
 <div
   class="drop-indicator drop-indicator--bottom"
   [class.drop-indicator--visible]="showDropIndicators()"

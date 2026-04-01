@@ -1,0 +1,50 @@
+<div class="form-section">
+  <span class="h10 section-title">General Information</span>
+
+  <div class="section-content">
+    <app-form-field label="Full Name" fieldId="fullName">
+      <input
+        id="fullName"
+        type="text"
+        class="form-input p10"
+        [formField]="fieldTree.fullName"
+        placeholder="Enter full name"
+      />
+    </app-form-field>
+
+    <app-form-field label="Role" fieldId="role">
+      <app-select-dropdown
+        triggerId="role"
+        [formField]="fieldTree.role"
+        [options]="roleOptions()"
+        placeholder="Select a role"
+      />
+    </app-form-field>
+
+    <app-form-field label="Description" fieldId="description">
+      <textarea
+        id="description"
+        class="form-input form-textarea p10"
+        [formField]="fieldTree.description"
+        placeholder="Enter description"
+        rows="3"
+      ></textarea>
+    </app-form-field>
+  </div>
+</div>
+
+<div class="form-separator"></div>
+
+<div class="form-section">
+  <span class="h10 section-title">Organization Structure</span>
+
+  <div class="section-content">
+    <app-form-field label="Reports to" fieldId="reportsTo">
+      <app-reports-to-field
+        triggerId="reportsTo"
+        [candidateNodes]="reportsToCandidateNodes()"
+        [formField]="fieldTree.reportsTo"
+      />
+    </app-form-field>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<div class="sidebar-header">
+  <span id="properties-sidebar-title" class="h7 sidebar-title">Properties</span>
+  <button
+    class="sidebar-toggle"
+    (click)="toggle.emit()"
+    [attr.aria-expanded]="isExpanded()"
+    aria-label="Toggle properties panel"
+  >
+    <span class="icon icon-sidebar"></span>
+  </button>
+</div>

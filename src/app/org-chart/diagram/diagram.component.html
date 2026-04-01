@@ -5,11 +5,11 @@
     [nodeTemplateMap]="nodeTemplateMap"
     [edgeTemplateMap]="edgeTemplateMap"
     (selectionRemoved)="onSelectionRemoved($event)"
+    (selectionGestureEnded)="onSelectionGestureEnded($event)"
     (nodeDragStarted)="onNodeDragStarted($event)"
     (nodeDragEnded)="onNodeDragEnded($event)"
     (diagramInit)="onDiagramInit($event)"
   >
     <ng-diagram-background type="dots" />
   </ng-diagram>
-  <ng-diagram-minimap position="bottom-right" [showZoomControls]="true" />
 </div>

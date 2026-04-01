@@ -5,23 +5,24 @@ import {
   NgDiagramBackgroundComponent,
   NgDiagramComponent,
   NgDiagramEdgeTemplateMap,
-  NgDiagramMinimapComponent,
   NgDiagramModelService,
   NgDiagramNodeTemplateMap,
   NgDiagramService,
   NgDiagramViewportService,
-  provideNgDiagram,
   type Edge,
   type NgDiagramConfig,
   type NodeDragEndedEvent,
   type NodeDragStartedEvent,
+  type SelectionGestureEndedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
+import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
 import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
-import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
-import { type LayoutDirection, LayoutService } from './layout/layout.service';
+import { isOrgChartNode, isOrgChartNodeData } from './guards';
+import { EdgeTemplateType, NodeTemplateType } from './interfaces';
+import { LayoutService, type LayoutDirection } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
 
 /**
@@ -34,11 +35,11 @@ import { NodeComponent } from './node/node.component';
  */
 @Component({
   selector: 'app-diagram',
-  imports: [NgDiagramComponent, NgDiagramBackgroundComponent, NgDiagramMinimapComponent],
+  imports: [NgDiagramComponent, NgDiagramBackgroundComponent],
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNgDiagram(), LayoutService, DragStateService],
+  providers: [DragStateService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);
@@ -46,6 +47,7 @@ export class DiagramComponent {
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
   private readonly dragStateService = inject(DragStateService);
+  private readonly sidebarService = inject(PropertiesSidebarService);
 
   protected readonly isLayoutInitialized = this.layoutService.isInitialized;
   protected readonly isRebuilding = this.layoutService.isRebuilding;
@@ -104,9 +106,9 @@ export class DiagramComponent {
         if (stillHasChildren) continue;
 
         const node = this.modelService.getNodeById(sourceId);
-        if (node && (node.data as OrgChartNodeData).hasChildren) {
+        if (node && isOrgChartNodeData(node.data) && node.data.hasChildren) {
           this.modelService.updateNodeData(sourceId, {
-            ...(node.data as OrgChartNodeData),
+            ...node.data,
             hasChildren: false,
           });
         }
@@ -114,6 +116,13 @@ export class DiagramComponent {
     });
 
     await this.layoutService.runLayout();
+  }
+
+  onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {
+    const hasOrgChartNodes = event.nodes.some(isOrgChartNode);
+    if (hasOrgChartNodes) {
+      this.sidebarService.expandSidebar();
+    }
   }
 
   onNodeDragStarted(event: NodeDragStartedEvent): void {

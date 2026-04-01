@@ -1,10 +1,16 @@
 <app-diagram #diagram />
-<div class="navbar-wrapper">
-  <app-top-navbar class="clickable" />
-  <app-toolbar-horizontal
-    class="clickable"
-    [direction]="diagram.direction()"
-    [disabled]="!diagram.isLayoutIdle()"
-    (directionChange)="diagram.changeDirection($event)"
-  />
+<div class="ui-overlay">
+  <app-top-navbar class="top-navbar" />
+  <div class="top-toolbar-wrapper">
+    <app-toolbar-horizontal
+      class="top-toolbar"
+      [direction]="diagram.direction()"
+      [disabled]="!diagram.isLayoutIdle()"
+      (directionChange)="diagram.changeDirection($event)"
+    />
+  </div>
+  <div class="content-area">
+    <app-properties-sidebar />
+    <ng-diagram-minimap [showZoomControls]="true" />
+  </div>
 </div>

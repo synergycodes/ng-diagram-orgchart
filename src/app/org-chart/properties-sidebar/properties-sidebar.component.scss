@@ -1,0 +1,53 @@
+:host {
+  pointer-events: none;
+  width: var(--sidebar-width);
+  min-height: 0;
+}
+
+.sidebar {
+  pointer-events: all;
+  background: var(--ngd-ui-bg-primary-default);
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-shell);
+  box-shadow: var(--ngd-token-shadow-shadow-s-x) var(--ngd-token-shadow-shadow-s-y)
+    var(--ngd-token-shadow-shadow-s-blur) var(--ngd-token-shadow-shadow-s-spread)
+    var(--ngd-colors-gray-900-10);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+:host.expanded .sidebar {
+  height: 100%;
+}
+
+.sidebar-separator {
+  height: 1px;
+  background: var(--ngd-ui-separator-primary-default);
+}
+
+.sidebar-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+app-sidebar-placeholder {
+  flex: 1;
+  display: flex;
+}
+
+.sidebar-enter {
+  animation: sidebar-enter 200ms ease forwards;
+}
+
+@keyframes sidebar-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
