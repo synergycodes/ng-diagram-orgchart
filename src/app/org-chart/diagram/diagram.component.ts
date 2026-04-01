@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  signal,
-  untracked,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -19,19 +12,16 @@ import {
   NgDiagramViewportService,
   provideNgDiagram,
   type Edge,
-  type EdgeDrawnEvent,
   type NgDiagramConfig,
   type NodeDragEndedEvent,
   type NodeDragStartedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
-import { LayoutDirectionService } from '../layout-direction.service';
 import { diagramModel } from './data';
 import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
 import { EdgeTemplateType, NodeTemplateType, type OrgChartNodeData } from './interfaces';
-import { LayoutSchedulerService } from './layout/layout-scheduler.service';
-import { LayoutService } from './layout/layout.service';
+import { type LayoutDirection, LayoutService } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
 
 /**
@@ -48,7 +38,7 @@ import { NodeComponent } from './node/node.component';
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNgDiagram(), LayoutService, DragStateService, LayoutSchedulerService],
+  providers: [provideNgDiagram(), LayoutService, DragStateService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);
@@ -56,10 +46,12 @@ export class DiagramComponent {
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
   private readonly dragStateService = inject(DragStateService);
-  private readonly layoutDirectionService = inject(LayoutDirectionService);
-  private readonly layoutSchedulerService = inject(LayoutSchedulerService);
 
-  protected isLayoutReady = signal(false);
+  protected readonly isLayoutInitialized = this.layoutService.isInitialized;
+  protected readonly isRebuilding = this.layoutService.isRebuilding;
+  readonly isLayoutIdle = this.layoutService.isIdle;
+
+  readonly direction = this.layoutService.direction;
 
   config = {
     linking: {
@@ -79,27 +71,8 @@ export class DiagramComponent {
 
   model = initializeModel(diagramModel);
 
-  constructor() {
-    let isFirstRun = true;
-
-    effect(() => {
-      // Track direction changes — the value is consumed by layoutService internally.
-      this.layoutDirectionService.direction();
-
-      untracked(() => {
-        // Skip the initial eager run — onDiagramInit handles the first layout.
-        if (isFirstRun) {
-          isFirstRun = false;
-          return;
-        }
-
-        // Always mark pending, even before init (onDiagramInit will flush).
-        this.layoutSchedulerService.scheduleLayout();
-
-        if (!this.isLayoutReady()) return;
-        this.layoutSchedulerService.runPendingLayout();
-      });
-    });
+  changeDirection(value: LayoutDirection): void {
+    this.layoutService.setDirection(value);
   }
 
   /**
@@ -107,51 +80,19 @@ export class DiagramComponent {
    * up-to-date), then fit the viewport to show all nodes.
    */
   async onDiagramInit(_: DiagramInitEvent): Promise<void> {
-    await this.diagramService.transaction(
-      async () => {
-        await this.layoutService.applyLayout();
-      },
-      { waitForMeasurements: true },
-    );
-
+    await this.layoutService.init();
     this.viewportService.zoomToFit();
-    this.isLayoutReady.set(true);
-
-    // Pick up any direction changes that arrived during init.
-    this.layoutSchedulerService.runPendingLayout();
-  }
-
-  /**
-   * When the user draws a new edge, mark the source node as having children
-   * so the expand/collapse toggle button appears. Re-layout only if the
-   * flag actually changed.
-   */
-  async onEdgeDrawn(event: EdgeDrawnEvent): Promise<void> {
-    const sourceData = event.source.data as OrgChartNodeData;
-    if (!sourceData.hasChildren) {
-      // Await the transaction to ensure hasChildren is committed
-      // to the model before re-layout reads it.
-      await this.diagramService.transaction(async () => {
-        this.modelService.updateNodeData(event.source.id, {
-          ...sourceData,
-          hasChildren: true,
-        });
-      });
-
-      await this.layoutService.applyLayout();
-    }
   }
 
   /**
    * When the user deletes edges, check whether each affected source node
    * still has outgoing edges. If not, clear `hasChildren` so the toggle
-   * button is removed. Re-layout only if at least one node was updated.
+   * button is removed. Always re-layout to reposition remaining nodes.
    */
   async onSelectionRemoved(event: SelectionRemovedEvent): Promise<void> {
     if (event.deletedEdges.length === 0) return;
 
     const affectedSourceIds = new Set(event.deletedEdges.map((e) => e.source));
-    let changed = false;
 
     // Await the transaction to ensure hasChildren updates are committed
     // to the model before re-layout reads them.
@@ -168,14 +109,11 @@ export class DiagramComponent {
             ...(node.data as OrgChartNodeData),
             hasChildren: false,
           });
-          changed = true;
         }
       }
     });
 
-    if (changed) {
-      await this.layoutService.applyLayout();
-    }
+    await this.layoutService.runLayout();
   }
 
   onNodeDragStarted(event: NodeDragStartedEvent): void {

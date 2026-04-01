@@ -1,10 +1,9 @@
-<div class="diagram" [class.ready]="isLayoutReady()">
+<div class="diagram" [class.initialized]="isLayoutInitialized()" [class.rebuilding]="isRebuilding()">
   <ng-diagram
     [model]="model"
     [config]="config"
     [nodeTemplateMap]="nodeTemplateMap"
     [edgeTemplateMap]="edgeTemplateMap"
-    (edgeDrawn)="onEdgeDrawn($event)"
     (selectionRemoved)="onSelectionRemoved($event)"
     (nodeDragStarted)="onNodeDragStarted($event)"
     (nodeDragEnded)="onNodeDragEnded($event)"

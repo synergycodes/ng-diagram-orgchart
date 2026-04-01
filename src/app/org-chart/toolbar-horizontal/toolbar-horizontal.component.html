@@ -4,6 +4,7 @@
     type="button"
     [class.active]="isDown()"
     [attr.aria-pressed]="isDown()"
+    [disabled]="disabled()"
     aria-label="Vertical layout"
     (click)="setVerticalLayout()"
   >
@@ -14,6 +15,7 @@
     type="button"
     [class.active]="isRight()"
     [attr.aria-pressed]="isRight()"
+    [disabled]="disabled()"
     aria-label="Horizontal layout"
     (click)="setHorizontalLayout()"
   >

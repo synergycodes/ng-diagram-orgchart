@@ -1,174 +1,232 @@
-import { inject, Injectable } from '@angular/core';
-import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
-import { LayoutDirectionService } from '../../layout-direction.service';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import {
+  NgDiagramModelService,
+  NgDiagramService,
+  NgDiagramViewportService,
+  type Edge,
+  type Node as DiagramNode,
+} from 'ng-diagram';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 import { countAllDescendants } from './expand-collapse';
 import { performLayout } from './perform-layout';
 
+export type LayoutDirection = 'DOWN' | 'RIGHT';
+
 /**
- * Manages org-chart layout and expand/collapse behaviour.
+ * - `uninitialized` — before first layout; hides everything.
+ * - `idle`          — ready for input.
+ * - `layouting`     — layout running; canvas stays visible; buttons disabled.
+ * - `rebuilding`    — direction change; canvas hidden; buttons disabled.
+ */
+export type LayoutState = 'uninitialized' | 'idle' | 'layouting' | 'rebuilding';
+
+/**
+ * Manages org-chart layout, direction, and expand/collapse behaviour.
  *
- * Uses ELK.js (via `performLayout`) to position visible nodes in a
- * top-down hierarchy. Hidden nodes (inside collapsed subtrees) are excluded
- * from the layout pass so the chart stays compact.
+ * Uses ELK.js (via `performLayout`) to position visible nodes in a tree
+ * hierarchy. Hidden nodes (inside collapsed subtrees) are excluded from
+ * the layout pass so the chart stays compact.
  */
 @Injectable()
 export class LayoutService {
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly layoutDirectionService = inject(LayoutDirectionService);
+  private readonly viewportService = inject(NgDiagramViewportService);
+
+  private readonly _direction = signal<LayoutDirection>('DOWN');
+  readonly direction = this._direction.asReadonly();
+  readonly isHorizontal = computed(() => this._direction() === 'RIGHT');
+
+  private readonly _state = signal<LayoutState>('uninitialized');
+  readonly state = this._state.asReadonly();
+  readonly isInitialized = computed(() => this._state() !== 'uninitialized');
+  readonly isIdle = computed(() => this._state() === 'idle');
+  readonly isRebuilding = computed(() => this._state() === 'rebuilding');
+
+  async init(): Promise<void> {
+    await this.layoutInTransaction();
+    this._state.set('idle');
+  }
 
   /**
-   * Run the ELK layout on all visible nodes and edges.
-   * The root node is pinned to its current position so the chart
-   * doesn't jump after a re-layout.
+   * Layout is deferred to the next animation frame so the browser can
+   * paint the recreated port components (via `@if` in the node template)
+   * before the layout transaction measures their positions.
+   *
+   * TODO: remove requestAnimationFrame once ng-diagram fixes port
+   * dynamic side update.
    */
-  async applyLayout(): Promise<void> {
-    // Use getModel() to read the latest committed state directly.
-    // Signal-based accessors (modelService.nodes/edges) may not yet
-    // reflect updates made within the current transaction.
-    const model = this.modelService.getModel();
-    const visibleNodes = model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden);
-    const visibleEdges = model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden);
+  setDirection(value: LayoutDirection): void {
+    if (this._direction() === value) return;
+    this._state.set('rebuilding');
+    this._direction.set(value);
+    requestAnimationFrame(async () => {
+      try {
+        await this.layoutInTransaction();
+        this.viewportService.zoomToFit();
+      } catch (error) {
+        console.error('Layout failed during direction change:', error);
+      } finally {
+        this._state.set('idle');
+      }
+    });
+  }
 
-    const positionedNodes = await performLayout(
-      visibleNodes,
-      visibleEdges,
-      this.layoutDirectionService.direction(),
-    );
-
-    const rootNode = this.findRootNode();
-    if (rootNode) {
-      // Offset every node so the root stays where it was before layout.
-      const newRoot = positionedNodes.find((n) => n.id === rootNode.id);
-      if (!newRoot) return;
-
-      const newRootPosition = newRoot.position;
-      const dx = rootNode.position.x - newRootPosition.x;
-      const dy = rootNode.position.y - newRootPosition.y;
-
-      this.modelService.updateNodes(
-        positionedNodes.map((n) => ({
-          id: n.id,
-          position: { x: n.position.x + dx, y: n.position.y + dy },
-        })),
-      );
-    } else {
-      this.modelService.updateNodes(positionedNodes);
+  async runLayout(): Promise<void> {
+    if (!this.isIdle()) return;
+    this._state.set('layouting');
+    try {
+      await this.layoutInTransaction();
+    } catch (error) {
+      console.error('Layout failed:', error);
+    } finally {
+      this._state.set('idle');
     }
   }
 
   /**
-   * Toggle the collapsed state of a node and update the visibility
-   * of its subtree. The collapsed flag and child visibility are
-   * batched in a single transaction, followed by a re-layout.
+   * Toggle the collapsed state of a node. Positions are pre-computed
+   * for the future visible set so the visibility change and layout
+   * are applied in a single transaction (no flash).
    */
   async toggleCollapsed(nodeId: string): Promise<void> {
-    const node = this.modelService.getNodeById(nodeId);
+    if (!this.isIdle()) return;
 
-    if (!node) {
-      return;
-    }
+    const node = this.modelService.getNodeById(nodeId);
+    if (!node) return;
 
     const newCollapsed = !(node.data as OrgChartNodeData).isCollapsed;
-    const subtreeIds = this.computeAvailableSubtreeIds(nodeId);
+    const subtreeIds = this.computeSubtreeIds(nodeId);
+    const { nodes, edges } = this.getFutureVisibleSet(subtreeIds, newCollapsed);
 
-    // Await the transaction to ensure all updates (collapsed flag +
-    // visibility) are committed to the model before re-layout reads them.
-    await this.diagramService.transaction(async () => {
-      this.modelService.updateNodeData(nodeId, {
-        ...(node.data as OrgChartNodeData),
-        isCollapsed: newCollapsed,
-        collapsedChildrenCount: newCollapsed
-          ? countAllDescendants(nodeId, this.modelService)
-          : undefined,
-      });
+    this._state.set('layouting');
+    const positions = await this.computePositions(nodes, edges);
 
-      this.updateVisibility(subtreeIds, newCollapsed, !newCollapsed ? node.position : undefined);
-    });
+    try {
+      await this.diagramService.transaction(
+        async () => {
+          this.modelService.updateNodeData(nodeId, {
+            ...(node.data as OrgChartNodeData),
+            isCollapsed: newCollapsed,
+            collapsedChildrenCount: newCollapsed
+              ? countAllDescendants(nodeId, this.modelService)
+              : undefined,
+          });
+          this.setSubtreeVisibility(subtreeIds, newCollapsed);
+          this.modelService.updateNodes(positions);
+        },
+        { waitForMeasurements: true },
+      );
+    } catch (error) {
+      console.error('Layout failed during toggle:', error);
+    } finally {
+      this._state.set('idle');
+    }
+  }
 
-    await this.applyLayout();
+  private async layoutInTransaction(): Promise<void> {
+    await this.diagramService.transaction(
+      async () => {
+        const { nodes, edges } = this.getVisibleSet();
+        const positions = await this.computePositions(nodes, edges);
+        this.modelService.updateNodes(positions);
+      },
+      { waitForMeasurements: true },
+    );
   }
 
   /**
-   * Find the tree root — the node that is never a target of any edge.
+   * Compute layout positions with the root node pinned so the chart
+   * doesn't jump after a re-layout.
    */
+  private async computePositions(
+    nodes: DiagramNode[],
+    edges: Edge[],
+  ): Promise<{ id: string; position: { x: number; y: number } }[]> {
+    const laid = await performLayout(nodes, edges, this._direction());
+    const root = this.findRootNode();
+
+    if (!root) {
+      return laid.map((n) => ({ id: n.id, position: n.position }));
+    }
+
+    const newRoot = laid.find((n) => n.id === root.id);
+    if (!newRoot) return [];
+
+    const dx = root.position.x - newRoot.position.x;
+    const dy = root.position.y - newRoot.position.y;
+
+    return laid.map((n) => ({
+      id: n.id,
+      position: { x: n.position.x + dx, y: n.position.y + dy },
+    }));
+  }
+
+  private getVisibleSet() {
+    const model = this.modelService.getModel();
+    return {
+      nodes: model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden),
+      edges: model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden),
+    };
+  }
+
+  private getFutureVisibleSet(subtreeIds: Set<string>, collapsing: boolean) {
+    const model = this.modelService.getModel();
+    const willBeVisible = (id: string, isHidden: boolean) =>
+      collapsing ? !isHidden && !subtreeIds.has(id) : !isHidden || subtreeIds.has(id);
+
+    return {
+      nodes: model
+        .getNodes()
+        .filter((n) => willBeVisible(n.id, !!(n.data as OrgChartNodeData).isHidden)),
+      edges: model
+        .getEdges()
+        .filter((e) => willBeVisible(e.target, !!(e.data as OrgChartEdgeData).isHidden)),
+    };
+  }
+
   private findRootNode() {
     const model = this.modelService.getModel();
     const targetIds = new Set(model.getEdges().map((e) => e.target));
     return model.getNodes().find((n) => !targetIds.has(n.id)) ?? null;
   }
 
-  /**
-   * Walk the subtree starting from `nodeId`, collecting descendant IDs.
-   * Stops descending into children that are themselves collapsed, so
-   * their subtrees remain hidden when expanding a parent.
-   */
-  private computeAvailableSubtreeIds(nodeId: string): Set<string> {
-    const childrenIds = new Set<string>();
+  private computeSubtreeIds(nodeId: string): Set<string> {
+    const ids = new Set<string>();
     const stack = [nodeId];
 
     while (stack.length > 0) {
       const parentId = stack.pop()!;
       for (const edge of this.modelService.getConnectedEdges(parentId)) {
-        if (edge.source === parentId) {
-          childrenIds.add(edge.target);
+        if (edge.source !== parentId) continue;
+        ids.add(edge.target);
 
-          const childData = this.modelService.getNodeById(edge.target)?.data as OrgChartNodeData;
-          if (!childData?.isCollapsed) {
-            stack.push(edge.target);
-          }
-        }
+        const child = this.modelService.getNodeById(edge.target)?.data as OrgChartNodeData;
+        if (!child?.isCollapsed) stack.push(edge.target);
       }
     }
 
-    return childrenIds;
+    return ids;
   }
 
-  /**
-   * Set `isHidden` on the affected subtree nodes and their incoming
-   * edges. Only touches elements in `subtreeIds` — edges are matched
-   * by target so the parent-to-child edge follows the child's visibility.
-   */
-  private updateVisibility(
-    subtreeIds: Set<string>,
-    hidden: boolean,
-    parentPosition?: { x: number; y: number },
-  ): void {
-    this.modelService.updateNodes(
-      [...subtreeIds].reduce<
-        { id: string; data: OrgChartNodeData; position?: { x: number; y: number } }[]
-      >((acc, id) => {
+  private setSubtreeVisibility(subtreeIds: Set<string>, hidden: boolean): void {
+    const nodeUpdates = [...subtreeIds].reduce<{ id: string; data: OrgChartNodeData }[]>(
+      (acc, id) => {
         const node = this.modelService.getNodeById(id);
-        if (!node) return acc;
-
-        acc.push({
-          id,
-          data: {
-            ...(node.data as OrgChartNodeData),
-            isHidden: hidden,
-          },
-          // When expanding, place children at the parent's position so they
-          // fan out from it once the layout runs — avoids a visual blink
-          // from a random previous position.
-          ...(parentPosition ? { position: parentPosition } : {}),
-        });
-
+        if (node) {
+          acc.push({ id, data: { ...(node.data as OrgChartNodeData), isHidden: hidden } });
+        }
         return acc;
-      }, []),
+      },
+      [],
     );
+    this.modelService.updateNodes(nodeUpdates);
 
-    this.modelService.updateEdges(
-      this.modelService
-        .getModel()
-        .getEdges()
-        .filter((e) => subtreeIds.has(e.target))
-        .map((e) => ({
-          id: e.id,
-          data: {
-            isHidden: hidden,
-          },
-        })),
-    );
+    const edgeUpdates = this.modelService
+      .getModel()
+      .getEdges()
+      .filter((e) => subtreeIds.has(e.target))
+      .map((e) => ({ id: e.id, data: { isHidden: hidden } }));
+    this.modelService.updateEdges(edgeUpdates);
   }
 }

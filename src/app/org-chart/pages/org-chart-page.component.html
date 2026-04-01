@@ -1,5 +1,10 @@
-<app-diagram />
+<app-diagram #diagram />
 <div class="navbar-wrapper">
   <app-top-navbar class="clickable" />
-  <app-toolbar-horizontal class="clickable" />
+  <app-toolbar-horizontal
+    class="clickable"
+    [direction]="diagram.direction()"
+    [disabled]="!diagram.isLayoutIdle()"
+    (directionChange)="diagram.changeDirection($event)"
+  />
 </div>

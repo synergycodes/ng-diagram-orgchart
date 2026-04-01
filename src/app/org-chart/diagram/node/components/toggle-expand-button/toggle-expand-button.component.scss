@@ -28,7 +28,7 @@
   }
 }
 
-:host-context(.layout-horizontal) .toggle-btn {
+:host(.layout-horizontal) .toggle-btn {
   bottom: auto;
   left: auto;
   right: var(--ngd-primitive-even-negative--12); /* No Figma token */
