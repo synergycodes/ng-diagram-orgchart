@@ -45,7 +45,7 @@ interface OrgChartBaseNodeData {
   reports: number;
   span: number;
   shiftCapacity: number;
-  sortOrder: string;
+  sortOrder?: string;
   isCollapsed?: boolean;
   collapsedChildrenCount?: number;
   hasChildren?: boolean;

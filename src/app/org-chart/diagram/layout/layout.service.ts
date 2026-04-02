@@ -8,6 +8,7 @@ import {
 } from 'ng-diagram';
 import { isOrgChartEdge, isOrgChartNode, isOrgChartNodeData } from '../guards';
 import { OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
+import { generateKeyBetween } from '../utils/fractional-indexing';
 import { countAllDescendants } from './expand-collapse';
 import { performLayout } from './perform-layout';
 
@@ -45,6 +46,7 @@ export class LayoutService {
   readonly isRebuilding = computed(() => this._state() === 'rebuilding');
 
   async init(): Promise<void> {
+    this.initSortOrder();
     await this.layoutInTransaction();
     this._state.set('idle');
   }
@@ -208,10 +210,55 @@ export class LayoutService {
     return edges.sort((a, b) => {
       const aNode = this.modelService.getNodeById(a.target);
       const bNode = this.modelService.getNodeById(b.target);
-      const aOrder = isOrgChartNode(aNode) ? aNode?.data.sortOrder : '';
-      const bOrder = isOrgChartNode(bNode) ? bNode?.data.sortOrder : '';
+      const aOrder = isOrgChartNode(aNode) ? (aNode.data.sortOrder ?? '') : '';
+      const bOrder = isOrgChartNode(bNode) ? (bNode.data.sortOrder ?? '') : '';
       return aOrder.localeCompare(bOrder);
     });
+  }
+
+  /**
+   * Assign `sortOrder` to all org-chart nodes if any are missing.
+   * Uses current edge topology to determine sibling groups and assigns
+   * sequential keys per group. Runs once at init.
+   */
+  private initSortOrder(): void {
+    const model = this.modelService.getModel();
+    const nodes = model.getNodes();
+
+    const needsInit = nodes.some((n) => isOrgChartNode(n) && !n.data.sortOrder);
+    if (!needsInit) return;
+
+    const edges = model.getEdges();
+    const childrenMap = new Map<string, string[]>();
+    const targetIds = new Set<string>();
+
+    for (const edge of edges) {
+      const children = childrenMap.get(edge.source) ?? [];
+      children.push(edge.target);
+      childrenMap.set(edge.source, children);
+      targetIds.add(edge.target);
+    }
+
+    const updates: { id: string; data: OrgChartNodeData }[] = [];
+
+    for (const node of nodes) {
+      if (!isOrgChartNode(node)) continue;
+      if (!targetIds.has(node.id)) {
+        updates.push({ id: node.id, data: { ...node.data, sortOrder: 'a0' } });
+      }
+    }
+
+    for (const [, childIds] of childrenMap) {
+      let key: string | null = null;
+      for (const childId of childIds) {
+        const node = this.modelService.getNodeById(childId);
+        if (!node || !isOrgChartNode(node)) continue;
+        key = generateKeyBetween(key, null);
+        updates.push({ id: childId, data: { ...node.data, sortOrder: key } });
+      }
+    }
+
+    this.modelService.updateNodes(updates);
   }
 
   private findRootNode() {
