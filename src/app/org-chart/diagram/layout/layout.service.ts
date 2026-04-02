@@ -3,10 +3,11 @@ import {
   NgDiagramModelService,
   NgDiagramService,
   NgDiagramViewportService,
-  type Edge,
+  type Edge as DiagramEdge,
   type Node as DiagramNode,
 } from 'ng-diagram';
-import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
+import { isOrgChartEdge, isOrgChartNode, isOrgChartNodeData } from '../guards';
+import { OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
 import { countAllDescendants } from './expand-collapse';
 import { performLayout } from './perform-layout';
 
@@ -93,9 +94,9 @@ export class LayoutService {
     if (!this.isIdle()) return;
 
     const node = this.modelService.getNodeById(nodeId);
-    if (!node) return;
+    if (!node || !isOrgChartNode(node)) return;
 
-    const newCollapsed = !(node.data as OrgChartNodeData).isCollapsed;
+    const newCollapsed = !node.data.isCollapsed;
     const subtreeIds = this.computeSubtreeIds(nodeId);
     const { nodes, edges } = this.getFutureVisibleSet(subtreeIds, newCollapsed);
 
@@ -106,7 +107,7 @@ export class LayoutService {
       await this.diagramService.transaction(
         async () => {
           this.modelService.updateNodeData(nodeId, {
-            ...(node.data as OrgChartNodeData),
+            ...node.data,
             isCollapsed: newCollapsed,
             collapsedChildrenCount: newCollapsed
               ? countAllDescendants(nodeId, this.modelService)
@@ -141,7 +142,7 @@ export class LayoutService {
    */
   private async computePositions(
     nodes: DiagramNode[],
-    edges: Edge[],
+    edges: DiagramEdge[],
   ): Promise<{ id: string; position: { x: number; y: number } }[]> {
     const laid = await performLayout(nodes, edges, this._direction());
     const root = this.findRootNode();
@@ -164,10 +165,15 @@ export class LayoutService {
 
   private getVisibleSet() {
     const model = this.modelService.getModel();
-    return {
-      nodes: model.getNodes().filter((n) => !(n.data as OrgChartNodeData).isHidden),
-      edges: model.getEdges().filter((e) => !(e.data as OrgChartEdgeData).isHidden),
-    };
+    const nodes = model
+      .getNodes()
+      .filter(
+        (node): node is DiagramNode<OrgChartNodeData> =>
+          isOrgChartNode(node) && !node.data.isHidden,
+      )
+      .sort(this.sortNodes);
+    const edges = model.getEdges().filter((edge) => isOrgChartEdge(edge) && !edge.data.isHidden);
+    return { nodes, edges: this.sortEdgesByTargetSortOrder(edges) };
   }
 
   private getFutureVisibleSet(subtreeIds: Set<string>, collapsing: boolean) {
@@ -178,11 +184,34 @@ export class LayoutService {
     return {
       nodes: model
         .getNodes()
-        .filter((n) => willBeVisible(n.id, !!(n.data as OrgChartNodeData).isHidden)),
-      edges: model
-        .getEdges()
-        .filter((e) => willBeVisible(e.target, !!(e.data as OrgChartEdgeData).isHidden)),
+        .filter(
+          (n): n is DiagramNode<OrgChartNodeData> =>
+            isOrgChartNode(n) && willBeVisible(n.id, !!n.data.isHidden),
+        )
+        .sort(this.sortNodes),
+      edges: this.sortEdgesByTargetSortOrder(
+        model
+          .getEdges()
+          .filter(
+            (edge) => isOrgChartEdge(edge) && willBeVisible(edge.target, !!edge.data.isHidden),
+          ),
+      ),
     };
+  }
+
+  private sortNodes = (a: DiagramNode<OrgChartNodeData>, b: DiagramNode<OrgChartNodeData>) =>
+    (a.data.sortOrder ?? '').localeCompare(b.data.sortOrder ?? '');
+
+  private sortEdgesByTargetSortOrder(
+    edges: DiagramEdge<OrgChartEdgeData>[],
+  ): DiagramEdge<OrgChartEdgeData>[] {
+    return edges.sort((a, b) => {
+      const aNode = this.modelService.getNodeById(a.target);
+      const bNode = this.modelService.getNodeById(b.target);
+      const aOrder = isOrgChartNode(aNode) ? aNode?.data.sortOrder : '';
+      const bOrder = isOrgChartNode(bNode) ? bNode?.data.sortOrder : '';
+      return aOrder.localeCompare(bOrder);
+    });
   }
 
   private findRootNode() {
@@ -201,20 +230,40 @@ export class LayoutService {
         if (edge.source !== parentId) continue;
         ids.add(edge.target);
 
-        const child = this.modelService.getNodeById(edge.target)?.data as OrgChartNodeData;
-        if (!child?.isCollapsed) stack.push(edge.target);
+        const childData = this.modelService.getNodeById(edge.target)?.data;
+        if (isOrgChartNodeData(childData) && !childData?.isCollapsed) stack.push(edge.target);
       }
     }
 
     return ids;
   }
 
+  /**
+   * Expand a collapsed node by unhiding its subtree.
+   * Only performs visibility mutations — does NOT wrap a transaction
+   * or trigger layout. Caller is responsible for both.
+   */
+  expandNode(nodeId: string): void {
+    const node = this.modelService.getNodeById(nodeId);
+    if (!node || !isOrgChartNode(node)) return;
+
+    const subtreeIds = this.computeSubtreeIds(nodeId);
+
+    this.modelService.updateNodeData(nodeId, {
+      ...node.data,
+      isCollapsed: false,
+      collapsedChildrenCount: undefined,
+    });
+
+    this.setSubtreeVisibility(subtreeIds, false);
+  }
+
   private setSubtreeVisibility(subtreeIds: Set<string>, hidden: boolean): void {
     const nodeUpdates = [...subtreeIds].reduce<{ id: string; data: OrgChartNodeData }[]>(
       (acc, id) => {
         const node = this.modelService.getNodeById(id);
-        if (node) {
-          acc.push({ id, data: { ...(node.data as OrgChartNodeData), isHidden: hidden } });
+        if (node && isOrgChartNode(node)) {
+          acc.push({ id, data: { ...node.data, isHidden: hidden } });
         }
         return acc;
       },

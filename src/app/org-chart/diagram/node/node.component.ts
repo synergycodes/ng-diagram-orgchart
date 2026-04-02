@@ -1,10 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import {
+  NgDiagramModelService,
   NgDiagramPortComponent,
   NgDiagramViewportService,
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
+import { HierarchyService } from '../../hierarchy/hierarchy.service';
+import { PropertiesSidebarService } from '../../properties-sidebar/properties-sidebar.service';
 import { DragStateService } from '../drag-state.service';
 import { isOccupiedNodeData, isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
@@ -54,6 +57,9 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly layoutService = inject(LayoutService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly dragStateService = inject(DragStateService);
+  private readonly modelService = inject(NgDiagramModelService);
+  private readonly hierarchyService = inject(HierarchyService);
+  private readonly sidebarService = inject(PropertiesSidebarService);
 
   node = input.required<Node<OrgChartNodeData>>();
 
@@ -67,6 +73,11 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   );
 
   showAddButtons = computed(() => !this.dragStateService.isDragging());
+
+  isRoot = computed(() => {
+    const edges = this.modelService.getConnectedEdges(this.node().id);
+    return !edges.some((e) => e.target === this.node().id);
+  });
 
   variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node())) return 'vacant';
@@ -87,15 +98,21 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     await this.layoutService.toggleCollapsed(this.node().id);
   }
 
-  onAddLeft(event: MouseEvent): void {
+  async onAddLeft(event: MouseEvent): Promise<void> {
     event.stopPropagation();
+    await this.hierarchyService.addSiblingBefore(this.node().id);
+    this.sidebarService.expandSidebar();
   }
 
-  onAddRight(event: MouseEvent): void {
+  async onAddRight(event: MouseEvent): Promise<void> {
     event.stopPropagation();
+    await this.hierarchyService.addSiblingAfter(this.node().id);
+    this.sidebarService.expandSidebar();
   }
 
-  onAddBottom(event: MouseEvent): void {
+  async onAddBottom(event: MouseEvent): Promise<void> {
     event.stopPropagation();
+    await this.hierarchyService.addChild(this.node().id);
+    this.sidebarService.expandSidebar();
   }
 }

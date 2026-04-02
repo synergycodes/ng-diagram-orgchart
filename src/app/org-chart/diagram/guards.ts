@@ -1,5 +1,6 @@
-import { type Node } from 'ng-diagram';
+import { type Edge, type Node } from 'ng-diagram';
 import {
+  OrgChartEdgeData,
   type OrgChartNodeData,
   type OrgChartOccupiedNodeData,
   type OrgChartVacantNodeData,
@@ -34,4 +35,12 @@ export function isOccupiedNode(
 
 export function isVacantNode(node: Node | null | undefined): node is Node<OrgChartVacantNodeData> {
   return !!node && isVacantNodeData(node.data);
+}
+
+export function isOrgChartEdgeData(data: unknown) {
+  return typeof data === 'object' && data !== null;
+}
+
+export function isOrgChartEdge(edge: Edge | null | undefined): edge is Edge<OrgChartEdgeData> {
+  return !!edge && isOrgChartEdgeData(edge.data);
 }

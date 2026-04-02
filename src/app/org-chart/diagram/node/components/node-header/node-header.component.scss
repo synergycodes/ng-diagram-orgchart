@@ -15,10 +15,10 @@
   padding: var(--ngd-token-spacing-node-head-icon);
   border-radius: 50%;
   /* No Figma token - default color */
-  color: var(--node-accent, var(--ngd-colors-acc8-400));
-  background: color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc8-400)) 20%, transparent);
+  color: var(--node-accent, var(--ngd-colors-acc3-400));
+  background: color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 20%, transparent);
   border: 2px solid /* No Figma token - border size */
-    color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc8-400)) 30%, transparent);
+    color-mix(in srgb, var(--node-accent, var(--ngd-colors-acc3-400)) 30%, transparent);
 
   :host-context(html[data-theme='dark']) & {
     background: var(--ngd-node-bg-secondary-default);
