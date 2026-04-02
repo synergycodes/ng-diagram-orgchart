@@ -7,10 +7,10 @@ import {
   type Edge,
   type Node,
 } from 'ng-diagram';
+import { isOrgChartNode } from '../diagram/guards';
 import {
   EdgeTemplateType,
   NodeTemplateType,
-  type OrgChartNodeData,
   type OrgChartVacantNodeData,
 } from '../diagram/interfaces';
 import { LayoutService } from '../diagram/layout/layout.service';
@@ -87,7 +87,7 @@ export class AddNodeService {
       return;
     }
     const node = this.modelService.getNodeById(nodeId);
-    if (node && (node.data as OrgChartNodeData).isCollapsed) {
+    if (isOrgChartNode(node) && node.data.isCollapsed) {
       this.layoutService.expandNode(nodeId);
     }
   }
@@ -99,7 +99,7 @@ export class AddNodeService {
     position: 'before' | 'after',
   ): Promise<string | undefined> {
     const parentNode = this.modelService.getNodeById(parentId);
-    if (!parentNode) return;
+    if (!parentNode || !isOrgChartNode(parentNode)) return;
 
     const positionNode = this.modelService.getNodeById(positionNodeId) ?? parentNode;
     const sortOrder = this.computeSortOrder(parentId, referenceNodeId, position);
@@ -112,9 +112,9 @@ export class AddNodeService {
         this.modelService.addNodes([newNode]);
         this.modelService.addEdges([newEdge]);
 
-        if (!(parentNode.data as OrgChartNodeData).hasChildren) {
+        if (!parentNode.data.hasChildren) {
           this.modelService.updateNodeData(parentId, {
-            ...(parentNode.data as OrgChartNodeData),
+            ...parentNode.data,
             hasChildren: true,
           });
         }
@@ -156,7 +156,7 @@ export class AddNodeService {
         const node = this.modelService.getNodeById(e.target);
         return {
           id: e.target,
-          sortOrder: (node?.data as OrgChartNodeData)?.sortOrder ?? '',
+          sortOrder: isOrgChartNode(node) ? (node.data.sortOrder ?? '') : '',
         };
       })
       .sort((a, b) => a.sortOrder.localeCompare(b.sortOrder));
