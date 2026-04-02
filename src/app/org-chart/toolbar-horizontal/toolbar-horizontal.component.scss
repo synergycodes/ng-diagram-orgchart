@@ -1,0 +1,59 @@
+:host {
+  width: fit-content;
+  align-self: center;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--ngd-token-spacing-toolbar-hor-gap);
+  background: var(--ngd-ui-bg-primary-default);
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-toolbar-hor-l);
+  padding: var(--ngd-token-spacing-toolbar-hor-pad);
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--ngd-token-radius-button-l);
+  padding: var(--ngd-token-spacing-button-l-v-pad-2);
+  cursor: pointer;
+  transition: background 150ms ease;
+
+  .icon {
+    transition: background-color 150ms ease;
+  }
+
+  &.active {
+    background: var(--ngd-button-primary-bg-default);
+
+    .icon {
+      background-color: var(--ngd-txt-primary-white);
+    }
+  }
+}
+
+.icon {
+  --icon-size: var(--ngd-primitive-even-20);
+  display: inline-block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-color: var(--ngd-nav-button-icon-primary-default);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.icon-vertical {
+  mask-image: url('/assets/network.svg');
+  -webkit-mask-image: url('/assets/network.svg');
+}
+
+.icon-horizontal {
+  mask-image: url('/assets/tree-structure.svg');
+  -webkit-mask-image: url('/assets/tree-structure.svg');
+}

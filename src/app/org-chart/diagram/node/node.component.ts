@@ -47,6 +47,7 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[class.selected]': 'node().selected',
     '[style.visibility]': 'node().data.isHidden ? "hidden" : null',
     '[style.pointer-events]': 'node().data.isHidden ? "none" : null',
+    '[class.layout-horizontal]': 'isHorizontal()',
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
@@ -55,6 +56,10 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly dragStateService = inject(DragStateService);
 
   node = input.required<Node<OrgChartNodeData>>();
+
+  isLayoutIdle = this.layoutService.isIdle;
+
+  isHorizontal = this.layoutService.isHorizontal;
 
   showDropIndicators = computed(
     () =>

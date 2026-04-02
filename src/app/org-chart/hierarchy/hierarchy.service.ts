@@ -56,7 +56,7 @@ export class HierarchyService {
       this.changeParent(nodeId, newParentId, oldParentId, incomingEdge ?? null),
     );
 
-    await this.diagramService.transaction(async () => await this.layoutService.applyLayout(), {
+    await this.diagramService.transaction(async () => await this.layoutService.runLayout(), {
       waitForMeasurements: true,
     });
 

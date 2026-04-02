@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -10,7 +10,6 @@ import {
   NgDiagramService,
   NgDiagramViewportService,
   type Edge,
-  type EdgeDrawnEvent,
   type NgDiagramConfig,
   type NodeDragEndedEvent,
   type NodeDragStartedEvent,
@@ -23,7 +22,7 @@ import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
 import { isOrgChartNode, isOrgChartNodeData } from './guards';
 import { EdgeTemplateType, NodeTemplateType } from './interfaces';
-import { LayoutService } from './layout/layout.service';
+import { LayoutService, type LayoutDirection } from './layout/layout.service';
 import { NodeComponent } from './node/node.component';
 
 /**
@@ -50,10 +49,12 @@ export class DiagramComponent {
   private readonly dragStateService = inject(DragStateService);
   private readonly sidebarService = inject(PropertiesSidebarService);
 
-  protected isLayoutReady = signal(false);
+  protected readonly isLayoutInitialized = this.layoutService.isInitialized;
+  protected readonly isRebuilding = this.layoutService.isRebuilding;
+  readonly isLayoutIdle = this.layoutService.isIdle;
 
-  // Assign the custom OrgChartEdge type to every user-drawn edge so it uses our
-  // edge template (with visibility support for collapsed subtrees).
+  readonly direction = this.layoutService.direction;
+
   config = {
     linking: {
       finalEdgeDataBuilder: (edge: Edge) => ({
@@ -72,40 +73,28 @@ export class DiagramComponent {
 
   model = initializeModel(diagramModel);
 
-  /**
-   * When the user draws a new edge, mark the source node as having children
-   * so the expand/collapse toggle button appears. Re-layout only if the
-   * flag actually changed.
-   */
-  async onEdgeDrawn(event: EdgeDrawnEvent): Promise<void> {
-    if (!isOrgChartNodeData(event.source.data)) {
-      throw new Error('Event source data is not of type `OrgChartNodeData`!');
-    }
-    const sourceData = event.source.data;
-    if (!sourceData.hasChildren) {
-      // Await the transaction to ensure hasChildren is committed
-      // to the model before re-layout reads it.
-      await this.diagramService.transaction(async () => {
-        this.modelService.updateNodeData(event.source.id, {
-          ...sourceData,
-          hasChildren: true,
-        });
-      });
+  changeDirection(value: LayoutDirection): void {
+    this.layoutService.setDirection(value);
+  }
 
-      await this.layoutService.applyLayout();
-    }
+  /**
+   * Run the ELK tree layout inside a transaction (so measurements are
+   * up-to-date), then fit the viewport to show all nodes.
+   */
+  async onDiagramInit(_: DiagramInitEvent): Promise<void> {
+    await this.layoutService.init();
+    this.viewportService.zoomToFit();
   }
 
   /**
    * When the user deletes edges, check whether each affected source node
    * still has outgoing edges. If not, clear `hasChildren` so the toggle
-   * button is removed. Re-layout only if at least one node was updated.
+   * button is removed. Always re-layout to reposition remaining nodes.
    */
   async onSelectionRemoved(event: SelectionRemovedEvent): Promise<void> {
     if (event.deletedEdges.length === 0) return;
 
     const affectedSourceIds = new Set(event.deletedEdges.map((e) => e.source));
-    let changed = false;
 
     // Await the transaction to ensure hasChildren updates are committed
     // to the model before re-layout reads them.
@@ -122,30 +111,11 @@ export class DiagramComponent {
             ...node.data,
             hasChildren: false,
           });
-          changed = true;
         }
       }
     });
 
-    if (changed) {
-      await this.layoutService.applyLayout();
-    }
-  }
-
-  /**
-   * Run the ELK tree layout inside a transaction (so measurements are
-   * up-to-date), then fit the viewport to show all nodes.
-   */
-  async onDiagramInit(_: DiagramInitEvent): Promise<void> {
-    await this.diagramService.transaction(
-      async () => {
-        await this.layoutService.applyLayout();
-      },
-      { waitForMeasurements: true },
-    );
-
-    this.viewportService.zoomToFit();
-    this.isLayoutReady.set(true);
+    await this.layoutService.runLayout();
   }
 
   onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {

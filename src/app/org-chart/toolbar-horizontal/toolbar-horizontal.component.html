@@ -1,0 +1,24 @@
+<div class="toolbar" role="toolbar">
+  <button
+    class="toolbar-btn"
+    type="button"
+    [class.active]="isDown()"
+    [attr.aria-pressed]="isDown()"
+    [disabled]="disabled()"
+    aria-label="Vertical layout"
+    (click)="setVerticalLayout()"
+  >
+    <span class="icon icon-vertical" aria-hidden="true"></span>
+  </button>
+  <button
+    class="toolbar-btn"
+    type="button"
+    [class.active]="isRight()"
+    [attr.aria-pressed]="isRight()"
+    [disabled]="disabled()"
+    aria-label="Horizontal layout"
+    (click)="setHorizontalLayout()"
+  >
+    <span class="icon icon-horizontal" aria-hidden="true"></span>
+  </button>
+</div>

@@ -99,3 +99,42 @@
     }
   }
 }
+
+:host(.layout-horizontal) {
+  .drop-indicator {
+    &--left {
+      width: var(--drop-indicator-big-width);
+      height: var(--drop-indicator-height);
+      top: var(--drop-indicator-horizontal-padding);
+      left: 50%;
+      right: auto;
+      bottom: auto;
+      transform: translate(-50%, -50%);
+    }
+
+    &--right {
+      width: var(--drop-indicator-big-width);
+      height: var(--drop-indicator-height);
+      bottom: var(--drop-indicator-horizontal-padding);
+      left: 50%;
+      top: auto;
+      right: auto;
+      transform: translate(-50%, 50%);
+    }
+
+    &--bottom {
+      width: var(--drop-indicator-height);
+      height: var(--drop-indicator-small-width);
+      right: var(--drop-indicator-vertical-padding);
+      top: 50%;
+      bottom: auto;
+      left: auto;
+      transform: translateY(-50%);
+
+      &.drop-indicator--no-toggle {
+        right: var(--drop-indicator-horizontal-padding);
+        bottom: auto;
+      }
+    }
+  }
+}

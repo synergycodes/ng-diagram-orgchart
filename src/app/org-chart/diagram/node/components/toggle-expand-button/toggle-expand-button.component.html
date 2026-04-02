@@ -1,4 +1,4 @@
-<button class="toggle-btn p11" (pointerdown)="$event.stopPropagation()" (click)="onToggle($event)">
+<button class="toggle-btn p11" [disabled]="disabled()" (pointerdown)="$event.stopPropagation()" (click)="onToggle($event)">
   @if (isCollapsed()) {
     {{ collapsedChildrenCount() }}
   } @else {

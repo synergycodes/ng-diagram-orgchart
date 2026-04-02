@@ -6,8 +6,12 @@
   margin-top: 0;
   visibility: hidden;
 
-  &.ready {
+  &.initialized {
     visibility: visible;
+  }
+
+  &.rebuilding ng-diagram {
+    visibility: hidden;
   }
 
   // TODO: change to use panel position when this will be available in ng-diagram lib (https://github.com/synergycodes/ng-diagram/issues/621)

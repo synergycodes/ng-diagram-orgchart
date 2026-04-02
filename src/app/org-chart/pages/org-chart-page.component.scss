@@ -9,7 +9,7 @@
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   padding: var(--ngd-primitive-4rule-12); /* No Figma token */
   gap: var(--ngd-primitive-even-14); /* No Figma token */
   pointer-events: none;
@@ -17,10 +17,25 @@
 
   .top-navbar {
     pointer-events: all;
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .top-toolbar-wrapper {
+    grid-row: 2;
+    grid-column: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .top-toolbar {
+    pointer-events: all;
   }
 
   .content-area {
     display: flex;
+    grid-row: 2 / span 3;
+    grid-column: 1;
     flex-direction: column;
     align-items: flex-end;
     gap: var(--ngd-primitive-4rule-12);

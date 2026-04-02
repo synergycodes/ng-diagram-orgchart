@@ -54,3 +54,28 @@
     transform: translate(-50%, 100%);
   }
 }
+
+:host(.layout-horizontal) .add-btn {
+  &--left {
+    top: calc(-1 * var(--ngd-primitive-odd-15)); /* No Figma token - no designs */
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+  }
+
+  &--right {
+    top: auto;
+    right: auto;
+    bottom: calc(-1 * var(--ngd-primitive-odd-15)); /* No Figma token - no designs */
+    left: 50%;
+    transform: translate(-50%, 50%);
+  }
+
+  &--bottom {
+    bottom: auto;
+    left: auto;
+    right: calc(-1 * var(--ngd-primitive-4rule-40)); /* No Figma token - no designs */
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}

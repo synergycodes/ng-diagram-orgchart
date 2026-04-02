@@ -4,11 +4,23 @@ import { type Edge, type Node } from 'ng-diagram';
 // Single ELK instance reused across all layout calls.
 const elk = new ELK();
 
-const layoutOptions = {
-  'elk.algorithm': 'mrtree',
-  'elk.direction': 'DOWN',
-  'spacing.nodeNode': '140',
-};
+/**
+ * Cached maximum node dimensions across all layout runs. Only grows —
+ * never shrinks — so that layout spacing stays stable when zoom-driven
+ * template variants (full vs compact) produce different sizes.
+ */
+let cachedMaxWidth = 0;
+let cachedMaxHeight = 0;
+
+function getUniformNodeSize(nodes: Node[]): { width: number; height: number } {
+  for (const node of nodes) {
+    const w = node.measuredBounds?.width ?? node.size?.width ?? 0;
+    const h = node.measuredBounds?.height ?? node.size?.height ?? 0;
+    if (w > cachedMaxWidth) cachedMaxWidth = w;
+    if (h > cachedMaxHeight) cachedMaxHeight = h;
+  }
+  return { width: cachedMaxWidth, height: cachedMaxHeight };
+}
 
 /**
  * Compute tree positions for the given nodes using ELK.js.
@@ -17,17 +29,25 @@ const layoutOptions = {
  * layout algorithm, and returns a new array of nodes with updated
  * positions.
  */
-export async function performLayout(nodes: Node[], edges: Edge[]) {
-  // Use the largest measured node size so all nodes occupy the same
-  // bounding box in the layout.
-  const MAX_WIDTH = 267;
-  const MAX_HEIGHT = 247;
+export async function performLayout(
+  nodes: Node[],
+  edges: Edge[],
+  direction: 'DOWN' | 'RIGHT' = 'DOWN',
+) {
+  const layoutOptions = {
+    'elk.algorithm': 'mrtree',
+    'elk.direction': direction,
+    'elk.mrtree.edgeRoutingMode': 'MIDDLE_TO_MIDDLE',
+    'spacing.nodeNode': '140',
+  };
+
+  const { width, height } = getUniformNodeSize(nodes);
 
   const nodesToLayout = nodes.map(
-    ({ id: nodeId }): ElkNode => ({
-      id: nodeId,
-      width: MAX_WIDTH,
-      height: MAX_HEIGHT,
+    (node): ElkNode => ({
+      id: node.id,
+      width,
+      height,
     }),
   );
 

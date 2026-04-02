@@ -27,3 +27,11 @@
     ); /* No Figma token - the same as for default state. Add different color on hover? */
   }
 }
+
+:host(.layout-horizontal) .toggle-btn {
+  bottom: auto;
+  left: auto;
+  right: var(--ngd-primitive-even-negative--12); /* No Figma token */
+  top: 50%;
+  transform: translateY(-50%);
+}
