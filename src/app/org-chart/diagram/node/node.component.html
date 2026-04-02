@@ -5,18 +5,18 @@
   @case ('compact') {
     <app-compact-node
       [fullName]="occupiedData()?.fullName"
-      [role]="node().data.role"
+      [role]="occupiedData()?.role"
       [color]="occupiedData()?.color"
     />
   }
   @case ('full') {
     <app-full-node
       [fullName]="occupiedData()?.fullName"
-      [role]="node().data.role"
+      [role]="occupiedData()?.role"
       [color]="occupiedData()?.color"
-      [reports]="node().data.reports"
-      [span]="node().data.span"
-      [shiftCapacity]="node().data.shiftCapacity"
+      [reports]="occupiedData()?.reports"
+      [span]="occupiedData()?.span"
+      [shiftCapacity]="occupiedData()?.shiftCapacity"
     />
   }
 }

@@ -6,8 +6,7 @@ import {
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
-import { HierarchyService } from '../../hierarchy/hierarchy.service';
-import { PropertiesSidebarService } from '../../properties-sidebar/properties-sidebar.service';
+import { AddNodeService } from '../../actions/add-node.service';
 import { DragStateService } from '../drag-state.service';
 import { isOccupiedNodeData, isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
@@ -58,8 +57,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly dragStateService = inject(DragStateService);
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly hierarchyService = inject(HierarchyService);
-  private readonly sidebarService = inject(PropertiesSidebarService);
+  private readonly addNodeService = inject(AddNodeService);
 
   node = input.required<Node<OrgChartNodeData>>();
 
@@ -98,21 +96,18 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     await this.layoutService.toggleCollapsed(this.node().id);
   }
 
-  async onAddLeft(event: MouseEvent): Promise<void> {
+  onAddLeft(event: MouseEvent): void {
     event.stopPropagation();
-    await this.hierarchyService.addSiblingBefore(this.node().id);
-    this.sidebarService.expandSidebar();
+    this.addNodeService.addNode(this.node().id, 'siblingBefore');
   }
 
-  async onAddRight(event: MouseEvent): Promise<void> {
+  onAddRight(event: MouseEvent): void {
     event.stopPropagation();
-    await this.hierarchyService.addSiblingAfter(this.node().id);
-    this.sidebarService.expandSidebar();
+    this.addNodeService.addNode(this.node().id, 'siblingAfter');
   }
 
-  async onAddBottom(event: MouseEvent): Promise<void> {
+  onAddBottom(event: MouseEvent): void {
     event.stopPropagation();
-    await this.hierarchyService.addChild(this.node().id);
-    this.sidebarService.expandSidebar();
+    this.addNodeService.addNode(this.node().id, 'child');
   }
 }
