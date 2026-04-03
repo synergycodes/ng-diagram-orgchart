@@ -65,10 +65,22 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
 
   isHorizontal = this.layoutService.isHorizontal;
 
-  showDropIndicators = computed(
+  showLeftIndicator = computed(
     () =>
       this.dragReorderService.isReorderActive() &&
-      !this.dragReorderService.excludedNodeIds().has(this.node().id),
+      !this.dragReorderService.isSideHidden(this.node().id, 'left'),
+  );
+
+  showRightIndicator = computed(
+    () =>
+      this.dragReorderService.isReorderActive() &&
+      !this.dragReorderService.isSideHidden(this.node().id, 'right'),
+  );
+
+  showBottomIndicator = computed(
+    () =>
+      this.dragReorderService.isReorderActive() &&
+      !this.dragReorderService.isSideHidden(this.node().id, 'bottom'),
   );
 
   showAddButtons = computed(() => !this.dragReorderService.isDragging());

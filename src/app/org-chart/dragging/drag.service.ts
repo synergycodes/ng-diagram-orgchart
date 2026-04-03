@@ -1,8 +1,10 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, type NodeDragStartedEvent, type Rect } from 'ng-diagram';
 import { LayoutService } from '../diagram/layout/layout.service';
+import { HierarchyService } from '../hierarchy/hierarchy.service';
 import type { HighlightedIndicator } from './interfaces';
 import { edgeToEdgeDistance, rectFromNode } from './proximity';
+import type { DropZone } from './zone-detection/index';
 import { getZoneDetectionStrategy } from './zone-detection/index';
 
 /** Max edge-to-edge distance for a candidate to be considered. Must be less than node spacing (ELK 'spacing.nodeNode'). */
@@ -14,6 +16,7 @@ const QUERY_RANGE = 400;
 export class DragService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly layoutService = inject(LayoutService);
+  private readonly hierarchyService = inject(HierarchyService);
 
   private readonly draggedNodeIds = signal<Set<string>>(new Set());
 
@@ -31,7 +34,57 @@ export class DragService {
     return this.draggedNodeIds().has(nodeId);
   }
 
-  resolveZone(draggedNodeId: string, excludedNodeIds: Set<string>): HighlightedIndicator | null {
+  private static readonly ALL_SIDES: ReadonlySet<DropZone> = new Set<DropZone>([
+    'left',
+    'right',
+    'bottom',
+  ]);
+
+  getHiddenSides(draggedNodeId: string): Map<string, Set<DropZone>> {
+    return this.mergeMaps(
+      this.getAllSidesForDraggedSubtree(draggedNodeId),
+      this.getInvalidSidesForParent(draggedNodeId),
+      this.getSiblingSidesForRootNode(),
+    );
+  }
+
+  private getAllSidesForDraggedSubtree(draggedNodeId: string): Map<string, Set<DropZone>> {
+    const result = new Map<string, Set<DropZone>>();
+    result.set(draggedNodeId, new Set(DragService.ALL_SIDES));
+    for (const id of this.hierarchyService.getDescendantIds(draggedNodeId)) {
+      result.set(id, new Set(DragService.ALL_SIDES));
+    }
+    return result;
+  }
+
+  private getInvalidSidesForParent(draggedNodeId: string): Map<string, Set<DropZone>> {
+    const result = new Map<string, Set<DropZone>>();
+    const parentId = this.hierarchyService.getParentId(draggedNodeId);
+    if (!parentId) return result;
+
+    if (this.isRootNode(parentId)) {
+      result.set(parentId, new Set(DragService.ALL_SIDES));
+    } else {
+      result.set(parentId, new Set<DropZone>(['bottom']));
+    }
+    return result;
+  }
+
+  private getSiblingSidesForRootNode(): Map<string, Set<DropZone>> {
+    const result = new Map<string, Set<DropZone>>();
+    for (const node of this.modelService.nodes()) {
+      if (this.isRootNode(node.id)) {
+        result.set(node.id, new Set<DropZone>(['left', 'right']));
+        break;
+      }
+    }
+    return result;
+  }
+
+  resolveZone(
+    draggedNodeId: string,
+    hiddenSides: Map<string, Set<DropZone>>,
+  ): HighlightedIndicator | null {
     const draggedNode = this.modelService.getNodeById(draggedNodeId);
     if (!draggedNode) return null;
 
@@ -42,12 +95,15 @@ export class DragService {
       y: draggedNode.position.y + draggedSize.height / 2,
     };
 
-    const candidate = this.findNearestValidNode(draggedCenter, draggedRect, excludedNodeIds);
+    const candidate = this.findNearestValidNode(draggedCenter, draggedRect, hiddenSides);
     if (!candidate) return null;
 
     const candidateSize = candidate.size ?? { width: 0, height: 0 };
     const strategy = getZoneDetectionStrategy(this.layoutService.direction());
     const side = strategy.detect(draggedCenter, candidate.position, candidateSize);
+
+    const candidateHidden = hiddenSides.get(candidate.id);
+    if (candidateHidden?.has(side)) return null;
 
     return { nodeId: candidate.id, side };
   }
@@ -55,7 +111,7 @@ export class DragService {
   private findNearestValidNode(
     draggedCenter: { x: number; y: number },
     draggedRect: Rect,
-    excludedNodeIds: Set<string>,
+    hiddenSides: Map<string, Set<DropZone>>,
   ) {
     const nodesInRange = this.modelService.getNodesInRange(draggedCenter, QUERY_RANGE);
 
@@ -63,7 +119,8 @@ export class DragService {
     let minDistance = Infinity;
 
     for (const node of nodesInRange) {
-      if (excludedNodeIds.has(node.id)) continue;
+      const hidden = hiddenSides.get(node.id);
+      if (hidden?.size === DragService.ALL_SIDES.size) continue;
 
       const nodeSize = node.size ?? { width: 0, height: 0 };
       const candidateRect = rectFromNode(node.position, nodeSize);
@@ -78,5 +135,27 @@ export class DragService {
     }
 
     return nearest;
+  }
+
+  private isRootNode(nodeId: string): boolean {
+    const edges = this.modelService.getConnectedEdges(nodeId);
+    return !edges.some((e) => e.target === nodeId);
+  }
+
+  private mergeMaps(...maps: Map<string, Set<DropZone>>[]): Map<string, Set<DropZone>> {
+    const result = new Map<string, Set<DropZone>>();
+    for (const map of maps) {
+      for (const [nodeId, sides] of map) {
+        const existing = result.get(nodeId);
+        if (existing) {
+          for (const side of sides) {
+            existing.add(side);
+          }
+        } else {
+          result.set(nodeId, new Set(sides));
+        }
+      }
+    }
+    return result;
   }
 }
