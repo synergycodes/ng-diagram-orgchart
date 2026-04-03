@@ -29,24 +29,22 @@ export class SortOrderService {
   }
 
   /**
-   * Rewrite sortOrder for all children of a parent as 0, 1, 2, ...
-   * based on their current sort order.
+   * Compute sortOrder updates to rewrite children as 0, 1, 2, ...
+   * Returns updates without applying to the model.
    */
-  rewriteSiblingOrder(parentId: string): void {
-    const children = this.getSortedChildren(parentId);
+  computeRewriteSiblingOrder(
+    children: { id: string; sortOrder: number }[],
+  ): { id: string; data: OrgChartNodeData }[] {
     const updates: { id: string; data: OrgChartNodeData }[] = [];
 
     for (let index = 0; index < children.length; index++) {
-      const child = children[index];
-      if (child.sortOrder === index) continue;
-      const node = this.modelService.getNodeById(child.id);
+      const node = this.modelService.getNodeById(children[index].id);
       if (!node || !isOrgChartNode(node)) continue;
-      updates.push({ id: child.id, data: { ...node.data, sortOrder: index } });
+      if ((node.data.sortOrder ?? 0) === index) continue;
+      updates.push({ id: children[index].id, data: { ...node.data, sortOrder: index } });
     }
 
-    if (updates.length > 0) {
-      this.modelService.updateNodes(updates);
-    }
+    return updates;
   }
 
   /**

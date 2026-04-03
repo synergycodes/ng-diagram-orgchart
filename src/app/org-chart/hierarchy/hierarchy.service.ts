@@ -1,21 +1,23 @@
 import { inject, Injectable } from '@angular/core';
 import {
   NgDiagramModelService,
-  NgDiagramService,
-  NgDiagramViewportService,
   type Edge,
 } from 'ng-diagram';
-import { isOrgChartNodeData } from '../diagram/guards';
-import { EdgeTemplateType } from '../diagram/interfaces';
+import { isOrgChartNode, isOrgChartNodeData } from '../diagram/guards';
+import {
+  EdgeTemplateType,
+  type OrgChartEdgeData,
+  type OrgChartNodeData,
+} from '../diagram/interfaces';
 import { LayoutService } from '../diagram/layout/layout.service';
+import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 
 @Injectable()
 export class HierarchyService {
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly diagramService = inject(NgDiagramService);
-  private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
+  private readonly nodeVisibilityService = inject(NodeVisibilityService);
   private readonly sortOrderService = inject(SortOrderService);
 
   getParentId(nodeId: string): string | null {
@@ -45,84 +47,77 @@ export class HierarchyService {
   }
 
   async updateNodeParent(nodeId: string, newParentId: string | null): Promise<void> {
+    if (!this.layoutService.isIdle()) return;
+
     const incomingEdge = this.modelService
       .getConnectedEdges(nodeId)
       .find((e) => e.target === nodeId);
     const oldParentId = incomingEdge?.source ?? null;
 
-    if (newParentId === oldParentId) {
-      return;
-    }
+    if (newParentId === oldParentId) return;
 
-    await this.diagramService.transaction(async () =>
-      this.changeParent(nodeId, newParentId, oldParentId, incomingEdge ?? null),
-    );
-
-    if (oldParentId) {
-      this.sortOrderService.rewriteSiblingOrder(oldParentId);
-    }
-    if (newParentId) {
-      this.sortOrderService.rewriteSiblingOrder(newParentId);
-    }
-
-    await this.diagramService.transaction(async () => await this.layoutService.runLayout(), {
-      waitForMeasurements: true,
-    });
-
-    this.viewportService.centerOnNode(nodeId);
-  }
-
-  private changeParent(
-    nodeId: string,
-    newParentId: string | null,
-    oldParentId: string | null,
-    incomingEdge: Edge | null,
-  ): void {
-    // Compute hasChildren BEFORE mutating edges, since model state
-    // is not refreshed mid-transaction and modelService.getConnectedEdges would return stale data.
-    const oldParentWillHaveChildren = oldParentId
-      ? this.modelService
-          .getConnectedEdges(oldParentId)
-          .some((e) => e.source === oldParentId && e.target !== nodeId)
-      : false;
+    // 1. Compute edge mutation
+    const newEdges: Edge<OrgChartEdgeData>[] = [];
+    const deleteEdgeIds: string[] = [];
+    const edgeUpdates: { id: string; source: string }[] = [];
 
     if (incomingEdge && newParentId) {
-      this.modelService.updateEdge(incomingEdge.id, { source: newParentId });
+      edgeUpdates.push({ id: incomingEdge.id, source: newParentId });
     } else if (incomingEdge && !newParentId) {
-      this.modelService.deleteEdges([incomingEdge.id]);
+      deleteEdgeIds.push(incomingEdge.id);
     } else if (!incomingEdge && newParentId) {
-      this.modelService.addEdges([
-        {
-          id: crypto.randomUUID(),
-          source: newParentId,
-          sourcePort: 'port-out',
-          target: nodeId,
-          targetPort: 'port-in',
-          type: EdgeTemplateType.OrgChartEdge,
-          data: { type: 'orgChart' },
-        },
-      ]);
+      newEdges.push({
+        id: crypto.randomUUID(),
+        source: newParentId,
+        sourcePort: 'port-out',
+        target: nodeId,
+        targetPort: 'port-in',
+        type: EdgeTemplateType.OrgChartEdge,
+        data: { type: 'orgChart' },
+      });
     }
 
-    if (oldParentId && !oldParentWillHaveChildren) {
+    // 2. Compute node data updates
+    const nodeUpdates: { id: string; data: OrgChartNodeData }[] = [];
+
+    // Old parent: hasChildren + sort order rewrite (excluding moved node)
+    if (oldParentId) {
+      const oldParentWillHaveChildren = this.modelService
+        .getConnectedEdges(oldParentId)
+        .some((e) => e.source === oldParentId && e.target !== nodeId);
+
       const oldParent = this.modelService.getNodeById(oldParentId);
-      if (oldParent && isOrgChartNodeData(oldParent.data) && oldParent.data.hasChildren) {
-        this.modelService.updateNodeData(oldParentId, {
-          ...oldParent.data,
-          hasChildren: false,
-        });
+      if (oldParent && isOrgChartNodeData(oldParent.data) && oldParent.data.hasChildren && !oldParentWillHaveChildren) {
+        nodeUpdates.push({ id: oldParentId, data: { ...oldParent.data, hasChildren: false } });
       }
+
+      const oldChildren = this.sortOrderService
+        .getSortedChildren(oldParentId)
+        .filter((c) => c.id !== nodeId);
+      nodeUpdates.push(...this.sortOrderService.computeRewriteSiblingOrder(oldChildren));
     }
 
+    // New parent: hasChildren + sort order rewrite (including moved node at end)
     if (newParentId) {
       const newParent = this.modelService.getNodeById(newParentId);
       if (newParent && isOrgChartNodeData(newParent.data) && !newParent.data.hasChildren) {
-        this.modelService.updateNodeData(newParentId, {
-          ...newParent.data,
-          hasChildren: true,
-        });
+        nodeUpdates.push({ id: newParentId, data: { ...newParent.data, hasChildren: true } });
       }
+
+      const newChildren = this.sortOrderService.getSortedChildren(newParentId);
+      newChildren.push({ id: nodeId, sortOrder: newChildren.length });
+      nodeUpdates.push(...this.sortOrderService.computeRewriteSiblingOrder(newChildren));
     }
+
+    // 3. Apply with layout
+    await this.layoutService.applyWithLayout({
+      newEdges,
+      edgeUpdates,
+      nodeUpdates,
+      deleteEdgeIds,
+    });
+
+    this.nodeVisibilityService.ensureVisible(nodeId);
   }
 
   private buildChildrenMap(): Map<string, string[]> {

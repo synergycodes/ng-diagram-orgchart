@@ -121,20 +121,40 @@ export class LayoutService {
     const {
       newNodes = [],
       newEdges = [],
-      nodeDataUpdates = [],
-      edgeDataUpdates = [],
+      nodeUpdates = [],
+      edgeUpdates = [],
+      deleteNodeIds = [],
+      deleteEdgeIds = [],
     } = mutations;
 
     // Resolve visible set
     const model = this.modelService.getModel();
-    const { nodes: visibleNodes, edges: visibleEdges } = visibility
+    let { nodes: visibleNodes, edges: visibleEdges } = visibility
       ? getFutureVisibleSet(model.getNodes(), model.getEdges(), visibility.subtreeIds, visibility.collapsing)
       : getVisibleSet(model.getNodes(), model.getEdges());
 
-    // Build sort-order override map from pending data updates + new nodes
+    // Apply pending edge/node mutations to the visible set so ELK sees correct topology
+    if (deleteEdgeIds.length > 0) {
+      const deleteSet = new Set(deleteEdgeIds);
+      visibleEdges = visibleEdges.filter((e) => !deleteSet.has(e.id));
+    }
+    if (deleteNodeIds.length > 0) {
+      const deleteSet = new Set(deleteNodeIds);
+      visibleNodes = visibleNodes.filter((n) => !deleteSet.has(n.id));
+    }
+    const edgeSourceOverrides = edgeUpdates.filter((u) => u.source);
+    if (edgeSourceOverrides.length > 0) {
+      const sourceMap = new Map(edgeSourceOverrides.map((u) => [u.id, u.source!]));
+      visibleEdges = visibleEdges.map((e) => {
+        const newSource = sourceMap.get(e.id);
+        return newSource ? { ...e, source: newSource } : e;
+      });
+    }
+
+    // Build sort-order override map from pending node updates + new nodes
     const orderOverrides = new Map<string, number>();
-    for (const update of nodeDataUpdates) {
-      if (update.data.sortOrder != null) {
+    for (const update of nodeUpdates) {
+      if (update.data?.sortOrder != null) {
         orderOverrides.set(update.id, update.data.sortOrder);
       }
     }
@@ -163,11 +183,15 @@ export class LayoutService {
 
     await this.diagramService.transaction(
       () => {
-        if (nodeDataUpdates.length > 0) {
-          this.modelService.updateNodes(nodeDataUpdates);
+        if (deleteEdgeIds.length > 0) {
+          this.modelService.deleteEdges(deleteEdgeIds);
         }
-        if (edgeDataUpdates.length > 0) {
-          this.modelService.updateEdges(edgeDataUpdates);
+        if (nodeUpdates.length > 0) {
+          this.modelService.updateNodes(nodeUpdates);
+        }
+        for (const update of edgeUpdates) {
+          if (update.source) this.modelService.updateEdge(update.id, { source: update.source });
+          if (update.data) this.modelService.updateEdges([{ id: update.id, data: update.data }]);
         }
         if (newNodes.length > 0) {
           this.modelService.addNodes(newNodes);

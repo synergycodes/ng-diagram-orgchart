@@ -58,6 +58,8 @@ interface OrgChartBaseNodeData {
 export interface ModelMutations {
   newNodes?: DiagramNode<OrgChartNodeData>[];
   newEdges?: DiagramEdge<OrgChartEdgeData>[];
-  nodeDataUpdates?: { id: string; data: OrgChartNodeData }[];
-  edgeDataUpdates?: { id: string; data: OrgChartEdgeData }[];
+  nodeUpdates?: (Partial<DiagramNode<OrgChartNodeData>> & { id: string })[];
+  edgeUpdates?: (Partial<DiagramEdge<OrgChartEdgeData>> & { id: string })[];
+  deleteNodeIds?: string[];
+  deleteEdgeIds?: string[];
 }

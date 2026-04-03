@@ -32,8 +32,8 @@ export class ExpandCollapseService {
 
     await this.layoutService.applyWithLayout(
       {
-        nodeDataUpdates: [result.toggledNodeUpdate, ...result.subtreeNodeUpdates],
-        edgeDataUpdates: result.subtreeEdgeUpdates,
+        nodeUpdates: [result.toggledNodeUpdate, ...result.subtreeNodeUpdates],
+        edgeUpdates: result.subtreeEdgeUpdates,
       },
       { subtreeIds: result.subtreeIds, collapsing: result.newCollapsed },
     );

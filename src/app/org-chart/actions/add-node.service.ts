@@ -2,7 +2,6 @@ import { inject } from '@angular/core';
 import {
   NgDiagramModelService,
   NgDiagramSelectionService,
-  NgDiagramViewportService,
   type Edge,
   type Node,
 } from 'ng-diagram';
@@ -16,8 +15,8 @@ import {
 } from '../diagram/interfaces';
 import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { LayoutService } from '../diagram/layout/layout.service';
+import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
-import { ensureNodeVisible } from '../diagram/utils/viewport';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { type AddNodeConfig } from './provide-add-node';
 
@@ -26,10 +25,10 @@ export type AddNodeAction = 'child' | 'siblingBefore' | 'siblingAfter';
 export class AddNodeService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly selectionService = inject(NgDiagramSelectionService);
-  private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
   private readonly expandCollapseService = inject(ExpandCollapseService);
   private readonly sortOrderService = inject(SortOrderService);
+  private readonly nodeVisibilityService = inject(NodeVisibilityService);
   private readonly hierarchyService = inject(HierarchyService);
 
   constructor(private readonly config?: AddNodeConfig) {}
@@ -84,8 +83,8 @@ export class AddNodeService {
       {
         newNodes: [newNode],
         newEdges: [newEdge],
-        nodeDataUpdates: [parentUpdate, ...siblingUpdates, ...subtreeNodeUpdates],
-        edgeDataUpdates: subtreeEdgeUpdates,
+        nodeUpdates: [parentUpdate, ...siblingUpdates, ...subtreeNodeUpdates],
+        edgeUpdates: subtreeEdgeUpdates,
       },
       expandSubtreeIds ? { subtreeIds: expandSubtreeIds, collapsing: false } : undefined,
     );
@@ -93,11 +92,7 @@ export class AddNodeService {
     // 7. Post-layout actions
     this.selectionService.select([newNodeId]);
     this.config?.onNodeAdded?.(newNodeId);
-
-    const addedNode = this.modelService.getNodeById(newNodeId);
-    if (addedNode) {
-      ensureNodeVisible(addedNode, this.viewportService, this.config?.getViewportInsets?.());
-    }
+    this.nodeVisibilityService.ensureVisible(newNodeId);
   }
 
   private resolveParams(
