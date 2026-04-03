@@ -122,7 +122,6 @@ export class AddNodeService {
           hasChildren: true,
         });
       }
-
     });
 
     return newNodeId;

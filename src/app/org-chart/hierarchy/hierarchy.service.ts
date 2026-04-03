@@ -70,7 +70,7 @@ export class HierarchyService {
     this.viewportService.centerOnNode(nodeId);
   }
 
-  private changeParent(
+  changeParent(
     nodeId: string,
     newParentId: string | null,
     oldParentId: string | null,

@@ -7,7 +7,7 @@ import {
   type Node,
 } from 'ng-diagram';
 import { AddNodeService } from '../../actions/add-node.service';
-import { DragStateService } from '../drag-state.service';
+import { DragReorderService } from '../../dragging/drag-reorder.service';
 import { isOccupiedNodeData, isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
@@ -55,7 +55,7 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly layoutService = inject(LayoutService);
   private readonly viewportService = inject(NgDiagramViewportService);
-  private readonly dragStateService = inject(DragStateService);
+  private readonly dragReorderService = inject(DragReorderService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly addNodeService = inject(AddNodeService);
 
@@ -67,10 +67,16 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
 
   showDropIndicators = computed(
     () =>
-      this.dragStateService.isDragging() && !this.dragStateService.isNodeDragged(this.node().id),
+      this.dragReorderService.isReorderActive() &&
+      !this.dragReorderService.excludedNodeIds().has(this.node().id),
   );
 
-  showAddButtons = computed(() => !this.dragStateService.isDragging());
+  showAddButtons = computed(() => !this.dragReorderService.isDragging());
+
+  highlightedSide = computed(() => {
+    const highlightedIndicator = this.dragReorderService.highlightedIndicator();
+    return highlightedIndicator?.nodeId === this.node().id ? highlightedIndicator.side : null;
+  });
 
   isRoot = computed(() => {
     // Update computed each time edge changes

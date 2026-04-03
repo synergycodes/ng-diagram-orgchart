@@ -65,6 +65,10 @@
     opacity: 0.6;
   }
 
+  &--highlighted {
+    opacity: 1;
+  }
+
   --drop-indicator-height: 6px; /* No Figma token */
   --drop-indicator-small-width: 48px; /* No Figma token */
   --drop-indicator-big-width: 180px; /* No Figma token */

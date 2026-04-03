@@ -261,9 +261,7 @@ export class LayoutService {
     const model = this.modelService.getModel();
     const nodes = model.getNodes();
 
-    const needsInit = nodes.some(
-      (n) => isOrgChartNode(n) && n.data.sortOrder === undefined,
-    );
+    const needsInit = nodes.some((n) => isOrgChartNode(n) && n.data.sortOrder === undefined);
     if (!needsInit) return;
 
     const edges = model.getEdges();
@@ -287,9 +285,7 @@ export class LayoutService {
 
     // Number children of each parent as 0, 1, 2, ...
     for (const parentId of parentIds) {
-      const children = edges
-        .filter((e) => e.source === parentId)
-        .map((e) => e.target);
+      const children = edges.filter((e) => e.source === parentId).map((e) => e.target);
 
       for (let i = 0; i < children.length; i++) {
         const node = this.modelService.getNodeById(children[i]);

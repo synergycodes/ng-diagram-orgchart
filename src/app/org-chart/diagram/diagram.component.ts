@@ -11,14 +11,14 @@ import {
   NgDiagramViewportService,
   type Edge,
   type NgDiagramConfig,
-  type NodeDragEndedEvent,
-  type NodeDragStartedEvent,
   type SelectionGestureEndedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
+import { DragReorderService } from '../dragging/drag-reorder.service';
+import { DragService } from '../dragging/drag.service';
+import { DropService } from '../dragging/drop.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
-import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
 import { isOrgChartNode, isOrgChartNodeData } from './guards';
 import { EdgeTemplateType, NodeTemplateType } from './interfaces';
@@ -39,14 +39,14 @@ import { NodeComponent } from './node/node.component';
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DragStateService],
+  providers: [DragService, DropService, DragReorderService],
 })
 export class DiagramComponent {
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
-  private readonly dragStateService = inject(DragStateService);
+  private readonly dragReorderService = inject(DragReorderService);
   private readonly sidebarService = inject(PropertiesSidebarService);
 
   protected readonly isLayoutInitialized = this.layoutService.isInitialized;
@@ -83,6 +83,7 @@ export class DiagramComponent {
    */
   async onDiagramInit(_: DiagramInitEvent): Promise<void> {
     await this.layoutService.init();
+    this.dragReorderService.init();
     this.viewportService.zoomToFit();
   }
 
@@ -123,13 +124,5 @@ export class DiagramComponent {
     if (hasOrgChartNodes) {
       this.sidebarService.expandSidebar();
     }
-  }
-
-  onNodeDragStarted(event: NodeDragStartedEvent): void {
-    this.dragStateService.setDraggedNodes(event);
-  }
-
-  onNodeDragEnded(_: NodeDragEndedEvent): void {
-    this.dragStateService.clearDrag();
   }
 }

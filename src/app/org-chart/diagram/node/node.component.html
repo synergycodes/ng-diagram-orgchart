@@ -31,17 +31,22 @@
   />
 }
 
-<div
-  class="drop-indicator drop-indicator--left"
-  [class.drop-indicator--visible]="showDropIndicators()"
-></div>
-<div
-  class="drop-indicator drop-indicator--right"
-  [class.drop-indicator--visible]="showDropIndicators()"
-></div>
+@if (!isRoot()) {
+  <div
+    class="drop-indicator drop-indicator--left"
+    [class.drop-indicator--visible]="showDropIndicators()"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
+  ></div>
+  <div
+    class="drop-indicator drop-indicator--right"
+    [class.drop-indicator--visible]="showDropIndicators()"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
+  ></div>
+}
 <div
   class="drop-indicator drop-indicator--bottom"
   [class.drop-indicator--visible]="showDropIndicators()"
+  [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
   [class.drop-indicator--no-toggle]="!node().data.hasChildren"
 ></div>
 
