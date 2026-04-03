@@ -8,6 +8,7 @@ import {
 } from 'ng-diagram';
 import { AddNodeService } from '../../actions/add-node.service';
 import { DragStateService } from '../drag-state.service';
+import { ExpandCollapseService } from '../expand-collapse/expand-collapse.service';
 import { isOccupiedNodeData, isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { LayoutService } from '../layout/layout.service';
@@ -54,6 +55,7 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly layoutService = inject(LayoutService);
+  private readonly expandCollapseService = inject(ExpandCollapseService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly dragStateService = inject(DragStateService);
   private readonly modelService = inject(NgDiagramModelService);
@@ -95,7 +97,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   /** Toggle the collapsed state of this node's subtree and re-layout. */
   async onToggle(event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    await this.layoutService.toggleCollapsed(this.node().id);
+    await this.expandCollapseService.toggleCollapsed(this.node().id);
   }
 
   onAddLeft(event: MouseEvent): void {

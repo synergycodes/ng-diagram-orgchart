@@ -11,8 +11,10 @@ import {
   EdgeTemplateType,
   NodeTemplateType,
   type OrgChartEdgeData,
+  type OrgChartNodeData,
   type OrgChartVacantNodeData,
 } from '../diagram/interfaces';
+import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { LayoutService } from '../diagram/layout/layout.service';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { ensureNodeVisible } from '../diagram/utils/viewport';
@@ -26,12 +28,15 @@ export class AddNodeService {
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
+  private readonly expandCollapseService = inject(ExpandCollapseService);
   private readonly sortOrderService = inject(SortOrderService);
   private readonly hierarchyService = inject(HierarchyService);
 
   constructor(private readonly config?: AddNodeConfig) {}
 
   async addNode(nodeId: string, action: AddNodeAction): Promise<void> {
+    if (!this.layoutService.isIdle()) return;
+
     const { parentId, referenceNodeId, position } = this.resolveParams(nodeId, action);
     if (!parentId) return;
 
@@ -40,33 +45,52 @@ export class AddNodeService {
 
     const needsExpand = action === 'child' && !!parentNode.data.isCollapsed;
 
+    // 1. Compute sort order
     const { sortOrder, siblingUpdates } = this.sortOrderService.insertSortOrder(
       parentId,
       referenceNodeId,
       position,
     );
+
+    // 2. Create new elements
     const newNodeId = crypto.randomUUID();
     const newNode = this.createVacantNode(newNodeId, sortOrder);
     const newEdge = this.createEdge(parentId, newNodeId);
 
-    await this.layoutService.addElementsAndLayout(
-      [newNode],
-      [newEdge],
-      () => {
-        if (needsExpand) {
-          this.layoutService.expandNode(parentId);
-        }
-        if (!parentNode.data.hasChildren) {
-          this.modelService.updateNodeData(parentId, {
-            ...parentNode.data,
-            hasChildren: true,
-          });
-        }
+    // 3. Compute expand mutations (if needed)
+    let subtreeNodeUpdates: { id: string; data: OrgChartNodeData }[] = [];
+    let subtreeEdgeUpdates: { id: string; data: OrgChartEdgeData }[] = [];
+    let expandSubtreeIds: Set<string> | undefined;
+
+    if (needsExpand) {
+      const expandResult = this.expandCollapseService.prepareExpand(parentId);
+      if (expandResult) {
+        subtreeNodeUpdates = expandResult.subtreeNodeUpdates;
+        subtreeEdgeUpdates = expandResult.subtreeEdgeUpdates;
+        expandSubtreeIds = expandResult.subtreeIds;
+      }
+    }
+
+    // 4. Build parent data update (merge hasChildren + expand patch)
+    const parentData: OrgChartNodeData = {
+      ...parentNode.data,
+      hasChildren: true,
+      ...(needsExpand ? { isCollapsed: false, collapsedChildrenCount: undefined } : {}),
+    };
+    const parentUpdate = { id: parentId, data: parentData };
+
+    // 5. Apply with layout
+    await this.layoutService.applyWithLayout(
+      {
+        newNodes: [newNode],
+        newEdges: [newEdge],
+        nodeDataUpdates: [parentUpdate, ...siblingUpdates, ...subtreeNodeUpdates],
+        edgeDataUpdates: subtreeEdgeUpdates,
       },
-      needsExpand ? parentId : undefined,
-      siblingUpdates,
+      expandSubtreeIds ? { subtreeIds: expandSubtreeIds, collapsing: false } : undefined,
     );
 
+    // 7. Post-layout actions
     this.selectionService.select([newNodeId]);
     this.config?.onNodeAdded?.(newNodeId);
 
