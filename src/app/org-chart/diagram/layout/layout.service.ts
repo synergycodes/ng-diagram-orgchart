@@ -8,7 +8,6 @@ import {
 } from 'ng-diagram';
 import { isOrgChartEdge, isOrgChartNode, isOrgChartNodeData } from '../guards';
 import { OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
-import { generateKeyBetween } from '../utils/fractional-indexing';
 import { countAllDescendants } from './expand-collapse';
 import { performLayout } from './perform-layout';
 
@@ -46,7 +45,7 @@ export class LayoutService {
   readonly isRebuilding = computed(() => this._state() === 'rebuilding');
 
   async init(): Promise<void> {
-    this.initSortOrder();
+    await this.initSortOrder();
     await this.layoutInTransaction();
     this._state.set('idle');
   }
@@ -174,7 +173,12 @@ export class LayoutService {
           isOrgChartNode(node) && !node.data.isHidden,
       )
       .sort(this.sortNodes);
-    const edges = model.getEdges().filter((edge) => isOrgChartEdge(edge) && !edge.data.isHidden);
+    const edges = model
+      .getEdges()
+      .filter(
+        (edge): edge is DiagramEdge<OrgChartEdgeData> =>
+          isOrgChartEdge(edge) && !edge.data.isHidden,
+      );
     return { nodes, edges: this.sortEdgesByTargetSortOrder(edges) };
   }
 
@@ -195,70 +199,108 @@ export class LayoutService {
         model
           .getEdges()
           .filter(
-            (edge) => isOrgChartEdge(edge) && willBeVisible(edge.target, !!edge.data.isHidden),
+            (edge): edge is DiagramEdge<OrgChartEdgeData> =>
+              isOrgChartEdge(edge) && willBeVisible(edge.target, !!edge.data.isHidden),
           ),
       ),
     };
   }
 
   private sortNodes = (a: DiagramNode<OrgChartNodeData>, b: DiagramNode<OrgChartNodeData>) =>
-    (a.data.sortOrder ?? '').localeCompare(b.data.sortOrder ?? '');
+    (a.data.sortOrder ?? 0) - (b.data.sortOrder ?? 0);
 
   private sortEdgesByTargetSortOrder(
     edges: DiagramEdge<OrgChartEdgeData>[],
   ): DiagramEdge<OrgChartEdgeData>[] {
-    return edges.sort((a, b) => {
+    return [...edges].sort((a, b) => {
       const aNode = this.modelService.getNodeById(a.target);
       const bNode = this.modelService.getNodeById(b.target);
-      const aOrder = isOrgChartNode(aNode) ? (aNode.data.sortOrder ?? '') : '';
-      const bOrder = isOrgChartNode(bNode) ? (bNode.data.sortOrder ?? '') : '';
-      return aOrder.localeCompare(bOrder);
+      const aOrder = isOrgChartNode(aNode) ? (aNode.data.sortOrder ?? 0) : 0;
+      const bOrder = isOrgChartNode(bNode) ? (bNode.data.sortOrder ?? 0) : 0;
+      return aOrder - bOrder;
     });
+  }
+
+  /**
+   * Rewrite sortOrder for all children of a parent as 0, 1, 2, ...
+   * based on their current sort order. Skips nodes already at the correct index.
+   */
+  rewriteSiblingOrder(parentId: string): void {
+    const children = this.modelService
+      .getConnectedEdges(parentId)
+      .filter((e) => e.source === parentId)
+      .map((e) => {
+        const node = this.modelService.getNodeById(e.target);
+        return {
+          id: e.target,
+          currentOrder: isOrgChartNode(node) ? (node.data.sortOrder ?? 0) : 0,
+        };
+      })
+      .sort((a, b) => a.currentOrder - b.currentOrder);
+
+    const updates: { id: string; data: OrgChartNodeData }[] = [];
+
+    for (let index = 0; index < children.length; index++) {
+      const child = children[index];
+      const node = this.modelService.getNodeById(child.id);
+      if (!node || !isOrgChartNode(node) || node.data.sortOrder === index) continue;
+      updates.push({ id: child.id, data: { ...node.data, sortOrder: index } });
+    }
+
+    if (updates.length > 0) {
+      this.modelService.updateNodes(updates);
+    }
   }
 
   /**
    * Assign `sortOrder` to all org-chart nodes if any are missing.
    * Uses current edge topology to determine sibling groups and assigns
-   * sequential keys per group. Runs once at init.
+   * sequential integers per group. Runs once at init.
    */
-  private initSortOrder(): void {
+  private async initSortOrder(): Promise<void> {
     const model = this.modelService.getModel();
     const nodes = model.getNodes();
 
-    const needsInit = nodes.some((n) => isOrgChartNode(n) && !n.data.sortOrder);
+    const needsInit = nodes.some(
+      (n) => isOrgChartNode(n) && n.data.sortOrder === undefined,
+    );
     if (!needsInit) return;
 
     const edges = model.getEdges();
-    const childrenMap = new Map<string, string[]>();
+    const parentIds = new Set<string>();
     const targetIds = new Set<string>();
 
     for (const edge of edges) {
-      const children = childrenMap.get(edge.source) ?? [];
-      children.push(edge.target);
-      childrenMap.set(edge.source, children);
+      parentIds.add(edge.source);
       targetIds.add(edge.target);
     }
 
     const updates: { id: string; data: OrgChartNodeData }[] = [];
 
+    // Assign sortOrder 0 to root nodes
     for (const node of nodes) {
       if (!isOrgChartNode(node)) continue;
       if (!targetIds.has(node.id)) {
-        updates.push({ id: node.id, data: { ...node.data, sortOrder: 'a0' } });
+        updates.push({ id: node.id, data: { ...node.data, sortOrder: 0 } });
       }
     }
 
-    for (const [, childIds] of childrenMap) {
-      let key: string | null = null;
-      for (const childId of childIds) {
-        const node = this.modelService.getNodeById(childId);
+    // Number children of each parent as 0, 1, 2, ...
+    for (const parentId of parentIds) {
+      const children = edges
+        .filter((e) => e.source === parentId)
+        .map((e) => e.target);
+
+      for (let i = 0; i < children.length; i++) {
+        const node = this.modelService.getNodeById(children[i]);
         if (!node || !isOrgChartNode(node)) continue;
-        key = generateKeyBetween(key, null);
-        updates.push({ id: childId, data: { ...node.data, sortOrder: key } });
+        updates.push({ id: children[i], data: { ...node.data, sortOrder: i } });
       }
     }
 
-    this.modelService.updateNodes(updates);
+    await this.diagramService.transaction(async () => {
+      this.modelService.updateNodes(updates);
+    });
   }
 
   private findRootNode() {
@@ -322,7 +364,7 @@ export class LayoutService {
       .getModel()
       .getEdges()
       .filter((e) => subtreeIds.has(e.target))
-      .map((e) => ({ id: e.id, data: { isHidden: hidden } }));
+      .map((e) => ({ id: e.id, data: { type: 'orgChart' as const, isHidden: hidden } }));
     this.modelService.updateEdges(edgeUpdates);
   }
 }

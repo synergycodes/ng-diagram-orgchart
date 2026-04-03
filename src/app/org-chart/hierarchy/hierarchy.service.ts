@@ -56,6 +56,13 @@ export class HierarchyService {
       this.changeParent(nodeId, newParentId, oldParentId, incomingEdge ?? null),
     );
 
+    if (oldParentId) {
+      this.layoutService.rewriteSiblingOrder(oldParentId);
+    }
+    if (newParentId) {
+      this.layoutService.rewriteSiblingOrder(newParentId);
+    }
+
     await this.diagramService.transaction(async () => await this.layoutService.runLayout(), {
       waitForMeasurements: true,
     });
@@ -90,7 +97,7 @@ export class HierarchyService {
           target: nodeId,
           targetPort: 'port-in',
           type: EdgeTemplateType.OrgChartEdge,
-          data: {},
+          data: { type: 'orgChart' },
         },
       ]);
     }

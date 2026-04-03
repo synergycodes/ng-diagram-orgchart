@@ -14,7 +14,6 @@ import {
   type OrgChartVacantNodeData,
 } from '../diagram/interfaces';
 import { LayoutService } from '../diagram/layout/layout.service';
-import { generateKeyBetween } from '../diagram/utils/fractional-indexing';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 
@@ -37,11 +36,17 @@ export class AddNodeService {
     );
     if (!parentId) return;
 
-    this.expandIfCollapsed(nodeId, action);
-
-    const newNodeId = await this.insertNode(parentId, positionNodeId, referenceNodeId, position);
+    let newNodeId: string | undefined;
+    await this.diagramService.transaction(
+      async () => {
+        this.expandIfCollapsed(nodeId, action);
+        newNodeId = await this.insertNode(parentId, positionNodeId, referenceNodeId, position);
+      },
+      { waitForMeasurements: true },
+    );
     if (!newNodeId) return;
 
+    this.layoutService.rewriteSiblingOrder(parentId);
     await this.layoutService.runLayout();
     this.selectionService.select([newNodeId]);
     this.viewportService.centerOnNode(newNodeId);
@@ -107,20 +112,18 @@ export class AddNodeService {
     const newNode = this.createVacantNode(newNodeId, positionNode, sortOrder);
     const newEdge = this.createEdge(parentId, newNodeId);
 
-    await this.diagramService.transaction(
-      async () => {
-        this.modelService.addNodes([newNode]);
-        this.modelService.addEdges([newEdge]);
+    await this.diagramService.transaction(async () => {
+      this.modelService.addNodes([newNode]);
+      this.modelService.addEdges([newEdge]);
 
-        if (!parentNode.data.hasChildren) {
-          this.modelService.updateNodeData(parentId, {
-            ...parentNode.data,
-            hasChildren: true,
-          });
-        }
-      },
-      { waitForMeasurements: true },
-    );
+      if (!parentNode.data.hasChildren) {
+        this.modelService.updateNodeData(parentId, {
+          ...parentNode.data,
+          hasChildren: true,
+        });
+      }
+
+    });
 
     return newNodeId;
   }
@@ -129,26 +132,23 @@ export class AddNodeService {
     parentId: string,
     referenceNodeId: string | null,
     position: 'before' | 'after',
-  ): string {
+  ): number {
     const siblings = this.getSortedChildren(parentId);
 
     if (referenceNodeId === null) {
-      const last = siblings.length > 0 ? siblings[siblings.length - 1].sortOrder : null;
-      return generateKeyBetween(last, null);
+      return siblings.length > 0 ? siblings[siblings.length - 1].sortOrder + 1 : 0;
     }
 
     const index = siblings.findIndex((s) => s.id === referenceNodeId);
 
     if (position === 'before') {
-      const prev = index > 0 ? siblings[index - 1].sortOrder : null;
-      return generateKeyBetween(prev, siblings[index].sortOrder);
+      return siblings[index].sortOrder - 0.5;
     }
 
-    const next = index < siblings.length - 1 ? siblings[index + 1].sortOrder : null;
-    return generateKeyBetween(siblings[index].sortOrder, next);
+    return siblings[index].sortOrder + 0.5;
   }
 
-  private getSortedChildren(parentId: string): { id: string; sortOrder: string }[] {
+  private getSortedChildren(parentId: string): { id: string; sortOrder: number }[] {
     return this.modelService
       .getConnectedEdges(parentId)
       .filter((e) => e.source === parentId)
@@ -156,16 +156,16 @@ export class AddNodeService {
         const node = this.modelService.getNodeById(e.target);
         return {
           id: e.target,
-          sortOrder: isOrgChartNode(node) ? (node.data.sortOrder ?? '') : '',
+          sortOrder: isOrgChartNode(node) ? (node.data.sortOrder ?? 0) : 0,
         };
       })
-      .sort((a, b) => a.sortOrder.localeCompare(b.sortOrder));
+      .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
   private createVacantNode(
     id: string,
     positionNode: Node,
-    sortOrder: string,
+    sortOrder: number,
   ): Node<OrgChartVacantNodeData> {
     return {
       id,
@@ -192,7 +192,7 @@ export class AddNodeService {
       target: childId,
       targetPort: 'port-in',
       type: EdgeTemplateType.OrgChartEdge,
-      data: {},
+      data: { type: 'orgChart' },
     };
   }
 }

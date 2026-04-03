@@ -37,8 +37,8 @@ export function isVacantNode(node: Node | null | undefined): node is Node<OrgCha
   return !!node && isVacantNodeData(node.data);
 }
 
-export function isOrgChartEdgeData(data: unknown) {
-  return typeof data === 'object' && data !== null;
+export function isOrgChartEdgeData(data: unknown): data is OrgChartEdgeData {
+  return typeof data === 'object' && data !== null && 'type' in data && data.type === 'orgChart';
 }
 
 export function isOrgChartEdge(edge: Edge | null | undefined): edge is Edge<OrgChartEdgeData> {

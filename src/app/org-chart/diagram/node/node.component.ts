@@ -73,8 +73,10 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   showAddButtons = computed(() => !this.dragStateService.isDragging());
 
   isRoot = computed(() => {
-    const edges = this.modelService.getConnectedEdges(this.node().id);
-    return !edges.some((e) => e.target === this.node().id);
+    // Update computed each time edge changes
+    this.modelService.edges();
+    const connectedEdges = this.modelService.getConnectedEdges(this.node().id);
+    return !connectedEdges.some((e) => e.target === this.node().id);
   });
 
   variant = computed<NodeVariant>(() => {
