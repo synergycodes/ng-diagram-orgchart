@@ -14,6 +14,7 @@ import {
   type OrgChartVacantNodeData,
 } from '../diagram/interfaces';
 import { LayoutService } from '../diagram/layout/layout.service';
+import { ensureNodeVisible } from '../diagram/utils/viewport';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 
@@ -38,9 +39,9 @@ export class AddNodeService {
 
     let newNodeId: string | undefined;
     await this.diagramService.transaction(
-      async () => {
+      () => {
         this.expandIfCollapsed(nodeId, action);
-        newNodeId = await this.insertNode(parentId, positionNodeId, referenceNodeId, position);
+        newNodeId = this.insertNode(parentId, positionNodeId, referenceNodeId, position);
       },
       { waitForMeasurements: true },
     );
@@ -49,7 +50,12 @@ export class AddNodeService {
     this.layoutService.rewriteSiblingOrder(parentId);
     await this.layoutService.runLayout();
     this.selectionService.select([newNodeId]);
-    this.viewportService.centerOnNode(newNodeId);
+
+    const addedNode = this.modelService.getNodeById(newNodeId);
+    if (addedNode) {
+      ensureNodeVisible(addedNode, this.viewportService);
+    }
+
     this.sidebarService.expandSidebar();
   }
 
@@ -97,12 +103,12 @@ export class AddNodeService {
     }
   }
 
-  private async insertNode(
+  private insertNode(
     parentId: string,
     positionNodeId: string,
     referenceNodeId: string | null,
     position: 'before' | 'after',
-  ): Promise<string | undefined> {
+  ): string | undefined {
     const parentNode = this.modelService.getNodeById(parentId);
     if (!parentNode || !isOrgChartNode(parentNode)) return;
 
@@ -112,18 +118,15 @@ export class AddNodeService {
     const newNode = this.createVacantNode(newNodeId, positionNode, sortOrder);
     const newEdge = this.createEdge(parentId, newNodeId);
 
-    await this.diagramService.transaction(async () => {
-      this.modelService.addNodes([newNode]);
-      this.modelService.addEdges([newEdge]);
+    this.modelService.addNodes([newNode]);
+    this.modelService.addEdges([newEdge]);
 
-      if (!parentNode.data.hasChildren) {
-        this.modelService.updateNodeData(parentId, {
-          ...parentNode.data,
-          hasChildren: true,
-        });
-      }
-
-    });
+    if (!parentNode.data.hasChildren) {
+      this.modelService.updateNodeData(parentId, {
+        ...parentNode.data,
+        hasChildren: true,
+      });
+    }
 
     return newNodeId;
   }
