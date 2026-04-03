@@ -3,6 +3,7 @@ import { NgDiagramMinimapComponent, provideNgDiagram } from 'ng-diagram';
 import { provideAddNode } from '../actions/provide-add-node';
 import { DiagramComponent } from '../diagram/diagram.component';
 import { LayoutService } from '../diagram/layout/layout.service';
+import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
@@ -25,6 +26,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     provideNgDiagram(),
     PropertiesSidebarService,
     LayoutService,
+    SortOrderService,
     HierarchyService,
     provideAddNode(() => {
       const sidebar = inject(PropertiesSidebarService);

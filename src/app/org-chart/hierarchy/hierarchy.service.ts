@@ -8,6 +8,7 @@ import {
 import { isOrgChartNodeData } from '../diagram/guards';
 import { EdgeTemplateType } from '../diagram/interfaces';
 import { LayoutService } from '../diagram/layout/layout.service';
+import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 
 @Injectable()
 export class HierarchyService {
@@ -15,6 +16,7 @@ export class HierarchyService {
   private readonly diagramService = inject(NgDiagramService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
+  private readonly sortOrderService = inject(SortOrderService);
 
   getParentId(nodeId: string): string | null {
     const incomingEdge = this.modelService
@@ -57,10 +59,10 @@ export class HierarchyService {
     );
 
     if (oldParentId) {
-      this.layoutService.rewriteSiblingOrder(oldParentId);
+      this.sortOrderService.rewriteSiblingOrder(oldParentId);
     }
     if (newParentId) {
-      this.layoutService.rewriteSiblingOrder(newParentId);
+      this.sortOrderService.rewriteSiblingOrder(newParentId);
     }
 
     await this.diagramService.transaction(async () => await this.layoutService.runLayout(), {

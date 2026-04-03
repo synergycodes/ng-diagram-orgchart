@@ -14,6 +14,7 @@ import {
   type OrgChartVacantNodeData,
 } from '../diagram/interfaces';
 import { LayoutService } from '../diagram/layout/layout.service';
+import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { ensureNodeVisible } from '../diagram/utils/viewport';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { type AddNodeConfig } from './provide-add-node';
@@ -25,6 +26,7 @@ export class AddNodeService {
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
+  private readonly sortOrderService = inject(SortOrderService);
   private readonly hierarchyService = inject(HierarchyService);
 
   constructor(private readonly config?: AddNodeConfig) {}
@@ -38,15 +40,15 @@ export class AddNodeService {
 
     const needsExpand = action === 'child' && !!parentNode.data.isCollapsed;
 
-    // Normalize existing siblings to integers BEFORE computing fractional sort order
-    this.layoutService.rewriteSiblingOrder(parentId);
-
-    const sortOrder = this.computeSortOrder(parentId, referenceNodeId, position);
+    const { sortOrder, siblingUpdates } = this.sortOrderService.insertSortOrder(
+      parentId,
+      referenceNodeId,
+      position,
+    );
     const newNodeId = crypto.randomUUID();
     const newNode = this.createVacantNode(newNodeId, sortOrder);
     const newEdge = this.createEdge(parentId, newNodeId);
 
-    // Pre-compute layout with new node included, apply everything in one render frame
     await this.layoutService.addElementsAndLayout(
       [newNode],
       [newEdge],
@@ -62,10 +64,8 @@ export class AddNodeService {
         }
       },
       needsExpand ? parentId : undefined,
+      siblingUpdates,
     );
-
-    // Normalize fractional sortOrder (e.g. 1.5 → 2) now that the node is in the model
-    this.layoutService.rewriteSiblingOrder(parentId);
 
     this.selectionService.select([newNodeId]);
     this.config?.onNodeAdded?.(newNodeId);
@@ -100,40 +100,6 @@ export class AddNodeService {
           position: 'after',
         };
     }
-  }
-
-  private computeSortOrder(
-    parentId: string,
-    referenceNodeId: string | null,
-    position: 'before' | 'after',
-  ): number {
-    const siblings = this.getSortedChildren(parentId);
-
-    if (referenceNodeId === null) {
-      return siblings.length > 0 ? siblings[siblings.length - 1].sortOrder + 1 : 0;
-    }
-
-    const index = siblings.findIndex((s) => s.id === referenceNodeId);
-
-    if (position === 'before') {
-      return siblings[index].sortOrder - 0.5;
-    }
-
-    return siblings[index].sortOrder + 0.5;
-  }
-
-  private getSortedChildren(parentId: string): { id: string; sortOrder: number }[] {
-    return this.modelService
-      .getConnectedEdges(parentId)
-      .filter((e) => e.source === parentId)
-      .map((e) => {
-        const node = this.modelService.getNodeById(e.target);
-        return {
-          id: e.target,
-          sortOrder: isOrgChartNode(node) ? (node.data.sortOrder ?? 0) : 0,
-        };
-      })
-      .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
   private createVacantNode(id: string, sortOrder: number): Node<OrgChartVacantNodeData> {
