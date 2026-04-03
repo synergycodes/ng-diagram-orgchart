@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NgDiagramMinimapComponent, provideNgDiagram } from 'ng-diagram';
-import { AddNodeService } from '../actions/add-node.service';
+import { provideAddNode } from '../actions/provide-add-node';
 import { DiagramComponent } from '../diagram/diagram.component';
 import { LayoutService } from '../diagram/layout/layout.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
@@ -26,7 +26,13 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     PropertiesSidebarService,
     LayoutService,
     HierarchyService,
-    AddNodeService,
+    provideAddNode(() => {
+      const sidebar = inject(PropertiesSidebarService);
+      return {
+        onNodeAdded: () => sidebar.expandSidebar(),
+        getViewportInsets: () => ({ right: sidebar.isExpanded() ? sidebar.width : 0 }),
+      };
+    }),
   ],
 })
 export class OrgChartPageComponent {}

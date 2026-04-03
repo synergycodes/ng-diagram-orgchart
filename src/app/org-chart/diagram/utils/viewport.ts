@@ -1,18 +1,29 @@
 import { type NgDiagramViewportService, type Node, type Viewport } from 'ng-diagram';
 
-const EDGE_PADDING = 40;
+const EDGE_PADDING = 60;
 
-function getViewportRect(viewport: Viewport) {
+export interface ViewportInsets {
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+}
+
+function getViewportRect(viewport: Viewport, insets?: ViewportInsets) {
   const { x: panX, y: panY, width = 0, height = 0, scale } = viewport;
-  const left = -panX / scale;
-  const top = -panY / scale;
+  const insetLeft = (insets?.left ?? 0) / scale;
+  const insetTop = (insets?.top ?? 0) / scale;
+  const insetRight = (insets?.right ?? 0) / scale;
+  const insetBottom = (insets?.bottom ?? 0) / scale;
+  const left = -panX / scale + insetLeft;
+  const top = -panY / scale + insetTop;
   return {
     left,
     top,
-    right: (width - panX) / scale,
-    bottom: (height - panY) / scale,
-    width: width / scale,
-    height: height / scale,
+    right: (width - panX) / scale - insetRight,
+    bottom: (height - panY) / scale - insetBottom,
+    width: width / scale - insetLeft - insetRight,
+    height: height / scale - insetTop - insetBottom,
   };
 }
 
@@ -47,11 +58,15 @@ export function isNodeInViewport(node: Node, viewport: Viewport): boolean {
  * so the node appears at the edge with padding.
  * If it's far offscreen — center on it.
  */
-export function ensureNodeVisible(node: Node, viewportService: NgDiagramViewportService): void {
+export function ensureNodeVisible(
+  node: Node,
+  viewportService: NgDiagramViewportService,
+  insets?: ViewportInsets,
+): void {
   const viewport = viewportService.viewport();
   if (!viewport.width || !viewport.height) return;
 
-  const viewportRect = getViewportRect(viewport);
+  const viewportRect = getViewportRect(viewport, insets);
   const rect = getNodeRect(node);
 
   if (

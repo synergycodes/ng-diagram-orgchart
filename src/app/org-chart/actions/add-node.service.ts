@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import {
   NgDiagramModelService,
   NgDiagramSelectionService,
@@ -16,19 +16,19 @@ import {
 import { LayoutService } from '../diagram/layout/layout.service';
 import { ensureNodeVisible } from '../diagram/utils/viewport';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
-import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
+import { type AddNodeConfig } from './provide-add-node';
 
 export type AddNodeAction = 'child' | 'siblingBefore' | 'siblingAfter';
 
-@Injectable()
 export class AddNodeService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly diagramService = inject(NgDiagramService);
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
-  private readonly sidebarService = inject(PropertiesSidebarService);
   private readonly hierarchyService = inject(HierarchyService);
+
+  constructor(private readonly config?: AddNodeConfig) {}
 
   async addNode(nodeId: string, action: AddNodeAction): Promise<void> {
     const { parentId, positionNodeId, referenceNodeId, position } = this.resolveParams(
@@ -50,13 +50,12 @@ export class AddNodeService {
     this.layoutService.rewriteSiblingOrder(parentId);
     await this.layoutService.runLayout();
     this.selectionService.select([newNodeId]);
+    this.config?.onNodeAdded?.(newNodeId);
 
     const addedNode = this.modelService.getNodeById(newNodeId);
     if (addedNode) {
-      ensureNodeVisible(addedNode, this.viewportService);
+      ensureNodeVisible(addedNode, this.viewportService, this.config?.getViewportInsets?.());
     }
-
-    this.sidebarService.expandSidebar();
   }
 
   private resolveParams(
