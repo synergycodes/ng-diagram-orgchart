@@ -87,6 +87,63 @@ export class LayoutService {
   }
 
   /**
+   * Pre-compute layout with new elements included, then add everything
+   * and apply positions in a single transaction — no flicker.
+   *
+   * Ordering note: the caller must ensure sortOrders are correct BEFORE
+   * calling this. Edges are sorted using a lookup map built from the
+   * combined node list (not model queries), so new nodes with fractional
+   * sortOrders are handled correctly.
+   */
+  async addElementsAndLayout(
+    newNodes: DiagramNode<OrgChartNodeData>[],
+    newEdges: DiagramEdge<OrgChartEdgeData>[],
+    mutationFn?: () => void,
+    expandNodeId?: string,
+  ): Promise<void> {
+    if (!this.isIdle()) return;
+    this._state.set('layouting');
+
+    try {
+      let visibleNodes: DiagramNode<OrgChartNodeData>[];
+      let visibleEdges: DiagramEdge<OrgChartEdgeData>[];
+
+      if (expandNodeId) {
+        const subtreeIds = this.computeSubtreeIds(expandNodeId);
+        ({ nodes: visibleNodes, edges: visibleEdges } =
+          this.getFutureVisibleSet(subtreeIds, false));
+      } else {
+        ({ nodes: visibleNodes, edges: visibleEdges } = this.getVisibleSet());
+      }
+
+      const allNodes = (
+        [...visibleNodes, ...newNodes] as DiagramNode<OrgChartNodeData>[]
+      ).sort(this.sortNodes);
+
+      const nodeOrderMap = new Map(allNodes.map((n) => [n.id, n.data.sortOrder ?? 0]));
+      const allEdges = [...visibleEdges, ...newEdges].sort(
+        (a, b) => (nodeOrderMap.get(a.target) ?? 0) - (nodeOrderMap.get(b.target) ?? 0),
+      );
+
+      const positions = await this.computePositions(allNodes, allEdges);
+
+      await this.diagramService.transaction(
+        () => {
+          mutationFn?.();
+          this.modelService.addNodes(newNodes);
+          this.modelService.addEdges(newEdges);
+          this.modelService.updateNodes(positions);
+        },
+        { waitForMeasurements: true },
+      );
+    } catch (error) {
+      console.error('Layout failed during add:', error);
+    } finally {
+      this._state.set('idle');
+    }
+  }
+
+  /**
    * Toggle the collapsed state of a node. Positions are pre-computed
    * for the future visible set so the visibility change and layout
    * are applied in a single transaction (no flash).

@@ -2,7 +2,6 @@ import { inject } from '@angular/core';
 import {
   NgDiagramModelService,
   NgDiagramSelectionService,
-  NgDiagramService,
   NgDiagramViewportService,
   type Edge,
   type Node,
@@ -11,6 +10,7 @@ import { isOrgChartNode } from '../diagram/guards';
 import {
   EdgeTemplateType,
   NodeTemplateType,
+  type OrgChartEdgeData,
   type OrgChartVacantNodeData,
 } from '../diagram/interfaces';
 import { LayoutService } from '../diagram/layout/layout.service';
@@ -22,7 +22,6 @@ export type AddNodeAction = 'child' | 'siblingBefore' | 'siblingAfter';
 
 export class AddNodeService {
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly diagramService = inject(NgDiagramService);
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutService = inject(LayoutService);
@@ -31,24 +30,43 @@ export class AddNodeService {
   constructor(private readonly config?: AddNodeConfig) {}
 
   async addNode(nodeId: string, action: AddNodeAction): Promise<void> {
-    const { parentId, positionNodeId, referenceNodeId, position } = this.resolveParams(
-      nodeId,
-      action,
-    );
+    const { parentId, referenceNodeId, position } = this.resolveParams(nodeId, action);
     if (!parentId) return;
 
-    let newNodeId: string | undefined;
-    await this.diagramService.transaction(
-      () => {
-        this.expandIfCollapsed(nodeId, action);
-        newNodeId = this.insertNode(parentId, positionNodeId, referenceNodeId, position);
-      },
-      { waitForMeasurements: true },
-    );
-    if (!newNodeId) return;
+    const parentNode = this.modelService.getNodeById(parentId);
+    if (!parentNode || !isOrgChartNode(parentNode)) return;
 
+    const needsExpand = action === 'child' && !!parentNode.data.isCollapsed;
+
+    // Normalize existing siblings to integers BEFORE computing fractional sort order
     this.layoutService.rewriteSiblingOrder(parentId);
-    await this.layoutService.runLayout();
+
+    const sortOrder = this.computeSortOrder(parentId, referenceNodeId, position);
+    const newNodeId = crypto.randomUUID();
+    const newNode = this.createVacantNode(newNodeId, sortOrder);
+    const newEdge = this.createEdge(parentId, newNodeId);
+
+    // Pre-compute layout with new node included, apply everything in one render frame
+    await this.layoutService.addElementsAndLayout(
+      [newNode],
+      [newEdge],
+      () => {
+        if (needsExpand) {
+          this.layoutService.expandNode(parentId);
+        }
+        if (!parentNode.data.hasChildren) {
+          this.modelService.updateNodeData(parentId, {
+            ...parentNode.data,
+            hasChildren: true,
+          });
+        }
+      },
+      needsExpand ? parentId : undefined,
+    );
+
+    // Normalize fractional sortOrder (e.g. 1.5 → 2) now that the node is in the model
+    this.layoutService.rewriteSiblingOrder(parentId);
+
     this.selectionService.select([newNodeId]);
     this.config?.onNodeAdded?.(newNodeId);
 
@@ -63,71 +81,25 @@ export class AddNodeService {
     action: AddNodeAction,
   ): {
     parentId: string | null;
-    positionNodeId: string;
     referenceNodeId: string | null;
     position: 'before' | 'after';
   } {
     switch (action) {
       case 'child':
-        return {
-          parentId: nodeId,
-          positionNodeId: nodeId,
-          referenceNodeId: null,
-          position: 'after',
-        };
+        return { parentId: nodeId, referenceNodeId: null, position: 'after' };
       case 'siblingBefore':
         return {
           parentId: this.hierarchyService.getParentId(nodeId),
-          positionNodeId: nodeId,
           referenceNodeId: nodeId,
           position: 'before',
         };
       case 'siblingAfter':
         return {
           parentId: this.hierarchyService.getParentId(nodeId),
-          positionNodeId: nodeId,
           referenceNodeId: nodeId,
           position: 'after',
         };
     }
-  }
-
-  private expandIfCollapsed(nodeId: string, action: AddNodeAction): void {
-    if (action !== 'child') {
-      return;
-    }
-    const node = this.modelService.getNodeById(nodeId);
-    if (isOrgChartNode(node) && node.data.isCollapsed) {
-      this.layoutService.expandNode(nodeId);
-    }
-  }
-
-  private insertNode(
-    parentId: string,
-    positionNodeId: string,
-    referenceNodeId: string | null,
-    position: 'before' | 'after',
-  ): string | undefined {
-    const parentNode = this.modelService.getNodeById(parentId);
-    if (!parentNode || !isOrgChartNode(parentNode)) return;
-
-    const positionNode = this.modelService.getNodeById(positionNodeId) ?? parentNode;
-    const sortOrder = this.computeSortOrder(parentId, referenceNodeId, position);
-    const newNodeId = crypto.randomUUID();
-    const newNode = this.createVacantNode(newNodeId, positionNode, sortOrder);
-    const newEdge = this.createEdge(parentId, newNodeId);
-
-    this.modelService.addNodes([newNode]);
-    this.modelService.addEdges([newEdge]);
-
-    if (!parentNode.data.hasChildren) {
-      this.modelService.updateNodeData(parentId, {
-        ...parentNode.data,
-        hasChildren: true,
-      });
-    }
-
-    return newNodeId;
   }
 
   private computeSortOrder(
@@ -164,15 +136,11 @@ export class AddNodeService {
       .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
-  private createVacantNode(
-    id: string,
-    positionNode: Node,
-    sortOrder: number,
-  ): Node<OrgChartVacantNodeData> {
+  private createVacantNode(id: string, sortOrder: number): Node<OrgChartVacantNodeData> {
     return {
       id,
       type: NodeTemplateType.OrgChartNode,
-      position: { x: positionNode.position.x, y: positionNode.position.y },
+      position: { x: 0, y: 0 },
       data: {
         type: 'vacant',
         role: undefined,
@@ -186,7 +154,7 @@ export class AddNodeService {
     };
   }
 
-  private createEdge(parentId: string, childId: string): Edge {
+  private createEdge(parentId: string, childId: string): Edge<OrgChartEdgeData> {
     return {
       id: crypto.randomUUID(),
       source: parentId,
