@@ -1,6 +1,13 @@
-import { inject } from '@angular/core';
+import { inject, type Provider } from '@angular/core';
 import { NgDiagramModelService, NgDiagramViewportService } from 'ng-diagram';
 import { ensureNodeVisible, type ViewportInsets } from '../utils/viewport';
+
+export function provideNodeVisibility(configFactory?: () => NodeVisibilityConfig): Provider {
+  return {
+    provide: NodeVisibilityService,
+    useFactory: () => new NodeVisibilityService(configFactory?.()),
+  };
+}
 
 export interface NodeVisibilityConfig {
   getViewportInsets?: () => ViewportInsets;

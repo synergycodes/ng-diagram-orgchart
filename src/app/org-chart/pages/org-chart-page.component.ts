@@ -4,7 +4,7 @@ import { provideAddNode } from '../actions/provide-add-node';
 import { DiagramComponent } from '../diagram/diagram.component';
 import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { LayoutService } from '../diagram/layout/layout.service';
-import { provideNodeVisibility } from '../diagram/node-visibility/provide-node-visibility';
+import { provideNodeVisibility } from '../diagram/node-visibility/node-visibility.service';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
