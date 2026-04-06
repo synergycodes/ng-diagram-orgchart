@@ -80,7 +80,7 @@ export class HierarchyService {
     // 2. Compute node data updates
     const nodeUpdates: { id: string; data: OrgChartNodeData }[] = [];
 
-    // Old parent: hasChildren + sort order rewrite (excluding moved node)
+    // Old parent: hasChildren update
     if (oldParentId) {
       const oldParentWillHaveChildren = this.modelService
         .getConnectedEdges(oldParentId)
@@ -90,23 +90,19 @@ export class HierarchyService {
       if (oldParent && isOrgChartNodeData(oldParent.data) && oldParent.data.hasChildren && !oldParentWillHaveChildren) {
         nodeUpdates.push({ id: oldParentId, data: { ...oldParent.data, hasChildren: false } });
       }
-
-      const oldChildren = this.sortOrderService
-        .getSortedChildren(oldParentId)
-        .filter((c) => c.id !== nodeId);
-      nodeUpdates.push(...this.sortOrderService.computeRewriteSiblingOrder(oldChildren));
     }
 
-    // New parent: hasChildren + sort order rewrite (including moved node at end)
+    // New parent: hasChildren + sort order (append moved node at end)
     if (newParentId) {
       const newParent = this.modelService.getNodeById(newParentId);
       if (newParent && isOrgChartNodeData(newParent.data) && !newParent.data.hasChildren) {
         nodeUpdates.push({ id: newParentId, data: { ...newParent.data, hasChildren: true } });
       }
 
-      const newChildren = this.sortOrderService.getSortedChildren(newParentId);
-      newChildren.push({ id: nodeId, sortOrder: newChildren.length });
-      nodeUpdates.push(...this.sortOrderService.computeRewriteSiblingOrder(newChildren));
+      const { updates } = this.sortOrderService.reorderChildren(newParentId, [
+        { nodeId, referenceId: null, position: 'after' },
+      ]);
+      nodeUpdates.push(...updates);
     }
 
     // 3. Apply with layout

@@ -45,15 +45,14 @@ export class AddNodeService {
     const needsExpand = action === 'child' && !!parentNode.data.isCollapsed;
 
     // 1. Compute sort order
-    const { sortOrder, siblingUpdates } = this.sortOrderService.insertSortOrder(
+    const newNodeId = crypto.randomUUID();
+    const { updates: siblingUpdates, sortOrders } = this.sortOrderService.reorderChildren(
       parentId,
-      referenceNodeId,
-      position,
+      [{ nodeId: newNodeId, referenceId: referenceNodeId, position }],
     );
 
     // 2. Create new elements
-    const newNodeId = crypto.randomUUID();
-    const newNode = this.createVacantNode(newNodeId, sortOrder);
+    const newNode = this.createVacantNode(newNodeId, sortOrders[newNodeId]);
     const newEdge = this.createEdge(parentId, newNodeId);
 
     // 3. Compute expand mutations (if needed)
