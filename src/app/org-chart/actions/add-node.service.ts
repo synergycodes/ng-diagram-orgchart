@@ -61,11 +61,11 @@ export class AddNodeService {
     let expandSubtreeIds: Set<string> | undefined;
 
     if (needsExpand) {
-      const expandResult = this.expandCollapseService.prepareExpand(parentId);
-      if (expandResult) {
-        subtreeNodeUpdates = expandResult.subtreeNodeUpdates;
-        subtreeEdgeUpdates = expandResult.subtreeEdgeUpdates;
-        expandSubtreeIds = expandResult.subtreeIds;
+      const toggleResult = this.expandCollapseService.prepareToggle(parentId);
+      if (toggleResult && !toggleResult.collapsing) {
+        subtreeNodeUpdates = toggleResult.subtreeNodeUpdates;
+        subtreeEdgeUpdates = toggleResult.subtreeEdgeUpdates;
+        expandSubtreeIds = toggleResult.toggledSubtreeIds;
       }
     }
 

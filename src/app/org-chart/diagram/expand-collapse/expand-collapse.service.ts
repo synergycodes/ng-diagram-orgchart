@@ -2,59 +2,64 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNode, isOrgChartNodeData } from '../guards';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
-import { LayoutService } from '../layout/layout.service';
 
-interface ToggleResult {
+export interface ToggleResult {
   toggledNodeUpdate: { id: string; data: OrgChartNodeData };
   subtreeNodeUpdates: { id: string; data: OrgChartNodeData }[];
   subtreeEdgeUpdates: { id: string; data: OrgChartEdgeData }[];
-  subtreeIds: Set<string>;
-  newCollapsed: boolean;
-}
-
-export interface ExpandResult {
-  parentPatch: { isCollapsed: false; collapsedChildrenCount: undefined };
-  subtreeNodeUpdates: { id: string; data: OrgChartNodeData }[];
-  subtreeEdgeUpdates: { id: string; data: OrgChartEdgeData }[];
-  subtreeIds: Set<string>;
+  toggledSubtreeIds: Set<string>;
+  collapsing: boolean;
 }
 
 @Injectable()
 export class ExpandCollapseService {
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly layoutService = inject(LayoutService);
 
-  async toggleCollapsed(nodeId: string): Promise<void> {
-    if (!this.layoutService.isIdle()) return;
-
-    const result = this.prepareToggle(nodeId);
-    if (!result) return;
-
-    await this.layoutService.applyWithLayout(
-      {
-        nodeUpdates: [result.toggledNodeUpdate, ...result.subtreeNodeUpdates],
-        edgeUpdates: result.subtreeEdgeUpdates,
-      },
-      { subtreeIds: result.subtreeIds, collapsing: result.newCollapsed },
-    );
-  }
-
-  prepareExpand(nodeId: string): ExpandResult | null {
+  /**
+   * Computes all model mutations needed to toggle a node's collapsed state.
+   * Does not apply changes — the caller is responsible for committing them.
+   *
+   * @param nodeId - The node whose collapsed state should be flipped.
+   * @returns Model patches and metadata — or `null` if the node is not a valid org-chart node.
+   *          `toggledSubtreeIds` — IDs of visible descendants affected by the toggle (for layout animation).
+   *          `collapsing` — the collapsed state after the toggle (`true` = collapsing, `false` = expanding).
+   */
+  prepareToggle(nodeId: string): ToggleResult | null {
     const node = this.modelService.getNodeById(nodeId);
     if (!node || !isOrgChartNode(node)) return null;
 
-    const subtreeIds = this.computeSubtreeIds(nodeId);
-    const { nodeUpdates, edgeUpdates } = this.computeSubtreeVisibilityChanges(subtreeIds, false);
+    const collapsing = !node.data.isCollapsed;
+    const subtreeIds = this.getVisibleDescendantIds(nodeId);
+    const { nodeUpdates, edgeUpdates } = this.computeSubtreeVisibilityChanges(
+      subtreeIds,
+      collapsing,
+    );
+
+    const toggledNodeUpdate = {
+      id: nodeId,
+      data: {
+        ...node.data,
+        isCollapsed: collapsing,
+        collapsedChildrenCount: collapsing ? this.countAllDescendants(nodeId) : undefined,
+      },
+    };
 
     return {
-      parentPatch: { isCollapsed: false, collapsedChildrenCount: undefined },
+      toggledNodeUpdate,
       subtreeNodeUpdates: nodeUpdates,
       subtreeEdgeUpdates: edgeUpdates,
-      subtreeIds,
+      toggledSubtreeIds: subtreeIds,
+      collapsing,
     };
   }
 
-  computeSubtreeIds(nodeId: string): Set<string> {
+  /**
+   * Collects all descendant IDs via DFS, stopping at collapsed nodes.
+   *
+   * @param nodeId - The root node to start traversal from (excluded from the result).
+   * @returns Set of descendant node IDs that are currently visible in the tree.
+   */
+  private getVisibleDescendantIds(nodeId: string): Set<string> {
     const ids = new Set<string>();
     const stack = [nodeId];
 
@@ -72,7 +77,13 @@ export class ExpandCollapseService {
     return ids;
   }
 
-  countAllDescendants(nodeId: string): number {
+  /**
+   * Counts all descendants, using stored `collapsedChildrenCount` to skip collapsed subtrees.
+   *
+   * @param nodeId - The root node to count descendants for (excluded from the count).
+   * @returns Total number of descendants, including those hidden behind collapsed nodes.
+   */
+  private countAllDescendants(nodeId: string): number {
     let count = 0;
     const stack = [nodeId];
 
@@ -95,37 +106,7 @@ export class ExpandCollapseService {
     return count;
   }
 
-  private prepareToggle(nodeId: string): ToggleResult | null {
-    const node = this.modelService.getNodeById(nodeId);
-    if (!node || !isOrgChartNode(node)) return null;
-
-    const newCollapsed = !node.data.isCollapsed;
-    const subtreeIds = this.computeSubtreeIds(nodeId);
-    const { nodeUpdates, edgeUpdates } = this.computeSubtreeVisibilityChanges(
-      subtreeIds,
-      newCollapsed,
-    );
-
-    const toggledNodeUpdate = {
-      id: nodeId,
-      data: {
-        ...node.data,
-        isCollapsed: newCollapsed,
-        collapsedChildrenCount: newCollapsed
-          ? this.countAllDescendants(nodeId)
-          : undefined,
-      },
-    };
-
-    return {
-      toggledNodeUpdate,
-      subtreeNodeUpdates: nodeUpdates,
-      subtreeEdgeUpdates: edgeUpdates,
-      subtreeIds,
-      newCollapsed,
-    };
-  }
-
+  /** Builds node and edge patches that set `isHidden` for all nodes in the given subtree. */
   private computeSubtreeVisibilityChanges(
     subtreeIds: Set<string>,
     hidden: boolean,
@@ -133,22 +114,21 @@ export class ExpandCollapseService {
     nodeUpdates: { id: string; data: OrgChartNodeData }[];
     edgeUpdates: { id: string; data: OrgChartEdgeData }[];
   } {
-    const nodeUpdates = [...subtreeIds].reduce<{ id: string; data: OrgChartNodeData }[]>(
-      (acc, id) => {
-        const node = this.modelService.getNodeById(id);
-        if (node && isOrgChartNode(node)) {
-          acc.push({ id, data: { ...node.data, isHidden: hidden } });
-        }
-        return acc;
-      },
-      [],
-    );
+    const nodeUpdates: { id: string; data: OrgChartNodeData }[] = [];
+    for (const id of subtreeIds) {
+      const node = this.modelService.getNodeById(id);
+      if (!node || !isOrgChartNode(node)) continue;
+      nodeUpdates.push({ id, data: { ...node.data, isHidden: hidden } });
+    }
 
-    const edgeUpdates = this.modelService
-      .getModel()
-      .getEdges()
-      .filter((e) => subtreeIds.has(e.target))
-      .map((e) => ({ id: e.id, data: { type: 'orgChart' as const, isHidden: hidden } }));
+    const edgeUpdates: { id: string; data: OrgChartEdgeData }[] = [];
+    for (const id of subtreeIds) {
+      for (const edge of this.modelService.getConnectedEdges(id)) {
+        if (edge.target === id) {
+          edgeUpdates.push({ id: edge.id, data: { type: 'orgChart', isHidden: hidden } });
+        }
+      }
+    }
 
     return { nodeUpdates, edgeUpdates };
   }

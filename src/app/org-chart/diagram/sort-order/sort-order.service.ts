@@ -14,7 +14,12 @@ export class SortOrderService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly diagramService = inject(NgDiagramService);
 
-  /** Returns children of the given parent sorted by their current `sortOrder`. */
+  /**
+   * Returns children of the given parent sorted by their current `sortOrder`.
+   *
+   * @param parentId - The parent node whose children to retrieve.
+   * @returns Children sorted by ascending `sortOrder`, each with its `id` and current `sortOrder`.
+   */
   getSortedChildren(parentId: string): { id: string; sortOrder: number }[] {
     return this.modelService
       .getConnectedEdges(parentId)
@@ -33,6 +38,8 @@ export class SortOrderService {
    * Recomputes `sortOrder` for children of the given parent, optionally
    * inserting new nodes at positions defined by `changes`.
    *
+   * @param parentId - The parent node whose children to reorder.
+   * @param changes - Nodes to insert before/after a reference child, or append at the end.
    * @returns `updates` — model patches for existing nodes whose sortOrder changed;
    *          `sortOrders` — assigned sortOrder for each node listed in `changes`
    *          (useful when the node hasn't been created yet).
@@ -93,10 +100,7 @@ export class SortOrderService {
   }
 
   /** Produces the final node ID sequence by inserting `changes` into the current children order. */
-  private buildFinalOrder(
-    orderedChildren: { id: string }[],
-    changes: ReorderChange[],
-  ): string[] {
+  private buildFinalOrder(orderedChildren: { id: string }[], changes: ReorderChange[]): string[] {
     const changesByRef = new Map<string, ReorderChange[]>();
     const appendChanges: ReorderChange[] = [];
 

@@ -97,7 +97,18 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   /** Toggle the collapsed state of this node's subtree and re-layout. */
   async onToggle(event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    await this.expandCollapseService.toggleCollapsed(this.node().id);
+    if (!this.layoutService.isIdle()) return;
+
+    const result = this.expandCollapseService.prepareToggle(this.node().id);
+    if (!result) return;
+
+    await this.layoutService.applyWithLayout(
+      {
+        nodeUpdates: [result.toggledNodeUpdate, ...result.subtreeNodeUpdates],
+        edgeUpdates: result.subtreeEdgeUpdates,
+      },
+      { subtreeIds: result.toggledSubtreeIds, collapsing: result.collapsing },
+    );
   }
 
   onAddLeft(event: MouseEvent): void {
