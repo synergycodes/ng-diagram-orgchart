@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
 import { isOccupiedNode, isOrgChartNode, isOrgChartNodeData } from '../diagram/guards';
 import {
@@ -15,11 +16,18 @@ import {
 
 @Injectable()
 export class PropertiesSidebarService {
+  private readonly document = inject(DOCUMENT);
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly hierarchyService = inject(HierarchyService);
 
   readonly isExpanded = signal(false);
+
+  get width(): number {
+    const el = this.document.querySelector('app-properties-sidebar');
+    return parseFloat(el ? getComputedStyle(el).getPropertyValue('--sidebar-width') : '') || 0;
+  }
+
   readonly selectedOrgChartNodes = computed<Node<OrgChartNodeData>[]>(() =>
     this.selectionService.selection().nodes.filter(isOrgChartNode),
   );

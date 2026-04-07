@@ -26,6 +26,7 @@ export enum OrgChartRole {
 export type OrgChartNodeData = OrgChartOccupiedNodeData | OrgChartVacantNodeData;
 
 export interface OrgChartEdgeData {
+  type: 'orgChart';
   isHidden?: boolean;
 }
 
@@ -45,6 +46,7 @@ interface OrgChartBaseNodeData {
   reports: number;
   span: number;
   shiftCapacity: number;
+  sortOrder?: number;
   isCollapsed?: boolean;
   collapsedChildrenCount?: number;
   hasChildren?: boolean;

@@ -214,7 +214,7 @@ export const diagramModel: {
       target: sarahChenId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeTwMtId,
@@ -223,7 +223,7 @@ export const diagramModel: {
       target: marcusThompsonId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeTwJrId,
@@ -232,7 +232,7 @@ export const diagramModel: {
       target: jamesRodriguezId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeTwEwId,
@@ -241,7 +241,7 @@ export const diagramModel: {
       target: emilyWatsonId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeScMdId,
@@ -250,7 +250,7 @@ export const diagramModel: {
       target: michaelDavisId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeScDpId,
@@ -259,7 +259,7 @@ export const diagramModel: {
       target: dianaPatelId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeMtCmId,
@@ -268,7 +268,7 @@ export const diagramModel: {
       target: carlosMartinezId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeJrTgId,
@@ -277,7 +277,7 @@ export const diagramModel: {
       target: thomasGreenId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeJrVmId,
@@ -286,7 +286,7 @@ export const diagramModel: {
       target: vacantMaintenanceTechId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
     {
       id: edgeEwPmId,
@@ -295,7 +295,7 @@ export const diagramModel: {
       target: patriciaMooreId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
-      data: {},
+      data: { type: 'orgChart' },
     },
   ],
 };

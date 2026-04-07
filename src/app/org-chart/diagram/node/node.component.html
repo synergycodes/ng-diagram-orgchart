@@ -5,18 +5,18 @@
   @case ('compact') {
     <app-compact-node
       [fullName]="occupiedData()?.fullName"
-      [role]="node().data.role"
+      [role]="occupiedData()?.role"
       [color]="occupiedData()?.color"
     />
   }
   @case ('full') {
     <app-full-node
       [fullName]="occupiedData()?.fullName"
-      [role]="node().data.role"
+      [role]="occupiedData()?.role"
       [color]="occupiedData()?.color"
-      [reports]="node().data.reports"
-      [span]="node().data.span"
-      [shiftCapacity]="node().data.shiftCapacity"
+      [reports]="occupiedData()?.reports"
+      [span]="occupiedData()?.span"
+      [shiftCapacity]="occupiedData()?.shiftCapacity"
     />
   }
 }
@@ -46,8 +46,10 @@
 ></div>
 
 @if (showAddButtons()) {
-  <app-add-button position="left" [horizontal]="isHorizontal()" (add)="onAddLeft($event)" />
-  <app-add-button position="right" [horizontal]="isHorizontal()" (add)="onAddRight($event)" />
+  @if (!isRoot()) {
+    <app-add-button position="left" [horizontal]="isHorizontal()" (add)="onAddLeft($event)" />
+    <app-add-button position="right" [horizontal]="isHorizontal()" (add)="onAddRight($event)" />
+  }
   <app-add-button position="bottom" [horizontal]="isHorizontal()" (add)="onAddBottom($event)" />
 
   <!-- Invisible hover zone so "+" buttons outside the node boundary remain reachable. -->
