@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, type NodeDragStartedEvent, type Rect } from 'ng-diagram';
 import { LayoutService } from '../diagram/layout/layout.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
+import { mergeMaps } from './drag-service.utils';
 import type { HighlightedIndicator } from './interfaces';
 import { edgeToEdgeDistance, rectFromNode } from './proximity';
 import type { DropZone } from './zone-detection/index';
@@ -17,6 +18,12 @@ export class DragService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly layoutService = inject(LayoutService);
   private readonly hierarchyService = inject(HierarchyService);
+
+  private static readonly ALL_SIDES: ReadonlySet<DropZone> = new Set<DropZone>([
+    'left',
+    'right',
+    'bottom',
+  ]);
 
   private readonly draggedNodeIds = signal<Set<string>>(new Set());
 
@@ -34,18 +41,39 @@ export class DragService {
     return this.draggedNodeIds().has(nodeId);
   }
 
-  private static readonly ALL_SIDES: ReadonlySet<DropZone> = new Set<DropZone>([
-    'left',
-    'right',
-    'bottom',
-  ]);
-
   getHiddenSides(draggedNodeId: string): Map<string, Set<DropZone>> {
-    return this.mergeMaps(
+    return mergeMaps(
       this.getAllSidesForDraggedSubtree(draggedNodeId),
       this.getInvalidSidesForParent(draggedNodeId),
       this.getSiblingSidesForRootNode(),
     );
+  }
+
+  resolveZone(
+    draggedNodeId: string,
+    hiddenSides: Map<string, Set<DropZone>>,
+  ): HighlightedIndicator | null {
+    const draggedNode = this.modelService.getNodeById(draggedNodeId);
+    if (!draggedNode) return null;
+
+    const draggedSize = draggedNode.size ?? { width: 0, height: 0 };
+    const draggedRect = rectFromNode(draggedNode.position, draggedSize);
+    const draggedCenter = {
+      x: draggedNode.position.x + draggedSize.width / 2,
+      y: draggedNode.position.y + draggedSize.height / 2,
+    };
+
+    const candidate = this.findNearestValidNode(draggedCenter, draggedRect, hiddenSides);
+    if (!candidate) return null;
+
+    const candidateSize = candidate.size ?? { width: 0, height: 0 };
+    const strategy = getZoneDetectionStrategy(this.layoutService.direction());
+    const side = strategy.detect(draggedCenter, candidate.position, candidateSize);
+
+    const candidateHidden = hiddenSides.get(candidate.id);
+    if (candidateHidden?.has(side)) return null;
+
+    return { nodeId: candidate.id, side };
   }
 
   private getAllSidesForDraggedSubtree(draggedNodeId: string): Map<string, Set<DropZone>> {
@@ -81,33 +109,6 @@ export class DragService {
     return result;
   }
 
-  resolveZone(
-    draggedNodeId: string,
-    hiddenSides: Map<string, Set<DropZone>>,
-  ): HighlightedIndicator | null {
-    const draggedNode = this.modelService.getNodeById(draggedNodeId);
-    if (!draggedNode) return null;
-
-    const draggedSize = draggedNode.size ?? { width: 0, height: 0 };
-    const draggedRect = rectFromNode(draggedNode.position, draggedSize);
-    const draggedCenter = {
-      x: draggedNode.position.x + draggedSize.width / 2,
-      y: draggedNode.position.y + draggedSize.height / 2,
-    };
-
-    const candidate = this.findNearestValidNode(draggedCenter, draggedRect, hiddenSides);
-    if (!candidate) return null;
-
-    const candidateSize = candidate.size ?? { width: 0, height: 0 };
-    const strategy = getZoneDetectionStrategy(this.layoutService.direction());
-    const side = strategy.detect(draggedCenter, candidate.position, candidateSize);
-
-    const candidateHidden = hiddenSides.get(candidate.id);
-    if (candidateHidden?.has(side)) return null;
-
-    return { nodeId: candidate.id, side };
-  }
-
   private findNearestValidNode(
     draggedCenter: { x: number; y: number },
     draggedRect: Rect,
@@ -140,22 +141,5 @@ export class DragService {
   private isRootNode(nodeId: string): boolean {
     const edges = this.modelService.getConnectedEdges(nodeId);
     return !edges.some((e) => e.target === nodeId);
-  }
-
-  private mergeMaps(...maps: Map<string, Set<DropZone>>[]): Map<string, Set<DropZone>> {
-    const result = new Map<string, Set<DropZone>>();
-    for (const map of maps) {
-      for (const [nodeId, sides] of map) {
-        const existing = result.get(nodeId);
-        if (existing) {
-          for (const side of sides) {
-            existing.add(side);
-          }
-        } else {
-          result.set(nodeId, new Set(sides));
-        }
-      }
-    }
-    return result;
   }
 }

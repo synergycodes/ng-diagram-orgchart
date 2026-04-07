@@ -15,8 +15,8 @@ export class DropService {
   async dropNode(draggedNodeId: string, indicator: HighlightedIndicator): Promise<void> {
     if (!this.layoutGate.isIdle()) return;
 
-    const strategy = getDropStrategy(this.strategies, indicator.side);
-    const { changes, visibilityHint } = strategy.execute({
+    const dropStrategy = getDropStrategy(this.strategies, indicator.side);
+    const { changes, visibilityHint } = dropStrategy.execute({
       draggedNodeId,
       targetNodeId: indicator.nodeId,
       side: indicator.side,

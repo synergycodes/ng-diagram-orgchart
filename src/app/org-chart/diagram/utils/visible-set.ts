@@ -11,12 +11,10 @@ export function getVisibleSet(
 } {
   return {
     nodes: nodes.filter(
-      (node): node is DiagramNode<OrgChartNodeData> =>
-        isOrgChartNode(node) && !node.data.isHidden,
+      (node): node is DiagramNode<OrgChartNodeData> => isOrgChartNode(node) && !node.data.isHidden,
     ),
     edges: edges.filter(
-      (edge): edge is DiagramEdge<OrgChartEdgeData> =>
-        isOrgChartEdge(edge) && !edge.data.isHidden,
+      (edge): edge is DiagramEdge<OrgChartEdgeData> => isOrgChartEdge(edge) && !edge.data.isHidden,
     ),
   };
 }
