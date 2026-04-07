@@ -7,7 +7,6 @@ import {
   NgDiagramEdgeTemplateMap,
   NgDiagramModelService,
   NgDiagramNodeTemplateMap,
-  NgDiagramService,
   NgDiagramViewportService,
   type Edge,
   type NgDiagramConfig,
@@ -22,7 +21,11 @@ import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
 import { isOrgChartNode, isOrgChartNodeData } from './guards';
 import { EdgeTemplateType, NodeTemplateType } from './interfaces';
+import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
+import { ModelApplyService } from './model-apply.service';
+import { ModelChanges } from './model-changes';
+import { SortOrderService } from './sort-order/sort-order.service';
 import { NodeComponent } from './node/node.component';
 
 /**
@@ -42,16 +45,18 @@ import { NodeComponent } from './node/node.component';
   providers: [DragStateService],
 })
 export class DiagramComponent {
-  private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
+  private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
+  private readonly modelApplyService = inject(ModelApplyService);
+  private readonly sortOrderService = inject(SortOrderService);
   private readonly dragStateService = inject(DragStateService);
   private readonly sidebarService = inject(PropertiesSidebarService);
 
-  protected readonly isLayoutInitialized = this.layoutService.isInitialized;
-  protected readonly isRebuilding = this.layoutService.isRebuilding;
-  readonly isLayoutIdle = this.layoutService.isIdle;
+  protected readonly isLayoutInitialized = this.layoutGate.isInitialized;
+  protected readonly isRebuilding = this.layoutGate.isRebuilding;
+  readonly isLayoutIdle = this.layoutGate.isIdle;
 
   readonly direction = this.layoutService.direction;
 
@@ -73,17 +78,36 @@ export class DiagramComponent {
 
   model = initializeModel(diagramModel);
 
+  /**
+   * Layout is deferred to the next animation frame so the browser can
+   * paint the recreated port components (via `@if` in the node template)
+   * before the layout transaction measures their positions.
+   *
+   * TODO: remove requestAnimationFrame once ng-diagram fixes port
+   * dynamic side update.
+   */
   changeDirection(value: LayoutDirection): void {
     this.layoutService.setDirection(value);
+    this.layoutGate.setRebuilding();
+    requestAnimationFrame(async () => {
+      await this.layoutGate.execute(async () => {
+        const changes = await this.layoutService.computeLayout(new ModelChanges());
+        await this.modelApplyService.apply(changes);
+        this.viewportService.zoomToFit();
+      });
+    });
   }
 
   /**
-   * Run the ELK tree layout inside a transaction (so measurements are
-   * up-to-date), then fit the viewport to show all nodes.
+   * Initialize sort order and run the first layout, then fit the viewport.
    */
   async onDiagramInit(_: DiagramInitEvent): Promise<void> {
-    await this.layoutService.init();
-    this.viewportService.zoomToFit();
+    await this.sortOrderService.initSortOrder();
+    await this.layoutGate.execute(async () => {
+      const changes = await this.layoutService.computeLayout(new ModelChanges());
+      await this.modelApplyService.apply(changes);
+      this.viewportService.zoomToFit();
+    });
   }
 
   /**
@@ -94,28 +118,24 @@ export class DiagramComponent {
   async onSelectionRemoved(event: SelectionRemovedEvent): Promise<void> {
     if (event.deletedEdges.length === 0) return;
 
-    const affectedSourceIds = new Set(event.deletedEdges.map((e) => e.source));
+    const changes = new ModelChanges();
 
-    // Await the transaction to ensure hasChildren updates are committed
-    // to the model before re-layout reads them.
-    await this.diagramService.transaction(async () => {
-      for (const sourceId of affectedSourceIds) {
-        const stillHasChildren = this.modelService
-          .getConnectedEdges(sourceId)
-          .some((e) => e.source === sourceId);
-        if (stillHasChildren) continue;
+    for (const sourceId of new Set(event.deletedEdges.map((e) => e.source))) {
+      const stillHasChildren = this.modelService
+        .getConnectedEdges(sourceId)
+        .some((e) => e.source === sourceId);
+      if (stillHasChildren) continue;
 
-        const node = this.modelService.getNodeById(sourceId);
-        if (node && isOrgChartNodeData(node.data) && node.data.hasChildren) {
-          this.modelService.updateNodeData(sourceId, {
-            ...node.data,
-            hasChildren: false,
-          });
-        }
+      const node = this.modelService.getNodeById(sourceId);
+      if (node && isOrgChartNodeData(node.data) && node.data.hasChildren) {
+        changes.addNodeUpdates({ id: sourceId, data: { ...node.data, hasChildren: false } });
       }
-    });
+    }
 
-    await this.layoutService.runLayout();
+    await this.layoutGate.execute(async () => {
+      await this.layoutService.computeLayout(changes);
+      await this.modelApplyService.apply(changes);
+    });
   }
 
   onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {

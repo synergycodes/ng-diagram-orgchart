@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
 import { isOrgChartNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
+import { ModelChanges } from '../model-changes';
 
 export interface ReorderChange {
   nodeId: string;
@@ -36,23 +37,25 @@ export class SortOrderService {
 
   /**
    * Recomputes `sortOrder` for children of the given parent, optionally
-   * inserting new nodes at positions defined by `changes`.
+   * inserting new nodes at positions defined by `reorderChanges`.
    *
    * @param parentId - The parent node whose children to reorder.
-   * @param changes - Nodes to insert before/after a reference child, or append at the end.
-   * @returns `updates` — model patches for existing nodes whose sortOrder changed;
-   *          `sortOrders` — assigned sortOrder for each node listed in `changes`
+   * @param reorderChanges - Nodes to insert before/after a reference child, or append at the end.
+   * @param modelChanges - Accumulator for model changes; created if not provided.
+   * @returns `changes` — the accumulated model changes;
+   *          `sortOrders` — assigned sortOrder for each node listed in `reorderChanges`
    *          (useful when the node hasn't been created yet).
    */
   reorderChildren(
     parentId: string,
-    changes: ReorderChange[] = [],
-  ): { updates: { id: string; data: OrgChartNodeData }[]; sortOrders: Record<string, number> } {
+    reorderChanges: ReorderChange[] = [],
+    modelChanges: ModelChanges = new ModelChanges(),
+  ): { changes: ModelChanges; sortOrders: Record<string, number> } {
     const orderedChildren = this.getSortedChildren(parentId);
-    const finalOrder = this.buildFinalOrder(orderedChildren, changes);
+    const finalOrder = this.buildFinalOrder(orderedChildren, reorderChanges);
 
     const sortOrders: Record<string, number> = {};
-    const changeNodeIds = new Set(changes.map((c) => c.nodeId));
+    const changeNodeIds = new Set(reorderChanges.map((c) => c.nodeId));
 
     for (let i = 0; i < finalOrder.length; i++) {
       if (changeNodeIds.has(finalOrder[i])) {
@@ -60,7 +63,9 @@ export class SortOrderService {
       }
     }
 
-    return { updates: this.buildSortOrderUpdates(finalOrder), sortOrders };
+    modelChanges.addNodeUpdates(...this.buildSortOrderUpdates(finalOrder));
+
+    return { changes: modelChanges, sortOrders };
   }
 
   /**

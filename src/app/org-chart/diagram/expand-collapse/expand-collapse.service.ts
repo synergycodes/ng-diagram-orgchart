@@ -2,11 +2,10 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNode, isOrgChartNodeData } from '../guards';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
+import { ModelChanges } from '../model-changes';
 
 export interface ToggleResult {
-  toggledNodeUpdate: { id: string; data: OrgChartNodeData };
-  subtreeNodeUpdates: { id: string; data: OrgChartNodeData }[];
-  subtreeEdgeUpdates: { id: string; data: OrgChartEdgeData }[];
+  changes: ModelChanges;
   toggledSubtreeIds: Set<string>;
   collapsing: boolean;
 }
@@ -20,11 +19,15 @@ export class ExpandCollapseService {
    * Does not apply changes — the caller is responsible for committing them.
    *
    * @param nodeId - The node whose collapsed state should be flipped.
-   * @returns Model patches and metadata — or `null` if the node is not a valid org-chart node.
+   * @param modelChanges - Accumulator for model changes; created if not provided.
+   * @returns Model changes and metadata — or `null` if the node is not a valid org-chart node.
    *          `toggledSubtreeIds` — IDs of visible descendants affected by the toggle (for layout animation).
    *          `collapsing` — the collapsed state after the toggle (`true` = collapsing, `false` = expanding).
    */
-  prepareToggle(nodeId: string): ToggleResult | null {
+  prepareToggle(
+    nodeId: string,
+    modelChanges: ModelChanges = new ModelChanges(),
+  ): ToggleResult | null {
     const node = this.modelService.getNodeById(nodeId);
     if (!node || !isOrgChartNode(node)) return null;
 
@@ -35,19 +38,21 @@ export class ExpandCollapseService {
       collapsing,
     );
 
-    const toggledNodeUpdate = {
-      id: nodeId,
-      data: {
-        ...node.data,
-        isCollapsed: collapsing,
-        collapsedChildrenCount: collapsing ? this.countAllDescendants(nodeId) : undefined,
+    modelChanges.addNodeUpdates(
+      {
+        id: nodeId,
+        data: {
+          ...node.data,
+          isCollapsed: collapsing,
+          collapsedChildrenCount: collapsing ? this.countAllDescendants(nodeId) : undefined,
+        },
       },
-    };
+      ...nodeUpdates,
+    );
+    modelChanges.addEdgeUpdates(...edgeUpdates);
 
     return {
-      toggledNodeUpdate,
-      subtreeNodeUpdates: nodeUpdates,
-      subtreeEdgeUpdates: edgeUpdates,
+      changes: modelChanges,
       toggledSubtreeIds: subtreeIds,
       collapsing,
     };

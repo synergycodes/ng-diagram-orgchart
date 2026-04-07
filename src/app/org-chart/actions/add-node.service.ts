@@ -1,10 +1,5 @@
 import { inject } from '@angular/core';
-import {
-  NgDiagramModelService,
-  NgDiagramSelectionService,
-  type Edge,
-  type Node,
-} from 'ng-diagram';
+import { NgDiagramModelService, NgDiagramSelectionService, type Edge, type Node } from 'ng-diagram';
 import { isOrgChartNode } from '../diagram/guards';
 import {
   EdgeTemplateType,
@@ -14,7 +9,10 @@ import {
   type OrgChartVacantNodeData,
 } from '../diagram/interfaces';
 import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
+import { LayoutGate } from '../diagram/layout/layout-gate';
 import { LayoutService } from '../diagram/layout/layout.service';
+import { ModelApplyService } from '../diagram/model-apply.service';
+import { ModelChanges } from '../diagram/model-changes';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
@@ -25,16 +23,25 @@ export type AddNodeAction = 'child' | 'siblingBefore' | 'siblingAfter';
 export class AddNodeService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly selectionService = inject(NgDiagramSelectionService);
+  private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
   private readonly expandCollapseService = inject(ExpandCollapseService);
   private readonly sortOrderService = inject(SortOrderService);
+  private readonly modelApplyService = inject(ModelApplyService);
   private readonly nodeVisibilityService = inject(NodeVisibilityService);
   private readonly hierarchyService = inject(HierarchyService);
 
   constructor(private readonly config?: AddNodeConfig) {}
 
+  /**
+   * Adds a new vacant node as a child or sibling of the given node.
+   * Computes sort order, expands the parent if collapsed, re-layouts, and selects the new node.
+   *
+   * @param nodeId - The reference node to add relative to.
+   * @param action - Whether to add as `child`, `siblingBefore`, or `siblingAfter`.
+   */
   async addNode(nodeId: string, action: AddNodeAction): Promise<void> {
-    if (!this.layoutService.isIdle()) return;
+    if (!this.layoutGate.isIdle()) return;
 
     const { parentId, referenceNodeId, position } = this.resolveParams(nodeId, action);
     if (!parentId) return;
@@ -43,57 +50,32 @@ export class AddNodeService {
     if (!parentNode || !isOrgChartNode(parentNode)) return;
 
     const needsExpand = action === 'child' && !!parentNode.data.isCollapsed;
-
-    // 1. Compute sort order
     const newNodeId = crypto.randomUUID();
-    const { updates: siblingUpdates, sortOrders } = this.sortOrderService.reorderChildren(
+
+    const { changes, sortOrders } = this.sortOrderService.reorderChildren(
       parentId,
       [{ nodeId: newNodeId, referenceId: referenceNodeId, position }],
     );
 
-    // 2. Create new elements
-    const newNode = this.createVacantNode(newNodeId, sortOrders[newNodeId]);
-    const newEdge = this.createEdge(parentId, newNodeId);
+    changes.addNewNodes(this.createVacantNode(newNodeId, sortOrders[newNodeId]));
+    changes.addNewEdges(this.createEdge(parentId, newNodeId));
 
-    // 3. Compute expand mutations (if needed)
-    let subtreeNodeUpdates: { id: string; data: OrgChartNodeData }[] = [];
-    let subtreeEdgeUpdates: { id: string; data: OrgChartEdgeData }[] = [];
-    let expandSubtreeIds: Set<string> | undefined;
+    const expandSubtreeIds = this.updateParentNode(parentNode, needsExpand, changes);
 
-    if (needsExpand) {
-      const toggleResult = this.expandCollapseService.prepareToggle(parentId);
-      if (toggleResult && !toggleResult.collapsing) {
-        subtreeNodeUpdates = toggleResult.subtreeNodeUpdates;
-        subtreeEdgeUpdates = toggleResult.subtreeEdgeUpdates;
-        expandSubtreeIds = toggleResult.toggledSubtreeIds;
-      }
-    }
+    await this.layoutGate.execute(async () => {
+      await this.layoutService.computeLayout(
+        changes,
+        expandSubtreeIds ? { subtreeIds: expandSubtreeIds, collapsing: false } : undefined,
+      );
+      await this.modelApplyService.apply(changes);
+    });
 
-    // 4. Build parent data update (merge hasChildren + expand patch)
-    const parentData: OrgChartNodeData = {
-      ...parentNode.data,
-      hasChildren: true,
-      ...(needsExpand ? { isCollapsed: false, collapsedChildrenCount: undefined } : {}),
-    };
-    const parentUpdate = { id: parentId, data: parentData };
-
-    // 5. Apply with layout
-    await this.layoutService.applyWithLayout(
-      {
-        newNodes: [newNode],
-        newEdges: [newEdge],
-        nodeUpdates: [parentUpdate, ...siblingUpdates, ...subtreeNodeUpdates],
-        edgeUpdates: subtreeEdgeUpdates,
-      },
-      expandSubtreeIds ? { subtreeIds: expandSubtreeIds, collapsing: false } : undefined,
-    );
-
-    // 7. Post-layout actions
     this.selectionService.select([newNodeId]);
     this.config?.onNodeAdded?.(newNodeId);
     this.nodeVisibilityService.ensureVisible(newNodeId);
   }
 
+  /** Resolves the parent ID, reference node, and insertion position for the given action. */
   private resolveParams(
     nodeId: string,
     action: AddNodeAction,
@@ -102,24 +84,49 @@ export class AddNodeService {
     referenceNodeId: string | null;
     position: 'before' | 'after';
   } {
-    switch (action) {
-      case 'child':
-        return { parentId: nodeId, referenceNodeId: null, position: 'after' };
-      case 'siblingBefore':
-        return {
-          parentId: this.hierarchyService.getParentId(nodeId),
-          referenceNodeId: nodeId,
-          position: 'before',
-        };
-      case 'siblingAfter':
-        return {
-          parentId: this.hierarchyService.getParentId(nodeId),
-          referenceNodeId: nodeId,
-          position: 'after',
-        };
+    if (action === 'child') {
+      return { parentId: nodeId, referenceNodeId: null, position: 'after' };
     }
+    return {
+      parentId: this.hierarchyService.getParentId(nodeId),
+      referenceNodeId: nodeId,
+      position: action === 'siblingBefore' ? 'before' : 'after',
+    };
   }
 
+  /**
+   * Updates the parent node's data (`hasChildren`) and expands its subtree if needed.
+   * Appends expand visibility changes first, then the parent data update (which takes precedence).
+   *
+   * @returns The set of subtree IDs affected by the expand, or `undefined` if no expand was needed.
+   */
+  private updateParentNode(
+    parentNode: Node<OrgChartNodeData>,
+    needsExpand: boolean,
+    changes: ModelChanges,
+  ): Set<string> | undefined {
+    let expandSubtreeIds: Set<string> | undefined;
+
+    if (needsExpand) {
+      expandSubtreeIds = this.expandCollapseService.prepareToggle(
+        parentNode.id,
+        changes,
+      )?.toggledSubtreeIds;
+    }
+
+    changes.addNodeUpdates({
+      id: parentNode.id,
+      data: {
+        ...parentNode.data,
+        hasChildren: true,
+        ...(needsExpand ? { isCollapsed: false, collapsedChildrenCount: undefined } : {}),
+      },
+    });
+
+    return expandSubtreeIds;
+  }
+
+  /** Creates a new vacant node with the given sort order. */
   private createVacantNode(id: string, sortOrder: number): Node<OrgChartVacantNodeData> {
     return {
       id,
@@ -138,6 +145,7 @@ export class AddNodeService {
     };
   }
 
+  /** Creates an org-chart edge connecting a parent to a child node. */
   private createEdge(parentId: string, childId: string): Edge<OrgChartEdgeData> {
     return {
       id: crypto.randomUUID(),

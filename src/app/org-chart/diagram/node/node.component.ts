@@ -11,7 +11,9 @@ import { DragStateService } from '../drag-state.service';
 import { ExpandCollapseService } from '../expand-collapse/expand-collapse.service';
 import { isOccupiedNodeData, isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
+import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService } from '../layout/layout.service';
+import { ModelApplyService } from '../model-apply.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
 import { FullNodeComponent } from './components/full-node/full-node.component';
@@ -54,8 +56,10 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
+  private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
   private readonly expandCollapseService = inject(ExpandCollapseService);
+  private readonly modelApplyService = inject(ModelApplyService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly dragStateService = inject(DragStateService);
   private readonly modelService = inject(NgDiagramModelService);
@@ -63,7 +67,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
 
   node = input.required<Node<OrgChartNodeData>>();
 
-  isLayoutIdle = this.layoutService.isIdle;
+  isLayoutIdle = this.layoutGate.isIdle;
 
   isHorizontal = this.layoutService.isHorizontal;
 
@@ -97,18 +101,17 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   /** Toggle the collapsed state of this node's subtree and re-layout. */
   async onToggle(event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    if (!this.layoutService.isIdle()) return;
 
     const result = this.expandCollapseService.prepareToggle(this.node().id);
     if (!result) return;
 
-    await this.layoutService.applyWithLayout(
-      {
-        nodeUpdates: [result.toggledNodeUpdate, ...result.subtreeNodeUpdates],
-        edgeUpdates: result.subtreeEdgeUpdates,
-      },
-      { subtreeIds: result.toggledSubtreeIds, collapsing: result.collapsing },
-    );
+    await this.layoutGate.execute(async () => {
+      await this.layoutService.computeLayout(result.changes, {
+        subtreeIds: result.toggledSubtreeIds,
+        collapsing: result.collapsing,
+      });
+      await this.modelApplyService.apply(result.changes);
+    });
   }
 
   onAddLeft(event: MouseEvent): void {

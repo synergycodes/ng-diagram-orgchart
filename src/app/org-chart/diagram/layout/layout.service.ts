@@ -1,25 +1,15 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, computed } from '@angular/core';
 import {
   NgDiagramModelService,
-  NgDiagramService,
-  NgDiagramViewportService,
   type Edge as DiagramEdge,
   type Node as DiagramNode,
 } from 'ng-diagram';
-import { type ModelMutations, type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
-import { SortOrderService } from '../sort-order/sort-order.service';
+import { type OrgChartNodeData } from '../interfaces';
+import { ModelChanges } from '../model-changes';
 import { findRootNode, getFutureVisibleSet, getVisibleSet } from '../utils/visible-set';
 import { performLayout } from './perform-layout';
 
 export type LayoutDirection = 'DOWN' | 'RIGHT';
-
-/**
- * - `uninitialized` — before first layout; hides everything.
- * - `idle`          — ready for input.
- * - `layouting`     — layout running; canvas stays visible; buttons disabled.
- * - `rebuilding`    — direction change; canvas hidden; buttons disabled.
- */
-export type LayoutState = 'uninitialized' | 'idle' | 'layouting' | 'rebuilding';
 
 export interface VisibilityHint {
   subtreeIds: Set<string>;
@@ -27,182 +17,107 @@ export interface VisibilityHint {
 }
 
 /**
- * Manages org-chart layout, direction, and position computation.
+ * Computes org-chart node positions and manages layout direction.
  *
  * Uses ELK.js (via `performLayout`) to position visible nodes in a tree
- * hierarchy. Receives pre-computed model mutations from other services
- * and applies everything in a single transaction.
+ * hierarchy. Reads accumulated `ModelChanges` to resolve the future
+ * visible set, then appends computed positions back into the same instance.
  */
 @Injectable()
 export class LayoutService {
-  private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly viewportService = inject(NgDiagramViewportService);
-  private readonly sortOrderService = inject(SortOrderService);
 
   private readonly _direction = signal<LayoutDirection>('DOWN');
   readonly direction = this._direction.asReadonly();
   readonly isHorizontal = computed(() => this._direction() === 'RIGHT');
 
-  private readonly _state = signal<LayoutState>('uninitialized');
-  readonly state = this._state.asReadonly();
-  readonly isInitialized = computed(() => this._state() !== 'uninitialized');
-  readonly isIdle = computed(() => this._state() === 'idle');
-  readonly isRebuilding = computed(() => this._state() === 'rebuilding');
-
-  async init(): Promise<void> {
-    await this.sortOrderService.initSortOrder();
-    await this.applyWithLayoutCore({});
-    this._state.set('idle');
-  }
-
-  /**
-   * Layout is deferred to the next animation frame so the browser can
-   * paint the recreated port components (via `@if` in the node template)
-   * before the layout transaction measures their positions.
-   *
-   * TODO: remove requestAnimationFrame once ng-diagram fixes port
-   * dynamic side update.
-   */
   setDirection(value: LayoutDirection): void {
-    if (this._direction() === value) return;
-    this._state.set('rebuilding');
     this._direction.set(value);
-    requestAnimationFrame(async () => {
-      try {
-        await this.applyWithLayoutCore({});
-        this.viewportService.zoomToFit();
-      } catch (error) {
-        console.error('Layout failed during direction change:', error);
-      } finally {
-        this._state.set('idle');
-      }
-    });
-  }
-
-  async runLayout(): Promise<void> {
-    await this.applyWithLayout({});
   }
 
   /**
-   * Apply pre-computed model mutations and re-layout in a single transaction.
+   * Computes layout positions and appends them as nodeUpdates to the given changes.
    *
-   * Manages state: checks isIdle, sets 'layouting', resets to 'idle'.
-   * External services (AddNodeService, ExpandCollapseService) call this
-   * after computing their mutations as data.
+   * Reads accumulated changes to resolve the future visible set, merges sort order
+   * overrides, runs ELK, applies root pinning, and appends position updates.
+   *
+   * @param changes - Accumulated model changes; position updates are appended to it.
+   * @param visibility - Optional hint for expand/collapse to determine the future visible set.
+   * @returns The same `changes` instance with position updates appended.
    */
-  async applyWithLayout(
-    mutations: ModelMutations,
-    visibility?: VisibilityHint,
-  ): Promise<void> {
-    if (!this.isIdle()) return;
-    this._state.set('layouting');
-    try {
-      await this.applyWithLayoutCore(mutations, visibility);
-    } catch (error) {
-      console.error('Layout failed:', error);
-    } finally {
-      this._state.set('idle');
-    }
+  async computeLayout(changes: ModelChanges, visibility?: VisibilityHint): Promise<ModelChanges> {
+    const { nodes, edges } = this.resolveVisibleSet(changes, visibility);
+    const sorted = this.sortByOrder(nodes, edges, changes);
+    const positions = await this.computePositions(sorted.nodes, sorted.edges);
+    changes.addNodeUpdates(...positions);
+    return changes;
   }
 
-  /**
-   * Core layout logic without state management.
-   *
-   * 1. Merges new nodes/edges into the visible set
-   * 2. Sorts by sort order (with overrides from pending mutations)
-   * 3. Computes ELK positions with root pinning
-   * 4. Applies all mutations + positions in a single transaction
-   */
-  private async applyWithLayoutCore(
-    mutations: ModelMutations,
+  /** Resolves the future visible set by applying pending mutations to the current model. */
+  private resolveVisibleSet(
+    changes: ModelChanges,
     visibility?: VisibilityHint,
-  ): Promise<void> {
-    const {
-      newNodes = [],
-      newEdges = [],
-      nodeUpdates = [],
-      edgeUpdates = [],
-      deleteNodeIds = [],
-      deleteEdgeIds = [],
-    } = mutations;
-
-    // Resolve visible set
+  ): { nodes: DiagramNode<OrgChartNodeData>[]; edges: DiagramEdge[] } {
     const model = this.modelService.getModel();
-    let { nodes: visibleNodes, edges: visibleEdges } = visibility
-      ? getFutureVisibleSet(model.getNodes(), model.getEdges(), visibility.subtreeIds, visibility.collapsing)
+    let { nodes, edges } = visibility
+      ? getFutureVisibleSet(
+          model.getNodes(),
+          model.getEdges(),
+          visibility.subtreeIds,
+          visibility.collapsing,
+        )
       : getVisibleSet(model.getNodes(), model.getEdges());
 
-    // Apply pending edge/node mutations to the visible set so ELK sees correct topology
-    if (deleteEdgeIds.length > 0) {
-      const deleteSet = new Set(deleteEdgeIds);
-      visibleEdges = visibleEdges.filter((e) => !deleteSet.has(e.id));
+    if (changes.deleteEdgeIds.length > 0) {
+      const deleteSet = new Set(changes.deleteEdgeIds);
+      edges = edges.filter((e) => !deleteSet.has(e.id));
     }
-    if (deleteNodeIds.length > 0) {
-      const deleteSet = new Set(deleteNodeIds);
-      visibleNodes = visibleNodes.filter((n) => !deleteSet.has(n.id));
+    if (changes.deleteNodeIds.length > 0) {
+      const deleteSet = new Set(changes.deleteNodeIds);
+      nodes = nodes.filter((n) => !deleteSet.has(n.id));
     }
-    const edgeSourceOverrides = edgeUpdates.filter((u) => u.source);
+
+    const edgeSourceOverrides = changes.edgeUpdates.filter((u) => u.source);
     if (edgeSourceOverrides.length > 0) {
       const sourceMap = new Map(edgeSourceOverrides.map((u) => [u.id, u.source!]));
-      visibleEdges = visibleEdges.map((e) => {
+      edges = edges.map((e) => {
         const newSource = sourceMap.get(e.id);
         return newSource ? { ...e, source: newSource } : e;
       });
     }
 
-    // Build sort-order override map from pending node updates + new nodes
+    return { nodes, edges };
+  }
+
+  /** Merges new nodes/edges and sorts everything by sort order (with pending overrides). */
+  private sortByOrder(
+    visibleNodes: DiagramNode<OrgChartNodeData>[],
+    visibleEdges: DiagramEdge[],
+    changes: ModelChanges,
+  ): { nodes: DiagramNode<OrgChartNodeData>[]; edges: DiagramEdge[] } {
     const orderOverrides = new Map<string, number>();
-    for (const update of nodeUpdates) {
+    for (const update of changes.nodeUpdates) {
       if (update.data?.sortOrder != null) {
         orderOverrides.set(update.id, update.data.sortOrder);
       }
     }
-    for (const node of newNodes) {
+    for (const node of changes.newNodes) {
       orderOverrides.set(node.id, (node.data as OrgChartNodeData).sortOrder ?? 0);
     }
 
-    // Merge and sort nodes
-    const allNodes = (
-      [...visibleNodes, ...newNodes] as DiagramNode<OrgChartNodeData>[]
-    ).sort((a, b) => {
-      const aOrder = orderOverrides.get(a.id) ?? (a.data.sortOrder ?? 0);
-      const bOrder = orderOverrides.get(b.id) ?? (b.data.sortOrder ?? 0);
-      return aOrder - bOrder;
-    });
+    const getOrder = (id: string, data: OrgChartNodeData) =>
+      orderOverrides.get(id) ?? data.sortOrder ?? 0;
 
-    // Merge and sort edges by target node sort order
-    const nodeOrderMap = new Map(
-      allNodes.map((n) => [n.id, orderOverrides.get(n.id) ?? (n.data.sortOrder ?? 0)]),
+    const nodes = ([...visibleNodes, ...changes.newNodes] as DiagramNode<OrgChartNodeData>[]).sort(
+      (a, b) => getOrder(a.id, a.data) - getOrder(b.id, b.data),
     );
-    const allEdges = [...visibleEdges, ...newEdges].sort(
+
+    const nodeOrderMap = new Map(nodes.map((n) => [n.id, getOrder(n.id, n.data)]));
+    const edges = [...visibleEdges, ...changes.newEdges].sort(
       (a, b) => (nodeOrderMap.get(a.target) ?? 0) - (nodeOrderMap.get(b.target) ?? 0),
     );
 
-    const positions = await this.computePositions(allNodes, allEdges);
-
-    await this.diagramService.transaction(
-      () => {
-        if (deleteEdgeIds.length > 0) {
-          this.modelService.deleteEdges(deleteEdgeIds);
-        }
-        if (nodeUpdates.length > 0) {
-          this.modelService.updateNodes(nodeUpdates);
-        }
-        for (const update of edgeUpdates) {
-          if (update.source) this.modelService.updateEdge(update.id, { source: update.source });
-          if (update.data) this.modelService.updateEdges([{ id: update.id, data: update.data }]);
-        }
-        if (newNodes.length > 0) {
-          this.modelService.addNodes(newNodes);
-        }
-        if (newEdges.length > 0) {
-          this.modelService.addEdges(newEdges);
-        }
-        this.modelService.updateNodes(positions);
-      },
-      { waitForMeasurements: true },
-    );
+    return { nodes, edges };
   }
 
   /**

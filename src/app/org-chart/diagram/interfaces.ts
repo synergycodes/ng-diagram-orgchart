@@ -1,5 +1,3 @@
-import { type Edge as DiagramEdge, type Node as DiagramNode } from 'ng-diagram';
-
 export enum NodeTemplateType {
   OrgChartNode = 'orgChartNode',
 }
@@ -53,13 +51,4 @@ interface OrgChartBaseNodeData {
   collapsedChildrenCount?: number;
   hasChildren?: boolean;
   isHidden?: boolean;
-}
-
-export interface ModelMutations {
-  newNodes?: DiagramNode<OrgChartNodeData>[];
-  newEdges?: DiagramEdge<OrgChartEdgeData>[];
-  nodeUpdates?: (Partial<DiagramNode<OrgChartNodeData>> & { id: string })[];
-  edgeUpdates?: (Partial<DiagramEdge<OrgChartEdgeData>> & { id: string })[];
-  deleteNodeIds?: string[];
-  deleteEdgeIds?: string[];
 }
