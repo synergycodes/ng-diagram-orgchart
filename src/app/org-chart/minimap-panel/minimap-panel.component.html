@@ -1,0 +1,22 @@
+<div class="panel" [class.collapsed]="!isExpanded()" [class.animate]="isReady()">
+  <div class="minimap-canvas">
+    <ng-diagram-minimap [showZoomControls]="false" [nodeStyle]="minimapNodeStyle" />
+  </div>
+  <div class="minimap-actions">
+    <button
+      class="action-button"
+      [disabled]="!canZoomOut()"
+      (click)="zoomOut()"
+      aria-label="Zoom out"
+    >
+      <span class="icon icon-zoom-out"></span>
+    </button>
+    <span class="zoom-level">{{ zoomPercent() }}</span>
+    <button class="action-button" [disabled]="!canZoomIn()" (click)="zoomIn()" aria-label="Zoom in">
+      <span class="icon icon-zoom-in"></span>
+    </button>
+    <button class="action-button" (click)="toggleExpanded()" aria-label="Toggle minimap">
+      <span class="icon icon-map"></span>
+    </button>
+  </div>
+</div>
