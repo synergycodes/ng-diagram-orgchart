@@ -25,8 +25,8 @@ import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
 import { ModelApplyService } from './model-apply.service';
 import { ModelChanges } from './model-changes';
-import { SortOrderService } from './sort-order/sort-order.service';
 import { NodeComponent } from './node/node.component';
+import { SortOrderService } from './sort-order/sort-order.service';
 
 /**
  * Org Chart Diagram
@@ -87,6 +87,9 @@ export class DiagramComponent {
    * dynamic side update.
    */
   changeDirection(value: LayoutDirection): void {
+    if (this.direction() === value) {
+      return;
+    }
     this.layoutService.setDirection(value);
     this.layoutGate.setRebuilding();
     requestAnimationFrame(async () => {
