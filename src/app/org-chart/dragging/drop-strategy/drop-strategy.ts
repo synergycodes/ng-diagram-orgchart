@@ -1,15 +1,33 @@
+import { inject } from '@angular/core';
+import { NgDiagramModelService } from 'ng-diagram';
+import { ExpandCollapseService } from '../../diagram/expand-collapse/expand-collapse.service';
+import { SortOrderService } from '../../diagram/sort-order/sort-order.service';
+import { HierarchyService } from '../../hierarchy/hierarchy.service';
 import type { DropZone } from '../zone-detection/index';
 import type { DropActionStrategy } from './drop-strategy.interface';
-import { childDropAction } from './strategies/child-drop-action';
-import { siblingAfterDropAction } from './strategies/sibling-after-drop-action';
-import { siblingBeforeDropAction } from './strategies/sibling-before-drop-action';
+import { createChildDropAction } from './strategies/child-drop-action';
+import { createSiblingDropAction } from './strategies/sibling-drop-action';
 
-const dropStrategies: Record<DropZone, DropActionStrategy> = {
-  bottom: childDropAction,
-  left: siblingBeforeDropAction,
-  right: siblingAfterDropAction,
-};
+type DropStrategies = Record<DropZone, DropActionStrategy>;
 
-export function getDropStrategy(side: DropZone): DropActionStrategy {
-  return dropStrategies[side];
+export function getDropStrategy(strategies: DropStrategies, side: DropZone): DropActionStrategy {
+  return strategies[side];
+}
+
+export function injectDropStrategies(): DropStrategies {
+  const modelService = inject(NgDiagramModelService);
+  const hierarchyService = inject(HierarchyService);
+  const sortOrderService = inject(SortOrderService);
+  const expandCollapseService = inject(ExpandCollapseService);
+
+  const deps = { modelService, hierarchyService, sortOrderService, expandCollapseService };
+
+  const siblingDrop = createSiblingDropAction(deps);
+  const childDrop = createChildDropAction(deps);
+
+  return {
+    bottom: childDrop,
+    left: siblingDrop,
+    right: siblingDrop,
+  };
 }

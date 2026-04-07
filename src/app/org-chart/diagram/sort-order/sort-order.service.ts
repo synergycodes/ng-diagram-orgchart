@@ -49,9 +49,14 @@ export class SortOrderService {
     parentId: string,
     reorderChanges: ReorderChange[] = [],
     modelChanges: ModelChanges = new ModelChanges(),
+    excludeNodeIds: Set<string> = new Set(),
   ): { changes: ModelChanges; sortOrders: Record<string, number> } {
     const orderedChildren = this.getSortedChildren(parentId);
-    const finalOrder = this.buildFinalOrder(orderedChildren, reorderChanges);
+    const filtered =
+      excludeNodeIds.size > 0
+        ? orderedChildren.filter((c) => !excludeNodeIds.has(c.id))
+        : orderedChildren;
+    const finalOrder = this.buildFinalOrder(filtered, reorderChanges);
 
     const sortOrders: Record<string, number> = {};
     const changeNodeIds = new Set(reorderChanges.map((c) => c.nodeId));

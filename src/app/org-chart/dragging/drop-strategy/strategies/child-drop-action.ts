@@ -1,34 +1,48 @@
-import type { NgDiagramModelService } from 'ng-diagram';
-import { isOrgChartNode } from '../../../diagram/guards';
-import type { DropActionStrategy } from '../drop-strategy.interface';
+import { isOrgChartNodeData } from '../../../diagram/guards';
+import { ModelChanges } from '../../../diagram/model-changes';
+import type { DropActionStrategy, DropDeps } from '../drop-strategy.interface';
 
-export const childDropAction: DropActionStrategy = {
-  getDropParams({ targetNodeId, modelService }) {
-    const lastChild = getSortedChildren(targetNodeId, modelService).at(-1);
-    const targetNode = modelService.getNodeById(targetNodeId);
-    const shouldExpand = isOrgChartNode(targetNode) && !!targetNode.data.isCollapsed;
+export function createChildDropAction(deps: DropDeps): DropActionStrategy {
+  const { modelService, hierarchyService, sortOrderService, expandCollapseService } = deps;
 
-    return {
-      newParentId: targetNodeId,
-      sortOrder: lastChild ? lastChild.sortOrder + 1 : 0,
-      shouldExpand,
-    };
-  },
-};
+  return {
+    execute({ draggedNodeId, targetNodeId: newParentId }) {
+      const oldParentId = hierarchyService.getParentId(draggedNodeId);
 
-function getSortedChildren(
-  parentId: string,
-  modelService: NgDiagramModelService,
-): { id: string; sortOrder: number }[] {
-  return modelService
-    .getConnectedEdges(parentId)
-    .filter((e) => e.source === parentId)
-    .map((e) => {
-      const node = modelService.getNodeById(e.target);
+      const changes = new ModelChanges();
+
+      let expandSubtreeIds: Set<string> | undefined;
+      const targetNode = modelService.getNodeById(newParentId);
+      if (targetNode && isOrgChartNodeData(targetNode.data) && targetNode.data.isCollapsed) {
+        expandSubtreeIds = expandCollapseService.prepareToggle(
+          newParentId,
+          changes,
+        )?.toggledSubtreeIds;
+      }
+
+      const incomingEdge = modelService
+        .getConnectedEdges(draggedNodeId)
+        .find((e) => e.target === draggedNodeId);
+      hierarchyService.computeEdgeMutations(changes, draggedNodeId, newParentId, incomingEdge);
+
+      hierarchyService.computeParentFlagUpdates(changes, draggedNodeId, oldParentId, newParentId);
+
+      if (oldParentId) {
+        sortOrderService.reorderChildren(oldParentId, [], changes, new Set([draggedNodeId]));
+      }
+
+      sortOrderService.reorderChildren(
+        newParentId,
+        [{ nodeId: draggedNodeId, referenceId: null, position: 'after' }],
+        changes,
+      );
+
       return {
-        id: e.target,
-        sortOrder: isOrgChartNode(node) ? (node.data.sortOrder ?? 0) : 0,
+        changes,
+        visibilityHint: expandSubtreeIds
+          ? { subtreeIds: expandSubtreeIds, collapsing: false }
+          : undefined,
       };
-    })
-    .sort((a, b) => a.sortOrder - b.sortOrder);
+    },
+  };
 }

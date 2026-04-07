@@ -2,19 +2,11 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNodeData } from '../diagram/guards';
 import { EdgeTemplateType } from '../diagram/interfaces';
-import { LayoutGate } from '../diagram/layout/layout-gate';
-import { ModelApplyService } from '../diagram/model-apply.service';
 import { ModelChanges } from '../diagram/model-changes';
-import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
-import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 
 @Injectable()
 export class HierarchyService {
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly layoutGate = inject(LayoutGate);
-  private readonly modelApplyService = inject(ModelApplyService);
-  private readonly nodeVisibilityService = inject(NodeVisibilityService);
-  private readonly sortOrderService = inject(SortOrderService);
 
   getParentId(nodeId: string): string | null {
     const incomingEdge = this.modelService
@@ -42,27 +34,8 @@ export class HierarchyService {
     return descendantIds;
   }
 
-  async updateNodeParent(nodeId: string, newParentId: string | null): Promise<void> {
-    if (!this.layoutGate.isIdle()) return;
-
-    const incomingEdge = this.modelService
-      .getConnectedEdges(nodeId)
-      .find((e) => e.target === nodeId);
-    const oldParentId = incomingEdge?.source ?? null;
-
-    if (newParentId === oldParentId) return;
-
-    const changes = new ModelChanges();
-    this.computeEdgeMutations(changes, nodeId, newParentId, incomingEdge);
-    this.computeParentUpdates(changes, nodeId, oldParentId, newParentId);
-
-    await this.modelApplyService.applyWithLayout(changes);
-
-    this.nodeVisibilityService.ensureVisible(nodeId);
-  }
-
   /** Computes edge create/update/delete based on the old and new parent relationship. */
-  private computeEdgeMutations(
+  computeEdgeMutations(
     changes: ModelChanges,
     nodeId: string,
     newParentId: string | null,
@@ -85,8 +58,8 @@ export class HierarchyService {
     }
   }
 
-  /** Updates hasChildren flags on old/new parents and appends sort order for the new parent. */
-  private computeParentUpdates(
+  /** Updates hasChildren flags on old and new parents. */
+  computeParentFlagUpdates(
     changes: ModelChanges,
     nodeId: string,
     oldParentId: string | null,
@@ -116,12 +89,6 @@ export class HierarchyService {
       if (newParent && isOrgChartNodeData(newParent.data) && !newParent.data.hasChildren) {
         changes.addNodeUpdates({ id: newParentId, data: { ...newParent.data, hasChildren: true } });
       }
-
-      this.sortOrderService.reorderChildren(
-        newParentId,
-        [{ nodeId, referenceId: null, position: 'after' }],
-        changes,
-      );
     }
   }
 

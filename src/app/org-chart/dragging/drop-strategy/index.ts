@@ -1,1 +1,1 @@
-export { getDropStrategy } from './drop-strategy';
+export { getDropStrategy, injectDropStrategies } from './drop-strategy';
