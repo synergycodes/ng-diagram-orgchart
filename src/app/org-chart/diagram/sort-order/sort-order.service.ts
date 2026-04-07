@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
+import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
 import { ModelChanges } from '../model-changes';
@@ -13,7 +13,6 @@ export interface ReorderChange {
 @Injectable()
 export class SortOrderService {
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly diagramService = inject(NgDiagramService);
 
   /**
    * Returns children of the given parent sorted by their current `sortOrder`.
@@ -70,15 +69,18 @@ export class SortOrderService {
 
   /**
    * Assigns sequential `sortOrder` (0, 1, 2, ...) to every sibling group
-   * based on the current edge topology. Runs once at init and skips if
-   * all nodes already have a `sortOrder` defined.
+   * based on the current edge topology. Skips if all nodes already have
+   * a `sortOrder` defined.
+   *
+   * @param modelChanges - Accumulator for model changes; created if not provided.
+   * @returns The accumulated model changes with sort order updates appended.
    */
-  async initSortOrder(): Promise<void> {
+  initSortOrder(modelChanges: ModelChanges = new ModelChanges()): ModelChanges {
     const model = this.modelService.getModel();
     const nodes = model.getNodes();
 
     const needsInit = nodes.some((n) => isOrgChartNode(n) && n.data.sortOrder === undefined);
-    if (!needsInit) return;
+    if (!needsInit) return modelChanges;
 
     const edges = model.getEdges();
     const childrenByParent = new Map<string, string[]>();
@@ -91,17 +93,17 @@ export class SortOrderService {
       targetIds.add(edge.target);
     }
 
-    const rootUpdates = nodes
-      .filter((n) => isOrgChartNode(n) && !targetIds.has(n.id))
-      .map((n) => ({ id: n.id, data: { ...n.data, sortOrder: 0 } }));
+    for (const node of nodes) {
+      if (isOrgChartNode(node) && !targetIds.has(node.id)) {
+        modelChanges.addNodeUpdates({ id: node.id, data: { ...node.data, sortOrder: 0 } });
+      }
+    }
 
-    const childUpdates = [...childrenByParent.values()].flatMap((children) =>
-      this.buildSortOrderUpdates(children),
-    );
+    for (const children of childrenByParent.values()) {
+      modelChanges.addNodeUpdates(...this.buildSortOrderUpdates(children));
+    }
 
-    await this.diagramService.transaction(async () => {
-      this.modelService.updateNodes([...rootUpdates, ...childUpdates]);
-    });
+    return modelChanges;
   }
 
   /** Produces the final node ID sequence by inserting `changes` into the current children order. */

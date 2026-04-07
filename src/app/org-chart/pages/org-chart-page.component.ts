@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, Injector } from '@angular/core';
 import { NgDiagramMinimapComponent, provideNgDiagram } from 'ng-diagram';
-import { provideAddNode } from '../actions/provide-add-node';
+import { AddNodeService } from '../actions/add-node.service';
 import { DiagramComponent } from '../diagram/diagram.component';
 import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { LayoutGate } from '../diagram/layout/layout-gate';
@@ -12,6 +12,7 @@ import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { ToolbarHorizontalComponent } from '../toolbar-horizontal/toolbar-horizontal.component';
+import { TopBarService } from '../top-navbar/top-bar.service';
 import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
 
 @Component({
@@ -29,24 +30,26 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
   providers: [
     provideNgDiagram(),
     PropertiesSidebarService,
+    TopBarService,
     SortOrderService,
     ExpandCollapseService,
     LayoutGate,
     LayoutService,
     ModelApplyService,
     HierarchyService,
+    AddNodeService,
     provideNodeVisibility(() => {
       const injector = inject(Injector);
       return {
         getViewportInsets: () => {
           const sidebar = injector.get(PropertiesSidebarService);
-          return { right: sidebar.isExpanded() ? sidebar.width : 0 };
+          const topBar = injector.get(TopBarService);
+          return {
+            top: topBar.height,
+            right: sidebar.isExpanded() ? sidebar.width : 0,
+          };
         },
       };
-    }),
-    provideAddNode(() => {
-      const sidebar = inject(PropertiesSidebarService);
-      return { onNodeAdded: () => sidebar.expandSidebar() };
     }),
   ],
 })

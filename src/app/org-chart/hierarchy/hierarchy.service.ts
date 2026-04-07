@@ -3,7 +3,6 @@ import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNodeData } from '../diagram/guards';
 import { EdgeTemplateType } from '../diagram/interfaces';
 import { LayoutGate } from '../diagram/layout/layout-gate';
-import { LayoutService } from '../diagram/layout/layout.service';
 import { ModelApplyService } from '../diagram/model-apply.service';
 import { ModelChanges } from '../diagram/model-changes';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
@@ -13,7 +12,6 @@ import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 export class HierarchyService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly layoutGate = inject(LayoutGate);
-  private readonly layoutService = inject(LayoutService);
   private readonly modelApplyService = inject(ModelApplyService);
   private readonly nodeVisibilityService = inject(NodeVisibilityService);
   private readonly sortOrderService = inject(SortOrderService);
@@ -58,10 +56,7 @@ export class HierarchyService {
     this.computeEdgeMutations(changes, nodeId, newParentId, incomingEdge);
     this.computeParentUpdates(changes, nodeId, oldParentId, newParentId);
 
-    await this.layoutGate.execute(async () => {
-      await this.layoutService.computeLayout(changes);
-      await this.modelApplyService.apply(changes);
-    });
+    await this.modelApplyService.applyWithLayout(changes);
 
     this.nodeVisibilityService.ensureVisible(nodeId);
   }

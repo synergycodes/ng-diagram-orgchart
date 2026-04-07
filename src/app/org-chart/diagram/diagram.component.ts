@@ -90,11 +90,8 @@ export class DiagramComponent {
     this.layoutService.setDirection(value);
     this.layoutGate.setRebuilding();
     requestAnimationFrame(async () => {
-      await this.layoutGate.execute(async () => {
-        const changes = await this.layoutService.computeLayout(new ModelChanges());
-        await this.modelApplyService.apply(changes);
-        this.viewportService.zoomToFit();
-      });
+      await this.modelApplyService.applyWithLayout();
+      this.viewportService.zoomToFit();
     });
   }
 
@@ -102,12 +99,9 @@ export class DiagramComponent {
    * Initialize sort order and run the first layout, then fit the viewport.
    */
   async onDiagramInit(_: DiagramInitEvent): Promise<void> {
-    await this.sortOrderService.initSortOrder();
-    await this.layoutGate.execute(async () => {
-      const changes = await this.layoutService.computeLayout(new ModelChanges());
-      await this.modelApplyService.apply(changes);
-      this.viewportService.zoomToFit();
-    });
+    const changes = this.sortOrderService.initSortOrder();
+    await this.modelApplyService.applyWithLayout(changes);
+    this.viewportService.zoomToFit();
   }
 
   /**
@@ -132,10 +126,7 @@ export class DiagramComponent {
       }
     }
 
-    await this.layoutGate.execute(async () => {
-      await this.layoutService.computeLayout(changes);
-      await this.modelApplyService.apply(changes);
-    });
+    await this.modelApplyService.applyWithLayout(changes);
   }
 
   onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {

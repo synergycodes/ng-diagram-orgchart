@@ -1,5 +1,5 @@
-import { inject } from '@angular/core';
-import { NgDiagramModelService, NgDiagramSelectionService, type Edge, type Node } from 'ng-diagram';
+import { inject, Injectable } from '@angular/core';
+import { NgDiagramModelService, type Edge, type Node } from 'ng-diagram';
 import { isOrgChartNode } from '../diagram/guards';
 import {
   EdgeTemplateType,
@@ -10,28 +10,21 @@ import {
 } from '../diagram/interfaces';
 import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { LayoutGate } from '../diagram/layout/layout-gate';
-import { LayoutService } from '../diagram/layout/layout.service';
 import { ModelApplyService } from '../diagram/model-apply.service';
 import { ModelChanges } from '../diagram/model-changes';
-import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
-import { type AddNodeConfig } from './provide-add-node';
 
 export type AddNodeAction = 'child' | 'siblingBefore' | 'siblingAfter';
 
+@Injectable()
 export class AddNodeService {
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly layoutGate = inject(LayoutGate);
-  private readonly layoutService = inject(LayoutService);
   private readonly expandCollapseService = inject(ExpandCollapseService);
   private readonly sortOrderService = inject(SortOrderService);
   private readonly modelApplyService = inject(ModelApplyService);
-  private readonly nodeVisibilityService = inject(NodeVisibilityService);
   private readonly hierarchyService = inject(HierarchyService);
-
-  constructor(private readonly config?: AddNodeConfig) {}
 
   /**
    * Adds a new vacant node as a child or sibling of the given node.
@@ -39,40 +32,35 @@ export class AddNodeService {
    *
    * @param nodeId - The reference node to add relative to.
    * @param action - Whether to add as `child`, `siblingBefore`, or `siblingAfter`.
+   * @returns The new node's ID, or `undefined` if the operation was skipped.
    */
-  async addNode(nodeId: string, action: AddNodeAction): Promise<void> {
-    if (!this.layoutGate.isIdle()) return;
+  async addNode(nodeId: string, action: AddNodeAction): Promise<string | undefined> {
+    if (!this.layoutGate.isIdle()) return undefined;
 
     const { parentId, referenceNodeId, position } = this.resolveParams(nodeId, action);
-    if (!parentId) return;
+    if (!parentId) return undefined;
 
     const parentNode = this.modelService.getNodeById(parentId);
-    if (!parentNode || !isOrgChartNode(parentNode)) return;
+    if (!parentNode || !isOrgChartNode(parentNode)) return undefined;
 
     const needsExpand = action === 'child' && !!parentNode.data.isCollapsed;
     const newNodeId = crypto.randomUUID();
 
-    const { changes, sortOrders } = this.sortOrderService.reorderChildren(
-      parentId,
-      [{ nodeId: newNodeId, referenceId: referenceNodeId, position }],
-    );
+    const { changes, sortOrders } = this.sortOrderService.reorderChildren(parentId, [
+      { nodeId: newNodeId, referenceId: referenceNodeId, position },
+    ]);
 
     changes.addNewNodes(this.createVacantNode(newNodeId, sortOrders[newNodeId]));
     changes.addNewEdges(this.createEdge(parentId, newNodeId));
 
     const expandSubtreeIds = this.updateParentNode(parentNode, needsExpand, changes);
 
-    await this.layoutGate.execute(async () => {
-      await this.layoutService.computeLayout(
-        changes,
-        expandSubtreeIds ? { subtreeIds: expandSubtreeIds, collapsing: false } : undefined,
-      );
-      await this.modelApplyService.apply(changes);
-    });
+    await this.modelApplyService.applyWithLayout(
+      changes,
+      expandSubtreeIds ? { subtreeIds: expandSubtreeIds, collapsing: false } : undefined,
+    );
 
-    this.selectionService.select([newNodeId]);
-    this.config?.onNodeAdded?.(newNodeId);
-    this.nodeVisibilityService.ensureVisible(newNodeId);
+    return newNodeId;
   }
 
   /** Resolves the parent ID, reference node, and insertion position for the given action. */
