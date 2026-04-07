@@ -2,15 +2,21 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import {
   NgDiagramModelService,
   NgDiagramPortComponent,
+  NgDiagramSelectionService,
   NgDiagramViewportService,
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
-import { AddNodeService } from '../../actions/add-node.service';
 import { DragReorderService } from '../../dragging/drag-reorder.service';
+import { AddNodeService, type AddNodeAction } from '../../actions/add-node.service';
+import { PropertiesSidebarService } from '../../properties-sidebar/properties-sidebar.service';
+import { ExpandCollapseService } from '../expand-collapse/expand-collapse.service';
 import { isOccupiedNodeData, isVacantNode } from '../guards';
 import { type OrgChartNodeData } from '../interfaces';
+import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService } from '../layout/layout.service';
+import { ModelApplyService } from '../model-apply.service';
+import { NodeVisibilityService } from '../node-visibility/node-visibility.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
 import { FullNodeComponent } from './components/full-node/full-node.component';
@@ -53,15 +59,21 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
+  private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
+  private readonly expandCollapseService = inject(ExpandCollapseService);
+  private readonly modelApplyService = inject(ModelApplyService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly dragReorderService = inject(DragReorderService);
   private readonly modelService = inject(NgDiagramModelService);
+  private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly addNodeService = inject(AddNodeService);
+  private readonly sidebarService = inject(PropertiesSidebarService);
+  private readonly nodeVisibilityService = inject(NodeVisibilityService);
 
   node = input.required<Node<OrgChartNodeData>>();
 
-  isLayoutIdle = this.layoutService.isIdle;
+  isLayoutIdle = this.layoutGate.isIdle;
 
   isHorizontal = this.layoutService.isHorizontal;
 
@@ -113,21 +125,37 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   /** Toggle the collapsed state of this node's subtree and re-layout. */
   async onToggle(event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    await this.layoutService.toggleCollapsed(this.node().id);
+
+    const result = this.expandCollapseService.prepareToggle(this.node().id);
+    if (!result) return;
+
+    await this.modelApplyService.applyWithLayout(result.changes, {
+      subtreeIds: result.toggledSubtreeIds,
+      collapsing: result.collapsing,
+    });
   }
 
-  onAddLeft(event: MouseEvent): void {
+  async onAddLeft(event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    this.addNodeService.addNode(this.node().id, 'siblingBefore');
+    await this.addNodeAndExpandSidebar('siblingBefore');
   }
 
-  onAddRight(event: MouseEvent): void {
+  async onAddRight(event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    this.addNodeService.addNode(this.node().id, 'siblingAfter');
+    await this.addNodeAndExpandSidebar('siblingAfter');
   }
 
-  onAddBottom(event: MouseEvent): void {
+  async onAddBottom(event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    this.addNodeService.addNode(this.node().id, 'child');
+    await this.addNodeAndExpandSidebar('child');
+  }
+
+  private async addNodeAndExpandSidebar(action: AddNodeAction): Promise<void> {
+    const newNodeId = await this.addNodeService.addNode(this.node().id, action);
+    if (newNodeId) {
+      this.selectionService.select([newNodeId]);
+      this.sidebarService.expandSidebar();
+      this.nodeVisibilityService.ensureVisible(newNodeId);
+    }
   }
 }
