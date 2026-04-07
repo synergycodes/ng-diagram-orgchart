@@ -146,6 +146,8 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     await this.modelApplyService.applyWithLayout(result.changes, {
       visibility: { subtreeIds: result.toggledSubtreeIds, collapsing: result.collapsing },
     });
+
+    this.nodeVisibilityService.ensureVisible(this.node().id);
   }
 
   async onAddLeft(event: MouseEvent): Promise<void> {
