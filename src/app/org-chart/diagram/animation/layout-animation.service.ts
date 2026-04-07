@@ -2,8 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Node as DiagramNode, type Point } from 'ng-diagram';
 import { LayoutService } from '../layout/layout.service';
 import { ModelChanges } from '../model-changes';
-
-const DURATION_MS = 300;
+import { animate } from './animate';
 
 interface NodeAnimation {
   id: string;
@@ -194,45 +193,20 @@ export class LayoutAnimationService {
   // ---------------------------------------------------------------------------
 
   private runAnimation(state: { nodes: NodeAnimation[] }): Promise<void> {
-    return new Promise<void>((resolve) => {
-      const startTime = performance.now();
+    return animate((eased) => {
+      const updates: { id: string; position: Point }[] = [];
 
-      const frame = (now: number): void => {
-        try {
-          const elapsed = now - startTime;
-          const t = Math.min(elapsed / DURATION_MS, 1);
-          const eased = easeOutCubic(t);
+      for (const anim of state.nodes) {
+        updates.push({
+          id: anim.id,
+          position: {
+            x: anim.startPosition.x + (anim.finalPosition.x - anim.startPosition.x) * eased,
+            y: anim.startPosition.y + (anim.finalPosition.y - anim.startPosition.y) * eased,
+          },
+        });
+      }
 
-          const updates: { id: string; position: Point }[] = [];
-
-          for (const anim of state.nodes) {
-            updates.push({
-              id: anim.id,
-              position: {
-                x: anim.startPosition.x + (anim.finalPosition.x - anim.startPosition.x) * eased,
-                y: anim.startPosition.y + (anim.finalPosition.y - anim.startPosition.y) * eased,
-              },
-            });
-          }
-
-          this.modelService.updateNodes(updates);
-
-          if (t < 1) {
-            requestAnimationFrame(frame);
-          } else {
-            resolve();
-          }
-        } catch (e) {
-          console.error('[LayoutAnimation] frame error:', e);
-          resolve();
-        }
-      };
-
-      requestAnimationFrame(frame);
+      this.modelService.updateNodes(updates);
     });
   }
-}
-
-function easeOutCubic(t: number): number {
-  return 1 - Math.pow(1 - t, 3);
 }

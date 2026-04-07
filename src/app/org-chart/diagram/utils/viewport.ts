@@ -1,4 +1,5 @@
 import { type NgDiagramViewportService, type Node, type Viewport } from 'ng-diagram';
+import { animateViewportTo } from '../animation/viewport-animation';
 
 const EDGE_PADDING = 60;
 
@@ -53,18 +54,18 @@ export function isNodeInViewport(node: Node, viewport: Viewport): boolean {
 }
 
 /**
- * If the node is fully visible — do nothing.
- * If it's just offscreen (within half the viewport) — nudge the viewport
- * so the node appears at the edge with padding.
- * If it's far offscreen — center on it.
+ * Computes the target viewport position to make a node visible.
+ * Returns `null` if the node is already fully visible.
+ *
+ * - If just offscreen (within half the viewport) — nudges to the edge with padding.
+ * - If far offscreen — centers on the node.
  */
-export function ensureNodeVisible(
+export function computeEnsureVisibleTarget(
   node: Node,
-  viewportService: NgDiagramViewportService,
+  viewport: Viewport,
   insets?: ViewportInsets,
-): void {
-  const viewport = viewportService.viewport();
-  if (!viewport.width || !viewport.height) return;
+): { x: number; y: number } | null {
+  if (!viewport.width || !viewport.height) return null;
 
   const viewportRect = getViewportRect(viewport, insets);
   const rect = getNodeRect(node);
@@ -75,23 +76,56 @@ export function ensureNodeVisible(
     rect.top >= viewportRect.top &&
     rect.bottom <= viewportRect.bottom
   ) {
-    return;
+    return null;
   }
 
   let flowDx = 0;
   let flowDy = 0;
 
   if (rect.left < viewportRect.left) flowDx = rect.left - viewportRect.left - EDGE_PADDING;
-  else if (rect.right > viewportRect.right) flowDx = rect.right - viewportRect.right + EDGE_PADDING;
+  else if (rect.right > viewportRect.right)
+    flowDx = rect.right - viewportRect.right + EDGE_PADDING;
 
   if (rect.top < viewportRect.top) flowDy = rect.top - viewportRect.top - EDGE_PADDING;
   else if (rect.bottom > viewportRect.bottom)
     flowDy = rect.bottom - viewportRect.bottom + EDGE_PADDING;
 
+  // Far offscreen — center on node
   if (Math.abs(flowDx) > viewportRect.width / 2 || Math.abs(flowDy) > viewportRect.height / 2) {
-    viewportService.centerOnNode(node.id);
-    return;
+    const nodeWidth = node.measuredBounds?.width ?? node.size?.width ?? 0;
+    const nodeHeight = node.measuredBounds?.height ?? node.size?.height ?? 0;
+    const nodeCenterX = node.position.x + nodeWidth / 2;
+    const nodeCenterY = node.position.y + nodeHeight / 2;
+    return {
+      x: viewport.width / 2 - nodeCenterX * viewport.scale,
+      y: viewport.height / 2 - nodeCenterY * viewport.scale,
+    };
   }
 
-  viewportService.moveViewportBy(-flowDx * viewport.scale, -flowDy * viewport.scale);
+  // Just offscreen — nudge
+  return {
+    x: viewport.x - flowDx * viewport.scale,
+    y: viewport.y - flowDy * viewport.scale,
+  };
+}
+
+/**
+ * If the node is fully visible — do nothing.
+ * Otherwise moves the viewport to make it visible, optionally animated.
+ */
+export function ensureNodeVisible(
+  node: Node,
+  viewportService: NgDiagramViewportService,
+  insets?: ViewportInsets,
+  animated = true,
+): void {
+  const viewport = viewportService.viewport();
+  const target = computeEnsureVisibleTarget(node, viewport, insets);
+  if (!target) return;
+
+  if (animated) {
+    animateViewportTo(viewportService, target);
+  } else {
+    viewportService.moveViewport(target.x, target.y);
+  }
 }
