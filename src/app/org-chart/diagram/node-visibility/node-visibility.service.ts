@@ -1,27 +1,19 @@
-import { inject, type Provider } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramViewportService } from 'ng-diagram';
-import { ensureNodeVisible, type ViewportInsets } from '../utils/viewport';
+import { ensureNodeVisible } from '../utils/viewport';
+import { NODE_VISIBILITY_CONFIG, NodeVisibilityConfig } from './node-visibility-config.service';
 
-export function provideNodeVisibility(configFactory?: () => NodeVisibilityConfig): Provider {
-  return {
-    provide: NodeVisibilityService,
-    useFactory: () => new NodeVisibilityService(configFactory?.()),
-  };
-}
-
-export interface NodeVisibilityConfig {
-  getViewportInsets?: () => ViewportInsets;
-}
-
+@Injectable()
 export class NodeVisibilityService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
-
-  constructor(private readonly config?: NodeVisibilityConfig) {}
+  private readonly configService = inject<NodeVisibilityConfig>(NODE_VISIBILITY_CONFIG, {
+    optional: true,
+  });
 
   ensureVisible(nodeId: string): void {
     const node = this.modelService.getNodeById(nodeId);
     if (!node) return;
-    ensureNodeVisible(node, this.viewportService, this.config?.getViewportInsets?.());
+    ensureNodeVisible(node, this.viewportService, this.configService?.getViewportInsets?.());
   }
 }

@@ -38,6 +38,7 @@ export class ModelApplyService {
         if (changes.nodeUpdates.length > 0) {
           this.modelService.updateNodes(changes.nodeUpdates);
         }
+        // Source and data must be updated in separate calls to avoid conflicting side effects in the layout.
         for (const update of changes.edgeUpdates) {
           if (update.source) this.modelService.updateEdge(update.id, { source: update.source });
           if (update.data) this.modelService.updateEdges([{ id: update.id, data: update.data }]);
