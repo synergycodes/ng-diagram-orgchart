@@ -54,10 +54,11 @@ export class AddNodeService {
 
     const expandSubtreeIds = this.updateParentNode(parentNode, needsExpand, changes);
 
-    await this.modelApplyService.applyWithLayout(
-      changes,
-      expandSubtreeIds ? { subtreeIds: expandSubtreeIds, collapsing: false } : undefined,
-    );
+    await this.modelApplyService.applyWithLayout(changes, {
+      visibility: expandSubtreeIds
+        ? { subtreeIds: expandSubtreeIds, collapsing: false }
+        : undefined,
+    });
 
     return newNodeId;
   }

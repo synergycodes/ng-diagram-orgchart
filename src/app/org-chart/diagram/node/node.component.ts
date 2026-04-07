@@ -144,8 +144,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     if (!result) return;
 
     await this.modelApplyService.applyWithLayout(result.changes, {
-      subtreeIds: result.toggledSubtreeIds,
-      collapsing: result.collapsing,
+      visibility: { subtreeIds: result.toggledSubtreeIds, collapsing: result.collapsing },
     });
   }
 

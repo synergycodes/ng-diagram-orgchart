@@ -56,7 +56,6 @@ export class DiagramComponent {
   private readonly sidebarService = inject(PropertiesSidebarService);
 
   protected readonly isLayoutInitialized = this.layoutGate.isInitialized;
-  protected readonly isRebuilding = this.layoutGate.isRebuilding;
   readonly isLayoutIdle = this.layoutGate.isIdle;
 
   readonly direction = this.layoutService.direction;
@@ -92,7 +91,6 @@ export class DiagramComponent {
       return;
     }
     this.layoutService.setDirection(value);
-    this.layoutGate.setRebuilding();
     requestAnimationFrame(async () => {
       await this.modelApplyService.applyWithLayout();
       this.viewportService.zoomToFit();
@@ -104,7 +102,7 @@ export class DiagramComponent {
    */
   async onDiagramInit(_: DiagramInitEvent): Promise<void> {
     const changes = this.sortOrderService.initSortOrder();
-    await this.modelApplyService.applyWithLayout(changes);
+    await this.modelApplyService.applyWithLayout(changes, { animate: false });
     this.dragReorderService.init();
     this.viewportService.zoomToFit();
   }
