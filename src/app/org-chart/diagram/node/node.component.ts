@@ -80,18 +80,21 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   showLeftIndicator = computed(
     () =>
       this.dragReorderService.isReorderActive() &&
+      this.dragReorderService.isNodeInDropRange(this.node().id) &&
       !this.dragReorderService.isSideHidden(this.node().id, 'left'),
   );
 
   showRightIndicator = computed(
     () =>
       this.dragReorderService.isReorderActive() &&
+      this.dragReorderService.isNodeInDropRange(this.node().id) &&
       !this.dragReorderService.isSideHidden(this.node().id, 'right'),
   );
 
   showBottomIndicator = computed(
     () =>
       this.dragReorderService.isReorderActive() &&
+      this.dragReorderService.isNodeInDropRange(this.node().id) &&
       !this.dragReorderService.isSideHidden(this.node().id, 'bottom'),
   );
 

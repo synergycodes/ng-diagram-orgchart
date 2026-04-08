@@ -1,15 +1,26 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
-import { NgDiagramService } from 'ng-diagram';
+import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
 import { DragService } from './drag.service';
 import { DropService } from './drop.service';
 import type { HighlightedIndicator } from './interfaces';
 import type { DropZone } from './zone-detection/index';
 
+const INDICATOR_RANGE = 400;
+
+function setsEqual(a: Set<string>, b: Set<string>): boolean {
+  if (a.size !== b.size) return false;
+  for (const id of a) {
+    if (!b.has(id)) return false;
+  }
+  return true;
+}
+
 @Injectable()
 export class DragReorderService implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly diagramService = inject(NgDiagramService);
+  private readonly modelService = inject(NgDiagramModelService);
   private readonly dragService = inject(DragService);
   private readonly dropService = inject(DropService);
 
@@ -18,6 +29,8 @@ export class DragReorderService implements OnDestroy {
 
   private readonly _isReorderActive = signal(false);
   readonly isReorderActive = this._isReorderActive.asReadonly();
+
+  private readonly _nodesInRange = signal<Set<string>>(new Set(), { equal: setsEqual });
 
   readonly isDragging = this.dragService.isDragging;
 
@@ -57,6 +70,7 @@ export class DragReorderService implements OnDestroy {
     }
     this._isReorderActive.set(true);
     this.hiddenSides = this.dragService.getHiddenSides(this.draggedNodeId);
+    this.updateNodesInRange();
 
     this.pointerMoveHandler = () => this.onPointerMove();
     this.document.addEventListener('pointermove', this.pointerMoveHandler);
@@ -65,6 +79,7 @@ export class DragReorderService implements OnDestroy {
   private onPointerMove(): void {
     if (!this.draggedNodeId) return;
 
+    this.updateNodesInRange();
     const result = this.dragService.resolveZone(this.draggedNodeId, this.hiddenSides);
     this._highlightedIndicator.set(result);
   }
@@ -85,12 +100,33 @@ export class DragReorderService implements OnDestroy {
     return this.hiddenSides.get(nodeId)?.has(side) ?? false;
   }
 
+  isNodeInDropRange(nodeId: string): boolean {
+    return this._nodesInRange().has(nodeId);
+  }
+
+  private updateNodesInRange(): void {
+    if (!this.draggedNodeId) return;
+
+    const draggedNode = this.modelService.getNodeById(this.draggedNodeId);
+    if (!draggedNode) return;
+
+    const size = draggedNode.size ?? { width: 0, height: 0 };
+    const center = {
+      x: draggedNode.position.x + size.width / 2,
+      y: draggedNode.position.y + size.height / 2,
+    };
+
+    const nearby = this.modelService.getNodesInRange(center, INDICATOR_RANGE);
+    this._nodesInRange.set(new Set(nearby.map((n) => n.id)));
+  }
+
   private cleanup(): void {
     if (this.pointerMoveHandler) {
       this.document.removeEventListener('pointermove', this.pointerMoveHandler);
       this.pointerMoveHandler = null;
     }
     this._highlightedIndicator.set(null);
+    this._nodesInRange.set(new Set());
     this.hiddenSides = new Map();
     this._isReorderActive.set(false);
     this.draggedNodeId = null;
