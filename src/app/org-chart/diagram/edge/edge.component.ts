@@ -6,7 +6,7 @@ import {
   type NgDiagramEdgeTemplate,
 } from 'ng-diagram';
 import { isVacantNode } from '../guards';
-import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
+import { type OrgChartEdgeData } from '../interfaces';
 
 /**
  * Custom org-chart edge template.
