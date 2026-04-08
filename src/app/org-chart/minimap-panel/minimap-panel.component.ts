@@ -14,7 +14,7 @@ import {
 } from 'ng-diagram';
 import { OrgChartNodeData } from '../diagram/interfaces';
 
-const ZOOM_STEP = 0.03;
+const ZOOM_STEP = 0.1;
 
 @Component({
   selector: 'app-minimap-panel',
@@ -49,11 +49,16 @@ export class MinimapPanelComponent {
   };
 
   protected zoomIn(): void {
-    this.viewportService.zoom(1 + ZOOM_STEP);
+    const currentScale = this.viewportService.scale();
+    const factor = (currentScale + ZOOM_STEP) / currentScale;
+
+    this.viewportService.zoom(factor);
   }
 
   protected zoomOut(): void {
-    this.viewportService.zoom(1 / (1 + ZOOM_STEP));
+    const currentScale = this.viewportService.scale();
+    const factor = (currentScale - ZOOM_STEP) / currentScale;
+    this.viewportService.zoom(factor);
   }
 
   protected toggleExpanded(): void {
