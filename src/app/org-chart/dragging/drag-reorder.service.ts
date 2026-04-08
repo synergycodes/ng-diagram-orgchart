@@ -24,6 +24,7 @@ export class DragReorderService implements OnDestroy {
   private draggedNodeId: string | null = null;
   private hiddenSides = new Map<string, Set<DropZone>>();
   private pointerMoveHandler: ((event: PointerEvent) => void) | null = null;
+  private pendingDrop: Promise<void> = Promise.resolve();
 
   private readonly onDragStartedBound = (event: { nodes: { id: string }[] }) =>
     this.onDragStarted(event);
@@ -41,7 +42,9 @@ export class DragReorderService implements OnDestroy {
     this.diagramService.removeEventListener('nodeDragEnded', this.onDragEndedBound);
   }
 
-  private onDragStarted(event: { nodes: { id: string }[] }): void {
+  private async onDragStarted(event: { nodes: { id: string }[] }): Promise<void> {
+    await this.pendingDrop;
+
     this.dragService.setDraggedNodes(event as Parameters<DragService['setDraggedNodes']>[0]);
 
     if (event.nodes.length > 1) {
@@ -74,7 +77,7 @@ export class DragReorderService implements OnDestroy {
     this.dragService.clearDrag();
 
     if (indicator && draggedNodeId) {
-      this.dropService.dropNode(draggedNodeId, indicator);
+      this.pendingDrop = this.dropService.dropNode(draggedNodeId, indicator);
     }
   }
 
