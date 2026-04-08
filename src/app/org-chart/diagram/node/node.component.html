@@ -48,7 +48,7 @@
   [class.drop-indicator--no-toggle]="!node().data.hasChildren"
 ></div>
 
-@if (showAddButtons()) {
+<div class="add-buttons-zone" [class.add-buttons-zone--hidden]="!showAddButtons()">
   @if (!isRoot()) {
     <app-add-button position="left" [horizontal]="isHorizontal()" (add)="onAddLeft($event)" />
     <app-add-button position="right" [horizontal]="isHorizontal()" (add)="onAddRight($event)" />
@@ -57,7 +57,7 @@
 
   <!-- Invisible hover zone so "+" buttons outside the node boundary remain reachable. -->
   <div class="hover-zone" data-no-drag="true"></div>
-}
+</div>
 
 <!-- Connection ports: incoming edge port and outgoing edge port. -->
 @if (isHorizontal()) {
