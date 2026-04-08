@@ -24,7 +24,9 @@ export class DragReorderService implements OnDestroy {
   private readonly dragService = inject(DragService);
   private readonly dropService = inject(DropService);
 
-  private readonly _highlightedIndicator = signal<HighlightedIndicator | null>(null);
+  private readonly _highlightedIndicator = signal<HighlightedIndicator | null>(null, {
+    equal: (a, b) => a?.nodeId === b?.nodeId && a?.side === b?.side,
+  });
   readonly highlightedIndicator = this._highlightedIndicator.asReadonly();
 
   private readonly _isReorderActive = signal(false);
