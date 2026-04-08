@@ -26,6 +26,7 @@ import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
 import { ModelApplyService } from './model-apply.service';
 import { ModelChanges } from './model-changes';
+import { NodeVisibilityService } from './node-visibility/node-visibility.service';
 import { NodeComponent } from './node/node.component';
 import { SortOrderService } from './sort-order/sort-order.service';
 
@@ -54,6 +55,7 @@ export class DiagramComponent {
   private readonly modelApplyService = inject(ModelApplyService);
   private readonly sortOrderService = inject(SortOrderService);
   private readonly sidebarService = inject(PropertiesSidebarService);
+  private readonly nodeVisibilityService = inject(NodeVisibilityService);
 
   protected readonly isLayoutInitialized = this.layoutGate.isInitialized;
   readonly isLayoutIdle = this.layoutGate.isIdle;
@@ -129,7 +131,13 @@ export class DiagramComponent {
       }
     }
 
+    const parentIds = [...new Set(event.deletedEdges.map((e) => e.source))];
+
     await this.modelApplyService.applyWithLayout(changes);
+
+    if (parentIds.length > 0) {
+      this.nodeVisibilityService.ensureVisible(parentIds[0]);
+    }
   }
 
   onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {
