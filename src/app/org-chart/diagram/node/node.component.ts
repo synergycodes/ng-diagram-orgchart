@@ -56,6 +56,7 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[style.visibility]': 'node().data.isHidden ? "hidden" : null',
     '[style.pointer-events]': 'node().data.isHidden ? "none" : null',
     '[class.layout-horizontal]': 'isHorizontal()',
+    '[class.node-dragging]': 'dragReorderService.isReorderActive()',
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
@@ -64,7 +65,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly expandCollapseService = inject(ExpandCollapseService);
   private readonly modelApplyService = inject(ModelApplyService);
   private readonly viewportService = inject(NgDiagramViewportService);
-  private readonly dragReorderService = inject(DragReorderService);
+  protected readonly dragReorderService = inject(DragReorderService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly addNodeService = inject(AddNodeService);
@@ -97,8 +98,6 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
       this.dragReorderService.isNodeInDropRange(this.node().id) &&
       !this.dragReorderService.isSideHidden(this.node().id, 'bottom'),
   );
-
-  showAddButtons = computed(() => !this.dragReorderService.isDragging());
 
   highlightedSide = computed(() => {
     const highlightedIndicator = this.dragReorderService.highlightedIndicator();
