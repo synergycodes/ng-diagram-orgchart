@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
-import { isOrgChartNode, isOrgChartNodeData } from '../guards';
+import { isOrgChartNode } from '../guards';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
+import { getCollapsedChildrenCount, getIsCollapsed } from '../node-data-getters';
 import { ModelChanges } from '../model-changes';
 
 export interface ToggleResult {
@@ -31,7 +32,7 @@ export class ExpandCollapseService {
     const node = this.modelService.getNodeById(nodeId);
     if (!node || !isOrgChartNode(node)) return null;
 
-    const collapsing = !node.data.isCollapsed;
+    const collapsing = !getIsCollapsed(node);
     const subtreeIds = this.getVisibleDescendantIds(nodeId);
     const { nodeUpdates, edgeUpdates } = this.computeSubtreeVisibilityChanges(
       subtreeIds,
@@ -74,8 +75,8 @@ export class ExpandCollapseService {
         if (edge.source !== parentId) continue;
         ids.add(edge.target);
 
-        const childData = this.modelService.getNodeById(edge.target)?.data;
-        if (isOrgChartNodeData(childData) && !childData?.isCollapsed) stack.push(edge.target);
+        const childNode = this.modelService.getNodeById(edge.target);
+        if (isOrgChartNode(childNode) && !getIsCollapsed(childNode)) stack.push(edge.target);
       }
     }
 
@@ -98,9 +99,12 @@ export class ExpandCollapseService {
         if (edge.source === parentId) {
           count++;
 
-          const childData = this.modelService.getNodeById(edge.target)?.data;
-          if (isOrgChartNodeData(childData) && childData.collapsedChildrenCount != null) {
-            count += childData.collapsedChildrenCount;
+          const childNode = this.modelService.getNodeById(edge.target);
+          const collapsedCount = isOrgChartNode(childNode)
+            ? getCollapsedChildrenCount(childNode)
+            : undefined;
+          if (collapsedCount != null) {
+            count += collapsedCount;
           } else {
             stack.push(edge.target);
           }

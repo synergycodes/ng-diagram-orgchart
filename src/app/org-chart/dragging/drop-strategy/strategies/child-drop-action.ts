@@ -1,4 +1,5 @@
-import { isOrgChartNodeData } from '../../../diagram/guards';
+import { isOrgChartNode } from '../../../diagram/guards';
+import { getIsCollapsed } from '../../../diagram/node-data-getters';
 import { ModelChanges } from '../../../diagram/model-changes';
 import type { DropActionStrategy, DropDeps } from '../drop-strategy.interface';
 
@@ -11,7 +12,7 @@ export function createChildDropAction(deps: DropDeps): DropActionStrategy {
 
       let expandSubtreeIds: Set<string> | undefined;
       const targetNode = modelService.getNodeById(newParentId);
-      if (targetNode && isOrgChartNodeData(targetNode.data) && targetNode.data.isCollapsed) {
+      if (isOrgChartNode(targetNode) && getIsCollapsed(targetNode)) {
         expandSubtreeIds = expandCollapseService.prepareToggle(
           newParentId,
           changes,

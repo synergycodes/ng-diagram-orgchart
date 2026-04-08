@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Edge, type Node } from 'ng-diagram';
 import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { isOrgChartNode } from '../diagram/guards';
+import { getIsCollapsed } from '../diagram/node-data-getters';
 import {
   EdgeTemplateType,
   NodeTemplateType,
@@ -41,7 +42,7 @@ export class AddNodeService {
     const parentNode = this.modelService.getNodeById(parentId);
     if (!parentNode || !isOrgChartNode(parentNode)) return undefined;
 
-    const needsExpand = action === 'child' && !!parentNode.data.isCollapsed;
+    const needsExpand = action === 'child' && !!getIsCollapsed(parentNode);
     const newNodeId = crypto.randomUUID();
 
     const { changes, sortOrders } = this.sortOrderService.reorderChildren(parentId, [

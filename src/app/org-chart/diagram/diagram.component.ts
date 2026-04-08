@@ -19,7 +19,8 @@ import { DropService } from '../dragging/drop.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
 import { EdgeComponent } from './edge/edge.component';
-import { isOrgChartNode, isOrgChartNodeData } from './guards';
+import { isOrgChartNode } from './guards';
+import { getHasChildren } from './node-data-getters';
 import { EdgeTemplateType, NodeTemplateType } from './interfaces';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
@@ -130,7 +131,7 @@ export class DiagramComponent {
       if (stillHasChildren) continue;
 
       const node = this.modelService.getNodeById(sourceId);
-      if (node && isOrgChartNodeData(node.data) && node.data.hasChildren) {
+      if (isOrgChartNode(node) && getHasChildren(node)) {
         changes.addNodeUpdates({ id: sourceId, data: { ...node.data, hasChildren: false } });
       }
     }

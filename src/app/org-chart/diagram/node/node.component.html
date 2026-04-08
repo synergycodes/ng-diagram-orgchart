@@ -21,10 +21,10 @@
   }
 }
 
-@if (node().data.hasChildren) {
+@if (hasChildren()) {
   <app-toggle-expand-button
-    [isCollapsed]="!!node().data.isCollapsed"
-    [collapsedChildrenCount]="node().data.collapsedChildrenCount"
+    [isCollapsed]="!!isCollapsed()"
+    [collapsedChildrenCount]="collapsedChildrenCount()"
     [horizontal]="isHorizontal()"
     [disabled]="!isLayoutIdle()"
     (toggle)="onToggle($event)"
@@ -45,7 +45,7 @@
   class="drop-indicator drop-indicator--bottom"
   [class.drop-indicator--visible]="showBottomIndicator()"
   [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
-  [class.drop-indicator--no-toggle]="!node().data.hasChildren"
+  [class.drop-indicator--no-toggle]="!hasChildren()"
 ></div>
 
 @if (!isRoot()) {

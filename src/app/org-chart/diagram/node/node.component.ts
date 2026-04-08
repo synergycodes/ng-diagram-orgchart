@@ -16,6 +16,12 @@ import { type OrgChartNodeData } from '../interfaces';
 import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService } from '../layout/layout.service';
 import { ModelApplyService } from '../model-apply.service';
+import {
+  getCollapsedChildrenCount,
+  getHasChildren,
+  getIsCollapsed,
+  getIsHidden,
+} from '../node-data-getters';
 import { NodeVisibilityService } from '../node-visibility/node-visibility.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
@@ -53,8 +59,8 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[class.variant-compact]': 'variant() === "compact"',
     '[class.variant-full]': 'variant() === "full"',
     '[class.selected]': 'node().selected',
-    '[style.visibility]': 'node().data.isHidden ? "hidden" : null',
-    '[style.pointer-events]': 'node().data.isHidden ? "none" : null',
+    '[style.visibility]': 'isHidden() ? "hidden" : null',
+    '[style.pointer-events]': 'isHidden() ? "none" : null',
     '[class.layout-horizontal]': 'isHorizontal()',
     '[class.node-dragging]': 'dragReorderService.isReorderActive()',
   },
@@ -123,6 +129,11 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     }
     return data;
   });
+
+  protected isHidden = computed(() => getIsHidden(this.node()));
+  protected isCollapsed = computed(() => getIsCollapsed(this.node()));
+  protected hasChildren = computed(() => getHasChildren(this.node()));
+  protected collapsedChildrenCount = computed(() => getCollapsedChildrenCount(this.node()));
 
   isAddButtonDisabled = computed(() => !this.layoutGate.isIdle());
 
