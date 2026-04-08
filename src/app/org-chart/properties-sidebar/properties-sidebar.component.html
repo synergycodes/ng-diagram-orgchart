@@ -1,4 +1,4 @@
-<aside class="sidebar" aria-labelledby="properties-sidebar-title">
+<aside class="sidebar" #sidebar aria-labelledby="properties-sidebar-title">
   <app-sidebar-header [isExpanded]="isExpanded()" (toggle)="onHeaderToggle()" />
   @if (isExpanded()) {
     <div class="sidebar-separator"></div>

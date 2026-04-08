@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, viewChild } from '@angular/core';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 
 @Component({
@@ -8,4 +8,10 @@ import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
   styleUrl: './top-navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TopNavbarComponent {}
+export class TopNavbarComponent {
+  private readonly navbar = viewChild<ElementRef<HTMLElement>>('navbar');
+
+  get height(): number {
+    return this.navbar()?.nativeElement.getBoundingClientRect().height ?? 0;
+  }
+}

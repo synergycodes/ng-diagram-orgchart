@@ -1,6 +1,6 @@
 import { inject, InjectionToken, Injector } from '@angular/core';
-import { PropertiesSidebarService } from '../../properties-sidebar/properties-sidebar.service';
-import { TopBarService } from '../../top-navbar/top-bar.service';
+import { PropertiesSidebarComponent } from '../../properties-sidebar/properties-sidebar.component';
+import { TopNavbarComponent } from '../../top-navbar/top-navbar.component';
 import { type ViewportInsets } from '../utils/viewport';
 
 export interface NodeVisibilityConfig {
@@ -18,11 +18,11 @@ export function provideNodeVisibilityConfig() {
       const injector = inject(Injector);
       return {
         getViewportInsets: () => {
-          const sidebar = injector.get(PropertiesSidebarService);
-          const topBar = injector.get(TopBarService);
+          const sidebar = injector.get(PropertiesSidebarComponent);
+          const topBar = injector.get(TopNavbarComponent);
           return {
             top: topBar.height,
-            right: sidebar.isExpanded() ? sidebar.width : 0,
+            right: sidebar.width,
           };
         },
       };

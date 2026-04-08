@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { SidebarFormComponent } from './components/sidebar-form/sidebar-form.component';
 import {
   ON_FIELD_CHANGE,
@@ -29,6 +29,11 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
 })
 export class PropertiesSidebarComponent {
   private readonly sidebarService = inject(PropertiesSidebarService);
+  private readonly sidebar = viewChild<ElementRef<HTMLElement>>('sidebar');
+
+  get width(): number {
+    return this.isExpanded() ? (this.sidebar()?.nativeElement.getBoundingClientRect().width ?? 0) : 0;
+  }
 
   protected readonly isExpanded = this.sidebarService.isExpanded;
   protected readonly state = this.sidebarService.sidebarState;

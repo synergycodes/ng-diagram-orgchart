@@ -13,7 +13,6 @@ import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { ToolbarHorizontalComponent } from '../toolbar-horizontal/toolbar-horizontal.component';
-import { TopBarService } from '../top-navbar/top-bar.service';
 import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
 
 @Component({
@@ -31,7 +30,6 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
   providers: [
     provideNgDiagram(),
     PropertiesSidebarService,
-    TopBarService,
     SortOrderService,
     ExpandCollapseService,
     LayoutGate,
