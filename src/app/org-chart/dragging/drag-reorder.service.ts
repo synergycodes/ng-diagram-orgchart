@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
 import { DragService } from './drag.service';
@@ -18,7 +17,6 @@ function setsEqual(a: Set<string>, b: Set<string>): boolean {
 
 @Injectable()
 export class DragReorderService implements OnDestroy {
-  private readonly document = inject(DOCUMENT);
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly dragService = inject(DragService);
@@ -36,13 +34,13 @@ export class DragReorderService implements OnDestroy {
 
   private draggedNodeId: string | null = null;
   private hiddenSides = new Map<string, Set<DropZone>>();
-  private pointerMoveHandler: ((event: PointerEvent) => void) | null = null;
   private pendingDrop: Promise<void> = Promise.resolve();
 
   private readonly onDragStartedBound = (event: { nodes: { id: string }[] }) =>
     this.onDragStarted(event);
   private readonly onDragEndedBound = (event: { nodes: { id: string }[] }) =>
     this.onDragEnded(event);
+  private readonly onSelectionMovedBound = () => this.onSelectionMoved();
 
   init(): void {
     this.diagramService.addEventListener('nodeDragStarted', this.onDragStartedBound);
@@ -70,11 +68,10 @@ export class DragReorderService implements OnDestroy {
     this.hiddenSides = this.dragService.getHiddenSides(this.draggedNodeId);
     this.updateNodesInRange();
 
-    this.pointerMoveHandler = () => this.onPointerMove();
-    this.document.addEventListener('pointermove', this.pointerMoveHandler);
+    this.diagramService.addEventListener('selectionMoved', this.onSelectionMovedBound);
   }
 
-  private onPointerMove(): void {
+  private onSelectionMoved(): void {
     if (!this.draggedNodeId) return;
 
     this.updateNodesInRange();
@@ -118,10 +115,7 @@ export class DragReorderService implements OnDestroy {
   }
 
   private cleanup(): void {
-    if (this.pointerMoveHandler) {
-      this.document.removeEventListener('pointermove', this.pointerMoveHandler);
-      this.pointerMoveHandler = null;
-    }
+    this.diagramService.removeEventListener('selectionMoved', this.onSelectionMovedBound);
     this._highlightedIndicator.set(null);
     this._nodesInRange.set(new Set());
     this.hiddenSides = new Map();
