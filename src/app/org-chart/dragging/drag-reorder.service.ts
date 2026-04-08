@@ -6,6 +6,7 @@ import type { HighlightedIndicator } from './interfaces';
 import type { DropZone } from './zone-detection/index';
 
 const INDICATOR_RANGE = 400;
+const THROTTLE_MS = 100;
 
 function setsEqual(a: Set<string>, b: Set<string>): boolean {
   if (a.size !== b.size) return false;
@@ -40,7 +41,10 @@ export class DragReorderService implements OnDestroy {
     this.onDragStarted(event);
   private readonly onDragEndedBound = (event: { nodes: { id: string }[] }) =>
     this.onDragEnded(event);
-  private readonly onSelectionMovedBound = () => this.onSelectionMoved();
+  private readonly onSelectionMovedBound = this.createThrottle(
+    () => this.onSelectionMoved(),
+    THROTTLE_MS,
+  );
 
   init(): void {
     this.diagramService.addEventListener('nodeDragStarted', this.onDragStartedBound);
@@ -80,6 +84,7 @@ export class DragReorderService implements OnDestroy {
   }
 
   private onDragEnded(_event: { nodes: { id: string }[] }): void {
+    this.onSelectionMoved();
     const indicator = this._highlightedIndicator();
     const draggedNodeId = this.draggedNodeId;
 
@@ -112,6 +117,17 @@ export class DragReorderService implements OnDestroy {
 
     const nearby = this.modelService.getNodesInRange(center, INDICATOR_RANGE);
     this._nodesInRange.set(new Set(nearby.map((n) => n.id)));
+  }
+
+  private createThrottle(fn: () => void, ms: number): () => void {
+    let lastExecution = 0;
+    return () => {
+      const now = Date.now();
+      if (now - lastExecution >= ms) {
+        lastExecution = now;
+        fn();
+      }
+    };
   }
 
   private cleanup(): void {
