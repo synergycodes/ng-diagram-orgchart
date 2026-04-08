@@ -32,9 +32,15 @@ export class PropertiesSidebarService {
 
   readonly isExpanded = signal(false);
 
+  private cachedWidth: number | null = null;
+
   get width(): number {
-    const el = this.document.querySelector('app-properties-sidebar');
-    return parseFloat(el ? getComputedStyle(el).getPropertyValue('--sidebar-width') : '') || 0;
+    if (this.cachedWidth === null) {
+      const el = this.document.querySelector('app-properties-sidebar');
+      this.cachedWidth =
+        parseFloat(el ? getComputedStyle(el).getPropertyValue('--sidebar-width') : '') || 0;
+    }
+    return this.cachedWidth;
   }
 
   readonly selectedOrgChartNodes = computed<Node<OrgChartNodeData>[]>(() =>
