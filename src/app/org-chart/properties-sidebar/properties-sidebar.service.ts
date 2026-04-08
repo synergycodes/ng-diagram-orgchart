@@ -8,9 +8,7 @@ import {
 } from '../diagram/interfaces';
 import { LayoutGate } from '../diagram/layout/layout-gate';
 import { ModelApplyService } from '../diagram/model-apply.service';
-import { ModelChanges } from '../diagram/model-changes';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
-import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
 import {
@@ -26,7 +24,6 @@ export class PropertiesSidebarService {
   private readonly layoutGate = inject(LayoutGate);
   private readonly modelApplyService = inject(ModelApplyService);
   private readonly nodeVisibilityService = inject(NodeVisibilityService);
-  private readonly sortOrderService = inject(SortOrderService);
 
   readonly isExpanded = signal(false);
 
@@ -86,37 +83,22 @@ export class PropertiesSidebarService {
       this.updateNodeData(change.nodeId, updatedNodeData);
     }
 
-    if (this.hasHierarchicalChanges(change)) {
-      this.updateNodeParent(change.nodeId, change.formData.reportsTo);
+    if (!this.hasHierarchicalChanges(change)) {
+      return;
     }
+
+    const currentParentId = this.hierarchyService.getParentId(change.nodeId);
+    if (change.formData.reportsTo === currentParentId) {
+      return;
+    }
+
+    this.updateNodeParent(change.nodeId, change.formData.reportsTo);
   }
 
   private async updateNodeParent(nodeId: string, newParentId: string | null): Promise<void> {
     if (!this.layoutGate.isIdle()) return;
 
-    const incomingEdge = this.modelService
-      .getConnectedEdges(nodeId)
-      .find((e) => e.target === nodeId);
-    const oldParentId = incomingEdge?.source ?? null;
-
-    if (newParentId === oldParentId) return;
-
-    const changes = new ModelChanges();
-    this.hierarchyService.computeEdgeMutations(changes, nodeId, newParentId, incomingEdge);
-    this.hierarchyService.computeParentFlagUpdates(changes, nodeId, oldParentId, newParentId);
-
-    if (newParentId) {
-      this.sortOrderService.reorderChildren(
-        newParentId,
-        [{ nodeId, referenceId: null, position: 'after' }],
-        changes,
-      );
-    }
-
-    if (oldParentId) {
-      this.sortOrderService.reorderChildren(oldParentId, [], changes, new Set([nodeId]));
-    }
-
+    const changes = this.hierarchyService.updateNodeParent(nodeId, newParentId);
     await this.modelApplyService.applyWithLayout(changes);
     this.nodeVisibilityService.ensureVisible(nodeId);
   }

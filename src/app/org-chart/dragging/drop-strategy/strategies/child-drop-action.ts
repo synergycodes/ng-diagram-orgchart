@@ -3,12 +3,10 @@ import { ModelChanges } from '../../../diagram/model-changes';
 import type { DropActionStrategy, DropDeps } from '../drop-strategy.interface';
 
 export function createChildDropAction(deps: DropDeps): DropActionStrategy {
-  const { modelService, hierarchyService, sortOrderService, expandCollapseService } = deps;
+  const { modelService, hierarchyService, expandCollapseService } = deps;
 
   return {
     execute({ draggedNodeId, targetNodeId: newParentId }) {
-      const oldParentId = hierarchyService.getParentId(draggedNodeId);
-
       const changes = new ModelChanges();
 
       let expandSubtreeIds: Set<string> | undefined;
@@ -20,22 +18,7 @@ export function createChildDropAction(deps: DropDeps): DropActionStrategy {
         )?.toggledSubtreeIds;
       }
 
-      const incomingEdge = modelService
-        .getConnectedEdges(draggedNodeId)
-        .find((e) => e.target === draggedNodeId);
-      hierarchyService.computeEdgeMutations(changes, draggedNodeId, newParentId, incomingEdge);
-
-      hierarchyService.computeParentFlagUpdates(changes, draggedNodeId, oldParentId, newParentId);
-
-      if (oldParentId) {
-        sortOrderService.reorderChildren(oldParentId, [], changes, new Set([draggedNodeId]));
-      }
-
-      sortOrderService.reorderChildren(
-        newParentId,
-        [{ nodeId: draggedNodeId, referenceId: null, position: 'after' }],
-        changes,
-      );
+      hierarchyService.updateNodeParent(draggedNodeId, newParentId, undefined, changes);
 
       return {
         changes,
