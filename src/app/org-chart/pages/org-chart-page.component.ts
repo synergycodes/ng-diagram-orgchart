@@ -6,7 +6,7 @@ import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collaps
 import { LayoutGate } from '../diagram/layout/layout-gate';
 import { LayoutService } from '../diagram/layout/layout.service';
 import { ModelApplyService } from '../diagram/model-apply.service';
-import { provideNodeVisibilityConfig } from '../diagram/node-visibility/node-visibility-config.service';
+import { NodeVisibilityConfigService } from '../diagram/node-visibility/node-visibility-config.service';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
@@ -38,7 +38,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     HierarchyService,
     AddNodeService,
     NodeVisibilityService,
-    provideNodeVisibilityConfig(),
+    NodeVisibilityConfigService,
   ],
 })
 export class OrgChartPageComponent {}

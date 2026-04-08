@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject } from '@angular/core';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -25,6 +25,7 @@ import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
 import { ModelApplyService } from './model-apply.service';
 import { ModelChanges } from './model-changes';
+import { NodeVisibilityConfigService } from './node-visibility/node-visibility-config.service';
 import { NodeComponent } from './node/node.component';
 import { SortOrderService } from './sort-order/sort-order.service';
 
@@ -45,6 +46,10 @@ import { SortOrderService } from './sort-order/sort-order.service';
   providers: [DragService, DropService, DragReorderService],
 })
 export class DiagramComponent {
+  constructor() {
+    this.registerAsVisibilityViewport();
+  }
+
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutGate = inject(LayoutGate);
@@ -138,5 +143,11 @@ export class DiagramComponent {
     if (hasOrgChartNodes) {
       this.sidebarService.expandSidebar();
     }
+  }
+
+  private registerAsVisibilityViewport(): void {
+    const configService = inject(NodeVisibilityConfigService);
+    configService.registerViewport(inject(ElementRef<HTMLElement>));
+    inject(DestroyRef).onDestroy(() => configService.unregisterViewport());
   }
 }

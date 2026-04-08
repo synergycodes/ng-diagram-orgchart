@@ -49,10 +49,25 @@
 ></div>
 
 @if (!isRoot()) {
-  <app-add-button position="left" [horizontal]="isHorizontal()" (add)="onAddLeft($event)" />
-  <app-add-button position="right" [horizontal]="isHorizontal()" (add)="onAddRight($event)" />
+  <app-add-button
+    position="left"
+    [horizontal]="isHorizontal()"
+    [disabled]="isAddButtonDisabled()"
+    (add)="onAddLeft($event)"
+  />
+  <app-add-button
+    position="right"
+    [horizontal]="isHorizontal()"
+    [disabled]="isAddButtonDisabled()"
+    (add)="onAddRight($event)"
+  />
 }
-<app-add-button position="bottom" [horizontal]="isHorizontal()" (add)="onAddBottom($event)" />
+<app-add-button
+  position="bottom"
+  [horizontal]="isHorizontal()"
+  [disabled]="isAddButtonDisabled()"
+  (add)="onAddBottom($event)"
+/>
 
 <!-- Invisible hover zone so "+" buttons outside the node boundary remain reachable. -->
 <div class="hover-zone" data-no-drag="true"></div>

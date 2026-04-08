@@ -7,8 +7,8 @@ import {
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
-import { DragReorderService } from '../../dragging/drag-reorder.service';
 import { AddNodeService, type AddNodeAction } from '../../actions/add-node.service';
+import { DragReorderService } from '../../dragging/drag-reorder.service';
 import { PropertiesSidebarService } from '../../properties-sidebar/properties-sidebar.service';
 import { ExpandCollapseService } from '../expand-collapse/expand-collapse.service';
 import { isOccupiedNodeData, isVacantNode } from '../guards';
@@ -124,6 +124,8 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     return data;
   });
 
+  isAddButtonDisabled = computed(() => !this.layoutGate.isIdle());
+
   /** Toggle the collapsed state of this node's subtree and re-layout. */
   async onToggle(event: MouseEvent): Promise<void> {
     event.stopPropagation();
@@ -157,7 +159,9 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     if (newNodeId) {
       this.selectionService.select([newNodeId]);
       this.sidebarService.expandSidebar();
-      this.nodeVisibilityService.ensureVisible(newNodeId);
+      requestAnimationFrame(() => {
+        this.nodeVisibilityService.ensureVisible(newNodeId);
+      });
     }
   }
 }

@@ -83,28 +83,20 @@ export class PropertiesSidebarService {
       this.updateNodeData(change.nodeId, updatedNodeData);
     }
 
-    if (!this.hasHierarchicalChanges(change)) {
-      return;
+    if (this.hasHierarchicalChanges(change) && !this.layoutGate.isIdle()) {
+      this.updateNodeParent(change.nodeId, change.formData.reportsTo);
     }
-
-    const currentParentId = this.hierarchyService.getParentId(change.nodeId);
-    if (change.formData.reportsTo === currentParentId) {
-      return;
-    }
-
-    this.updateNodeParent(change.nodeId, change.formData.reportsTo);
   }
 
   private async updateNodeParent(nodeId: string, newParentId: string | null): Promise<void> {
-    if (!this.layoutGate.isIdle()) return;
-
     const changes = this.hierarchyService.updateNodeParent(nodeId, newParentId);
     await this.modelApplyService.applyWithLayout(changes);
     this.nodeVisibilityService.ensureVisible(nodeId);
   }
 
   private hasHierarchicalChanges(change: SidebarFieldChange): boolean {
-    return change.fields.includes('reportsTo');
+    const currentParentId = this.hierarchyService.getParentId(change.nodeId);
+    return change.fields.includes('reportsTo') && change.formData.reportsTo !== currentParentId;
   }
 
   private hasNodeDataChanges(change: SidebarFieldChange): boolean {
