@@ -31,7 +31,7 @@ export class ReportsToFieldComponent implements FormValueControl<string | null> 
   readonly value = model<string | null>(null);
 
   protected readonly candidates = computed<SelectDropdownOption<string>[]>(() =>
-    this.candidateNodes().map(this.mapNodeToOption),
+    this.candidateNodes().map(this.mapNodeToOption).sort((a, b) => a.label.localeCompare(b.label)),
   );
 
   private mapNodeToOption = (
