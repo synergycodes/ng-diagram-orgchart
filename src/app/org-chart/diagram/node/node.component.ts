@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import {
   NgDiagramModelService,
   NgDiagramPortComponent,
@@ -23,6 +23,7 @@ import {
   getIsHidden,
 } from '../node-data-getters';
 import { NodeVisibilityService } from '../node-visibility/node-visibility.service';
+import { deferredHide } from '../utils/deferred-hide';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
 import { FullNodeComponent } from './components/full-node/full-node.component';
@@ -93,21 +94,16 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
       this.dragReorderService.isNodeInDropRange(this.node().id),
   );
 
-  private readonly _showIndicators = signal(false);
-  showIndicators = this._showIndicators.asReadonly();
+  showIndicators = deferredHide(this.isInDropRange, 200);
 
-  private readonly indicatorExitEffect = effect((onCleanup) => {
-    const inRange = this.isInDropRange();
-    if (inRange) {
-      this._showIndicators.set(true);
-    } else {
-      const timeout = setTimeout(() => this._showIndicators.set(false), 200);
-      onCleanup(() => clearTimeout(timeout));
-    }
+  protected hiddenSides = computed(() => {
+    const id = this.node().id;
+    return {
+      left: this.dragReorderService.isSideHidden(id, 'left'),
+      right: this.dragReorderService.isSideHidden(id, 'right'),
+      bottom: this.dragReorderService.isSideHidden(id, 'bottom'),
+    };
   });
-
-  isSideHidden = (side: 'left' | 'right' | 'bottom') =>
-    this.dragReorderService.isSideHidden(this.node().id, side);
 
   highlightedSide = computed(() => {
     const indicator = this.dragReorderService.highlightedIndicator();
@@ -139,23 +135,10 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   protected hasChildren = computed(() => getHasChildren(this.node()));
   protected collapsedChildrenCount = computed(() => getCollapsedChildrenCount(this.node()));
 
-  isHovered = signal(false);
-  showAddButtons = computed(
-    () => this.isHovered() && !this.dragReorderService.isReorderActive(),
-  );
+  protected isHovered = signal(false);
+  showAddButtons = computed(() => this.isHovered() && !this.dragReorderService.isReorderActive());
 
-  private readonly _showAddButtonsDom = signal(false);
-  showAddButtonsDom = this._showAddButtonsDom.asReadonly();
-
-  private readonly addButtonExitEffect = effect((onCleanup) => {
-    const show = this.showAddButtons();
-    if (show) {
-      this._showAddButtonsDom.set(true);
-    } else {
-      const timeout = setTimeout(() => this._showAddButtonsDom.set(false), 150);
-      onCleanup(() => clearTimeout(timeout));
-    }
-  });
+  showAddButtonsDom = deferredHide(this.showAddButtons, 150);
 
   isAddButtonDisabled = computed(() => !this.layoutGate.isIdle());
 

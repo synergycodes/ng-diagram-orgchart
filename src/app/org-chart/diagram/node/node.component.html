@@ -3,20 +3,22 @@
     <app-vacant-node [role]="node().data.role" />
   }
   @case ('compact') {
+    @let data = occupiedData();
     <app-compact-node
-      [fullName]="occupiedData()?.fullName"
-      [role]="occupiedData()?.role"
-      [color]="occupiedData()?.color"
+      [fullName]="data?.fullName"
+      [role]="data?.role"
+      [color]="data?.color"
     />
   }
   @case ('full') {
+    @let data = occupiedData();
     <app-full-node
-      [fullName]="occupiedData()?.fullName"
-      [role]="occupiedData()?.role"
-      [color]="occupiedData()?.color"
-      [reports]="occupiedData()?.reports"
-      [span]="occupiedData()?.span"
-      [shiftCapacity]="occupiedData()?.shiftCapacity"
+      [fullName]="data?.fullName"
+      [role]="data?.role"
+      [color]="data?.color"
+      [reports]="data?.reports"
+      [span]="data?.span"
+      [shiftCapacity]="data?.shiftCapacity"
     />
   }
 }
@@ -34,17 +36,17 @@
 @if (showIndicators()) {
   <div
     class="drop-indicator drop-indicator--left"
-    [class.drop-indicator--visible]="isInDropRange() && !isSideHidden('left')"
+    [class.drop-indicator--visible]="isInDropRange() && !hiddenSides().left"
     [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
   ></div>
   <div
     class="drop-indicator drop-indicator--right"
-    [class.drop-indicator--visible]="isInDropRange() && !isSideHidden('right')"
+    [class.drop-indicator--visible]="isInDropRange() && !hiddenSides().right"
     [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
   ></div>
   <div
     class="drop-indicator drop-indicator--bottom"
-    [class.drop-indicator--visible]="isInDropRange() && !isSideHidden('bottom')"
+    [class.drop-indicator--visible]="isInDropRange() && !hiddenSides().bottom"
     [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
     [class.drop-indicator--no-toggle]="!hasChildren()"
   ></div>
