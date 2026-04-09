@@ -5,7 +5,7 @@ type Side = 'top' | 'right' | 'bottom' | 'left';
 
 @Injectable()
 export class NodeVisibilityConfigService {
-  private readonly overlays = new Map<string, ElementRef<HTMLElement>>();
+  private readonly overlayRefs: ElementRef<HTMLElement>[] = [];
   private viewportRef?: ElementRef<HTMLElement>;
 
   registerViewport(elementRef: ElementRef<HTMLElement>): void {
@@ -16,30 +16,23 @@ export class NodeVisibilityConfigService {
     this.viewportRef = undefined;
   }
 
-  register(id: string, elementRef: ElementRef<HTMLElement>): void {
-    this.overlays.set(id, elementRef);
+  registerOverlay(elementRef: ElementRef<HTMLElement>): void {
+    this.overlayRefs.push(elementRef);
   }
 
-  unregister(id: string): void {
-    this.overlays.delete(id);
+  unregisterOverlay(elementRef: ElementRef<HTMLElement>): void {
+    const index = this.overlayRefs.indexOf(elementRef);
+    if (index >= 0) this.overlayRefs.splice(index, 1);
   }
 
   getViewportInsets(): ViewportInsets {
-    if (!this.viewportRef) {
-      return {};
-    }
+    if (!this.viewportRef) return {};
 
     const diagramRect = this.viewportRef.nativeElement.getBoundingClientRect();
+    const inset = { top: 0, right: 0, bottom: 0, left: 0 };
 
-    const inset = {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-    };
-
-    for (const elementRef of this.overlays.values()) {
-      const overlayRect = elementRef.nativeElement.getBoundingClientRect();
+    for (const ref of this.overlayRefs) {
+      const overlayRect = ref.nativeElement.getBoundingClientRect();
       const side = this.getOverlaySide(overlayRect, diagramRect);
 
       switch (side) {

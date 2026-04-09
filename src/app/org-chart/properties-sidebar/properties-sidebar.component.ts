@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject } from '@angular/core';
-import { NodeVisibilityConfigService } from '../diagram/node-visibility/node-visibility-config.service';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { SidebarFormComponent } from './components/sidebar-form/sidebar-form.component';
 import {
   ON_FIELD_CHANGE,
@@ -31,10 +30,6 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
 export class PropertiesSidebarComponent {
   private readonly sidebarService = inject(PropertiesSidebarService);
 
-  constructor() {
-    this.registerAsViewportOverlay();
-  }
-
   protected readonly isExpanded = this.sidebarService.isExpanded;
   protected readonly state = this.sidebarService.sidebarState;
   protected readonly selectedNode = this.sidebarService.selectedNode;
@@ -44,14 +39,5 @@ export class PropertiesSidebarComponent {
 
   protected onHeaderToggle(): void {
     this.sidebarService.toggleSidebarVisibility();
-  }
-
-  private registerAsViewportOverlay(): void {
-    const configService = inject(NodeVisibilityConfigService);
-    const elementRef = inject(ElementRef<HTMLElement>);
-    const destroyRef = inject(DestroyRef);
-
-    configService.register('properties-sidebar', elementRef);
-    destroyRef.onDestroy(() => configService.unregister('properties-sidebar'));
   }
 }

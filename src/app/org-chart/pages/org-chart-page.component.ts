@@ -8,6 +8,8 @@ import { LayoutService } from '../diagram/layout/layout.service';
 import { ModelApplyService } from '../diagram/model-apply.service';
 import { NodeVisibilityConfigService } from '../diagram/node-visibility/node-visibility-config.service';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
+import { ViewportBoundsDirective } from '../diagram/node-visibility/viewport-bounds.directive';
+import { ViewportOverlayDirective } from '../diagram/node-visibility/viewport-overlay.directive';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
@@ -23,6 +25,8 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     TopNavbarComponent,
     NgDiagramMinimapComponent,
     ToolbarHorizontalComponent,
+    ViewportBoundsDirective,
+    ViewportOverlayDirective,
   ],
   templateUrl: './org-chart-page.component.html',
   styleUrl: './org-chart-page.component.scss',
