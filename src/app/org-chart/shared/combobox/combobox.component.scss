@@ -1,19 +1,19 @@
 :host {
-  --dropdown-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
+  --combobox-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
     var(--ngd-token-spacing-input-m-h-pad);
-  --dropdown-trigger-label-padding: var(--ngd-token-spacing-dropdown-item-s-v-pad)
+  --combobox-input-padding: var(--ngd-token-spacing-dropdown-item-s-v-pad)
     var(--ngd-token-spacing-dropdown-item-s-h-pad);
 }
 
-.dropdown {
+.combobox {
   position: relative;
 }
 
-.dropdown-trigger {
+.combobox-trigger {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: var(--dropdown-trigger-padding);
+  padding: var(--combobox-trigger-padding);
   border: var(--ngd-primitive-odd-1) solid var(--ngd-input-stroke-primary-default); /* No Figma token */
   border-radius: var(--ngd-token-radius-input-m);
   background: var(--ngd-ui-bg-primary-default);
@@ -36,7 +36,7 @@
   background: transparent;
   color: inherit;
   font-family: inherit;
-  padding: var(--dropdown-trigger-label-padding);
+  padding: var(--combobox-input-padding);
 
   &::placeholder {
     color: var(--ngd-txt-secondary-default);
@@ -66,7 +66,7 @@
   }
 }
 
-.dropdown-panel {
+.combobox-listbox {
   position: absolute;
   top: calc(100% + var(--ngd-token-spacing-dropdown-wrap-s-gap));
   left: 0;
@@ -82,7 +82,7 @@
     var(--ngd-token-shadow-shadow-s-blur) var(--ngd-token-shadow-shadow-s-spread) var(--ngd-shadow);
 }
 
-.dropdown-option {
+.combobox-option {
   display: flex;
   align-items: center;
   width: 100%;

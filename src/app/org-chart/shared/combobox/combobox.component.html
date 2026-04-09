@@ -1,5 +1,5 @@
-<div class="dropdown">
-  <div class="dropdown-trigger" (click)="onTriggerClick()">
+<div class="combobox">
+  <div class="combobox-trigger" (click)="onTriggerClick()">
     @if (prefixTpl(); as tpl) {
       <ng-container
         [ngTemplateOutlet]="tpl.templateRef"
@@ -38,11 +38,11 @@
   </div>
 
   @if (isOpen()) {
-    <div class="dropdown-panel" role="listbox" [attr.id]="panelId()">
+    <div class="combobox-listbox" role="listbox" [attr.id]="panelId()">
       @for (item of displayedOptions(); track item.value; let i = $index) {
         <div
           #optionEl
-          class="dropdown-option p10"
+          class="combobox-option p10"
           role="option"
           [attr.id]="optionId(i)"
           [attr.aria-selected]="isSelected(item)"

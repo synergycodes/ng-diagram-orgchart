@@ -17,51 +17,49 @@ import {
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
 import {
-  SelectDropdownNullOptionDef,
-  SelectDropdownOptionDef,
-  SelectDropdownPrefixDef,
-} from './select-dropdown-option.directive';
+  ComboboxNullOptionDef,
+  ComboboxOptionDef,
+  ComboboxPrefixDef,
+} from './combobox-option.directive';
 
 let nextId = 0;
 
 const FILTER_DEBOUNCE_MS = 150;
 
-export interface SelectDropdownOption<SelectDropdownOptionValue = unknown> {
-  value: SelectDropdownOptionValue;
+export interface ComboboxOption<T = unknown> {
+  value: T;
   label: string;
   data?: unknown;
 }
 
-type DropdownItem<DropdownItemValue> =
+type ComboboxItem<T> =
   | { type: 'null'; value: null }
-  | { type: 'option'; value: DropdownItemValue; option: SelectDropdownOption<DropdownItemValue> };
+  | { type: 'option'; value: T; option: ComboboxOption<T> };
 
 @Component({
-  selector: 'app-select-dropdown',
+  selector: 'app-combobox',
   imports: [NgTemplateOutlet],
-  templateUrl: './select-dropdown.component.html',
-  styleUrl: './select-dropdown.component.scss',
+  templateUrl: './combobox.component.html',
+  styleUrl: './combobox.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SelectDropdownComponent<
-  SelectDropdownOptionValue = unknown,
-> implements FormValueControl<SelectDropdownOptionValue | null> {
+export class ComboboxComponent<T = unknown> implements FormValueControl<T | null> {
   private readonly elRef = inject(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly uid = nextId++;
 
-  options = input.required<SelectDropdownOption<SelectDropdownOptionValue>[]>();
+  options = input.required<ComboboxOption<T>[]>();
   placeholder = input('Select...');
   triggerId = input<string>();
 
-  protected readonly optionTpl = contentChild(SelectDropdownOptionDef);
-  protected readonly nullOptionTpl = contentChild(SelectDropdownNullOptionDef);
-  protected readonly prefixTpl = contentChild(SelectDropdownPrefixDef);
+  protected readonly optionTpl = contentChild(ComboboxOptionDef);
+  protected readonly nullOptionTpl = contentChild(ComboboxNullOptionDef);
+  protected readonly prefixTpl = contentChild(ComboboxPrefixDef);
   private readonly optionElements = viewChildren<ElementRef<HTMLElement>>('optionEl');
   protected readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('comboboxInput');
 
   protected readonly isOpen = signal(false);
-  readonly value = model<SelectDropdownOptionValue | null>(null);
+  readonly value = model<T | null>(null);
   protected readonly focusedIndex = signal(-1);
   protected readonly inputText = signal('');
   private readonly filterText = signal('');
@@ -70,9 +68,9 @@ export class SelectDropdownComponent<
   private blurTimer: ReturnType<typeof setTimeout> | null = null;
   private removeDocumentClick: (() => void) | null = null;
 
-  protected readonly listboxId = computed(() => this.triggerId() ?? `sd-${this.uid}`);
+  protected readonly listboxId = computed(() => this.triggerId() ?? `cb-${this.uid}`);
 
-  protected readonly allOptions = computed<DropdownItem<SelectDropdownOptionValue>[]>(() => [
+  protected readonly allOptions = computed<ComboboxItem<T>[]>(() => [
     { type: 'null', value: null },
     ...this.options().map((option) => ({
       type: 'option' as const,
@@ -81,7 +79,7 @@ export class SelectDropdownComponent<
     })),
   ]);
 
-  protected readonly displayedOptions = computed<DropdownItem<SelectDropdownOptionValue>[]>(() => {
+  protected readonly displayedOptions = computed<ComboboxItem<T>[]>(() => {
     const filter = this.filterText().toLowerCase();
     if (!filter) return this.allOptions();
     return this.allOptions().filter(
@@ -126,7 +124,7 @@ export class SelectDropdownComponent<
     return `${this.listboxId()}-listbox`;
   }
 
-  protected isSelected(item: DropdownItem<SelectDropdownOptionValue>): boolean {
+  protected isSelected(item: ComboboxItem<T>): boolean {
     return item.value === this.value();
   }
 
@@ -143,7 +141,7 @@ export class SelectDropdownComponent<
     }
   }
 
-  protected select(item: DropdownItem<SelectDropdownOptionValue>): void {
+  protected select(item: ComboboxItem<T>): void {
     this.value.set(item.value);
     this.inputText.set(item.type === 'option' ? item.option.label : '');
     this.closePanel();

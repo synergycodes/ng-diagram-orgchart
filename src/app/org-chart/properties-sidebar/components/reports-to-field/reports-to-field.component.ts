@@ -2,24 +2,24 @@ import { ChangeDetectionStrategy, Component, computed, input, model } from '@ang
 import { type FormValueControl } from '@angular/forms/signals';
 import { type Node } from 'ng-diagram';
 import { type OrgChartOccupiedNodeData } from '../../../diagram/interfaces';
+import {
+  ComboboxNullOptionDef,
+  ComboboxOptionDef,
+  ComboboxPrefixDef,
+} from '../../../shared/combobox/combobox-option.directive';
+import {
+  ComboboxComponent,
+  type ComboboxOption,
+} from '../../../shared/combobox/combobox.component';
 import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initials-avatar.component';
-import {
-  SelectDropdownNullOptionDef,
-  SelectDropdownOptionDef,
-  SelectDropdownPrefixDef,
-} from '../../../shared/select-dropdown/select-dropdown-option.directive';
-import {
-  SelectDropdownComponent,
-  type SelectDropdownOption,
-} from '../../../shared/select-dropdown/select-dropdown.component';
 
 @Component({
   selector: 'app-reports-to-field',
   imports: [
-    SelectDropdownComponent,
-    SelectDropdownOptionDef,
-    SelectDropdownNullOptionDef,
-    SelectDropdownPrefixDef,
+    ComboboxComponent,
+    ComboboxOptionDef,
+    ComboboxNullOptionDef,
+    ComboboxPrefixDef,
     InitialsAvatarComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,13 +32,13 @@ export class ReportsToFieldComponent implements FormValueControl<string | null> 
 
   readonly value = model<string | null>(null);
 
-  protected readonly candidates = computed<SelectDropdownOption<string>[]>(() =>
-    this.candidateNodes().map(this.mapNodeToOption).sort((a, b) => a.label.localeCompare(b.label)),
+  protected readonly candidates = computed<ComboboxOption<string>[]>(() =>
+    this.candidateNodes()
+      .map(this.mapNodeToOption)
+      .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
-  private mapNodeToOption = (
-    node: Node<OrgChartOccupiedNodeData>,
-  ): SelectDropdownOption<string> => ({
+  private mapNodeToOption = (node: Node<OrgChartOccupiedNodeData>): ComboboxOption<string> => ({
     value: node.id,
     label: node.data.fullName,
     data: { color: node.data.color ?? '#999' },

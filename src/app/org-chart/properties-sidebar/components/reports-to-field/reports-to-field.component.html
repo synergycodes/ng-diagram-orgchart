@@ -1,4 +1,4 @@
-<app-select-dropdown
+<app-combobox
   [(value)]="value"
   [options]="candidates()"
   [triggerId]="triggerId()"
@@ -7,12 +7,12 @@
   <ng-template appComboboxPrefix let-option>
     <app-initials-avatar [fullName]="option?.label" [color]="option?.data?.color" size="md" />
   </ng-template>
-  <ng-template appSelectNullOption>
+  <ng-template appComboboxNullOption>
     <app-initials-avatar size="md" />
     <span class="option-label placeholder">None</span>
   </ng-template>
-  <ng-template appSelectOption let-option>
+  <ng-template appComboboxOption let-option>
     <app-initials-avatar [fullName]="option.label" [color]="option.data.color" size="md" />
     <span class="option-label">{{ option.label }}</span>
   </ng-template>
-</app-select-dropdown>
+</app-combobox>

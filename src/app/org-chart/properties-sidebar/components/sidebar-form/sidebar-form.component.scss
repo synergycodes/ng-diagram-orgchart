@@ -51,8 +51,8 @@
   font-family: inherit;
 }
 
-app-select-dropdown {
-  --dropdown-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
+app-combobox {
+  --combobox-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
     var(--ngd-token-spacing-input-m-h-pad);
-  --dropdown-trigger-label-padding: 0;
+  --combobox-input-padding: 0;
 }

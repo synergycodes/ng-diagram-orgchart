@@ -8,7 +8,7 @@ import {
   type OrgChartOccupiedNodeData,
 } from '../diagram/interfaces';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
-import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
+import { type ComboboxOption } from '../shared/combobox/combobox.component';
 import {
   formDataToNodeData,
   type SidebarFieldChange,
@@ -46,7 +46,7 @@ export class PropertiesSidebarService {
       );
   });
 
-  readonly roleOptions: SelectDropdownOption<OrgChartRole>[] = Object.values(OrgChartRole)
+  readonly roleOptions: ComboboxOption<OrgChartRole>[] = Object.values(OrgChartRole)
     .sort((a, b) => a.localeCompare(b))
     .map((role) => ({ value: role, label: role }));
 
