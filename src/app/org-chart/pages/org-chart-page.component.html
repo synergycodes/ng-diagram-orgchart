@@ -7,6 +7,7 @@
       [direction]="diagram.direction()"
       [disabled]="!diagram.isLayoutIdle()"
       (directionChange)="diagram.changeDirection($event)"
+      appViewportOverlay
     />
   </div>
   <div class="content-area">

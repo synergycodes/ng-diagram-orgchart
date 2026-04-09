@@ -7,8 +7,9 @@ import { NodeVisibilityConfigService } from './node-visibility-config.service';
 export class ViewportOverlayDirective {
   constructor() {
     const configService = inject(NodeVisibilityConfigService);
-    const elementRef = inject(ElementRef<HTMLElement>);
-    configService.registerOverlay(elementRef);
-    inject(DestroyRef).onDestroy(() => configService.unregisterOverlay(elementRef));
+    const el = inject(ElementRef<HTMLElement>).nativeElement;
+    const key = el.tagName.toLowerCase();
+    configService.registerOverlay(key, () => el.getBoundingClientRect());
+    inject(DestroyRef).onDestroy(() => configService.unregisterOverlay(key));
   }
 }
