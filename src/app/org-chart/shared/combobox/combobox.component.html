@@ -3,7 +3,7 @@
     @if (prefixTpl(); as tpl) {
       <ng-container
         [ngTemplateOutlet]="tpl.templateRef"
-        [ngTemplateOutletContext]="{ $implicit: displayedSelectedOption() }"
+        [ngTemplateOutletContext]="{ $implicit: prefixOption() }"
       />
     }
 

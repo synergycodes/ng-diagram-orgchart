@@ -98,10 +98,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     return this.options().find((o) => o.value === value) ?? null;
   });
 
-  protected readonly displayedSelectedOption = computed(() => {
-    if (this.inputText().trim() === '') return null;
-    return this.selectedOption();
-  });
+  protected readonly prefixOption = signal<ComboboxOption<T> | null>(null);
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -112,7 +109,10 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
 
     effect(() => {
       const opt = this.selectedOption();
-      untracked(() => this.inputText.set(opt ? opt.label : ''));
+      untracked(() => {
+        this.inputText.set(opt ? opt.label : '');
+        this.prefixOption.set(opt);
+      });
     });
   }
 
@@ -144,6 +144,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
   protected select(item: ComboboxItem<T>): void {
     this.value.set(item.value);
     this.inputText.set(item.type === 'option' ? item.option.label : '');
+    this.prefixOption.set(item.type === 'option' ? item.option : null);
     this.closePanel();
   }
 
@@ -154,6 +155,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     if (raw === '') {
       this.filterText.set('');
       this.focusedIndex.set(0);
+      this.prefixOption.set(null);
       if (!this.isOpen()) {
         this.openPanel();
       }
