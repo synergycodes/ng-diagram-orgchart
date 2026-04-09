@@ -5,20 +5,26 @@ import {
   computed,
   contentChild,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
   input,
   model,
   signal,
+  untracked,
+  viewChild,
   viewChildren,
 } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
 import {
   SelectDropdownNullOptionDef,
   SelectDropdownOptionDef,
+  SelectDropdownPrefixDef,
 } from './select-dropdown-option.directive';
 
 let nextId = 0;
+
+const FILTER_DEBOUNCE_MS = 150;
 
 export interface SelectDropdownOption<SelectDropdownOptionValue = unknown> {
   value: SelectDropdownOptionValue;
@@ -50,13 +56,22 @@ export class SelectDropdownComponent<
 
   protected readonly optionTpl = contentChild(SelectDropdownOptionDef);
   protected readonly nullOptionTpl = contentChild(SelectDropdownNullOptionDef);
+  protected readonly prefixTpl = contentChild(SelectDropdownPrefixDef);
   private readonly optionElements = viewChildren<ElementRef<HTMLElement>>('optionEl');
+  protected readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('comboboxInput');
 
   protected readonly isOpen = signal(false);
   readonly value = model<SelectDropdownOptionValue | null>(null);
   protected readonly focusedIndex = signal(-1);
+  protected readonly inputText = signal('');
+  private readonly filterText = signal('');
+
+  private filterDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private blurTimer: ReturnType<typeof setTimeout> | null = null;
+  private removeDocumentClick: (() => void) | null = null;
 
   protected readonly listboxId = computed(() => this.triggerId() ?? `sd-${this.uid}`);
+
   protected readonly allOptions = computed<DropdownItem<SelectDropdownOptionValue>[]>(() => [
     { type: 'null', value: null },
     ...this.options().map((option) => ({
@@ -65,6 +80,14 @@ export class SelectDropdownComponent<
       option: option,
     })),
   ]);
+
+  protected readonly displayedOptions = computed<DropdownItem<SelectDropdownOptionValue>[]>(() => {
+    const filter = this.filterText().toLowerCase();
+    if (!filter) return this.allOptions();
+    return this.allOptions().filter(
+      (item) => item.type === 'null' || item.option.label.toLowerCase().includes(filter),
+    );
+  });
 
   protected readonly activeDescendantId = computed(() => {
     const idx = this.focusedIndex();
@@ -77,10 +100,22 @@ export class SelectDropdownComponent<
     return this.options().find((o) => o.value === value) ?? null;
   });
 
-  private removeDocumentClick: (() => void) | null = null;
+  protected readonly displayedSelectedOption = computed(() => {
+    if (this.inputText().trim() === '') return null;
+    return this.selectedOption();
+  });
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.removeDocumentClick?.());
+    this.destroyRef.onDestroy(() => {
+      this.removeDocumentClick?.();
+      if (this.filterDebounceTimer !== null) clearTimeout(this.filterDebounceTimer);
+      if (this.blurTimer !== null) clearTimeout(this.blurTimer);
+    });
+
+    effect(() => {
+      const opt = this.selectedOption();
+      untracked(() => this.inputText.set(opt ? opt.label : ''));
+    });
   }
 
   protected optionId(index: number): string {
@@ -95,59 +130,109 @@ export class SelectDropdownComponent<
     return item.value === this.value();
   }
 
-  protected toggleOpen(): void {
+  protected onTriggerClick(): void {
+    this.inputEl()?.nativeElement.focus();
+  }
+
+  protected onChevronClick(): void {
     if (this.isOpen()) {
       this.closePanel();
     } else {
       this.openPanel();
+      this.inputEl()?.nativeElement.focus();
     }
   }
 
   protected select(item: DropdownItem<SelectDropdownOptionValue>): void {
     this.value.set(item.value);
+    this.inputText.set(item.type === 'option' ? item.option.label : '');
     this.closePanel();
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Tab') {
-      this.closePanel();
-      return;
-    }
+  protected onInput(event: Event): void {
+    const raw = (event.target as HTMLInputElement).value;
+    this.inputText.set(raw);
 
-    if (!this.isOpen()) {
-      if (['ArrowDown', 'Enter', ' '].includes(event.key)) {
-        event.preventDefault();
+    if (raw === '') {
+      this.filterText.set('');
+      this.focusedIndex.set(0);
+      if (!this.isOpen()) {
         this.openPanel();
       }
       return;
     }
 
-    event.preventDefault();
+    if (!this.isOpen()) {
+      this.openPanel();
+    }
 
-    switch (event.key) {
-      case 'ArrowDown':
-        this.moveFocus(1);
-        break;
-      case 'ArrowUp':
-        this.moveFocus(-1);
-        break;
-      case 'Home':
-        this.moveFocusTo(0);
-        break;
-      case 'End':
-        this.moveFocusTo(this.allOptions().length - 1);
-        break;
-      case 'Enter':
-      case ' ':
-        this.selectFocused();
-        break;
-      case 'Escape':
+    if (this.filterDebounceTimer !== null) {
+      clearTimeout(this.filterDebounceTimer);
+    }
+    this.filterDebounceTimer = setTimeout(() => {
+      this.filterText.set(raw);
+      const firstRealIndex = this.displayedOptions().findIndex((item) => item.type !== 'null');
+      this.focusedIndex.set(firstRealIndex !== -1 ? firstRealIndex : 0);
+      this.filterDebounceTimer = null;
+    }, FILTER_DEBOUNCE_MS);
+  }
+
+  protected onBlur(): void {
+    this.blurTimer = setTimeout(() => {
+      this.blurTimer = null;
+      if (this.isOpen()) {
         this.closePanel();
-        break;
+      } else {
+        this.commitOrRevert();
+      }
+    });
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'Tab':
+        if (this.isOpen()) {
+          this.closePanel();
+        }
+        return;
+
+      case 'Escape':
+        if (this.isOpen()) {
+          event.preventDefault();
+          this.closePanel();
+          this.inputEl()?.nativeElement.focus();
+        }
+        return;
+
+      case 'ArrowDown':
+        event.preventDefault();
+        if (!this.isOpen()) {
+          this.openPanel();
+        } else {
+          this.moveFocus(1);
+        }
+        return;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        if (!this.isOpen()) {
+          this.openPanel();
+        } else {
+          this.moveFocus(-1);
+        }
+        return;
+
+      case 'Enter':
+        if (this.isOpen()) {
+          event.preventDefault();
+          this.selectFocused();
+        }
+        return;
     }
   }
 
   private openPanel(): void {
+    this.filterText.set('');
     this.isOpen.set(true);
     this.initFocusedIndex();
     this.removeDocumentClick?.();
@@ -159,6 +244,29 @@ export class SelectDropdownComponent<
     this.removeDocumentClick = null;
     this.isOpen.set(false);
     this.focusedIndex.set(-1);
+    this.filterText.set('');
+    if (this.filterDebounceTimer !== null) {
+      clearTimeout(this.filterDebounceTimer);
+      this.filterDebounceTimer = null;
+    }
+    this.commitOrRevert();
+  }
+
+  private commitOrRevert(): void {
+    if (this.inputText() === '') {
+      this.value.set(null);
+    }
+    this.revertInputText();
+  }
+
+  private revertInputText(): void {
+    const opt = this.selectedOption();
+    const display = opt ? opt.label : '';
+    this.inputText.set(display);
+    const el = this.inputEl()?.nativeElement;
+    if (el) {
+      el.value = display;
+    }
   }
 
   private listenForOutsideClicks(): () => void {
@@ -173,7 +281,7 @@ export class SelectDropdownComponent<
 
   private initFocusedIndex(): void {
     const value = this.value();
-    const index = this.allOptions().findIndex((item) => item.value === value);
+    const index = this.displayedOptions().findIndex((item) => item.value === value);
     this.focusedIndex.set(index === -1 ? 0 : index);
     this.scrollFocusedIntoView();
   }
@@ -183,21 +291,21 @@ export class SelectDropdownComponent<
   }
 
   private moveFocusTo(index: number): void {
-    const optionsLength = this.allOptions().length;
+    const optionsLength = this.displayedOptions().length;
     this.focusedIndex.set(Math.max(0, Math.min(index, optionsLength - 1)));
     this.scrollFocusedIntoView();
   }
 
   private scrollFocusedIntoView(): void {
     requestAnimationFrame(() => {
-      this.optionElements()[this.focusedIndex()]?.nativeElement.scrollIntoView({
+      this.optionElements().at(this.focusedIndex())?.nativeElement.scrollIntoView({
         block: 'nearest',
       });
     });
   }
 
   private selectFocused(): void {
-    const item = this.allOptions().at(this.focusedIndex());
+    const item = this.displayedOptions().at(this.focusedIndex());
     if (!item) {
       return;
     }

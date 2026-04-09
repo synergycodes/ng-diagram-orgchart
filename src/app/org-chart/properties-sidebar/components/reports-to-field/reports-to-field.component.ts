@@ -6,6 +6,7 @@ import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initial
 import {
   SelectDropdownNullOptionDef,
   SelectDropdownOptionDef,
+  SelectDropdownPrefixDef,
 } from '../../../shared/select-dropdown/select-dropdown-option.directive';
 import {
   SelectDropdownComponent,
@@ -18,6 +19,7 @@ import {
     SelectDropdownComponent,
     SelectDropdownOptionDef,
     SelectDropdownNullOptionDef,
+    SelectDropdownPrefixDef,
     InitialsAvatarComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

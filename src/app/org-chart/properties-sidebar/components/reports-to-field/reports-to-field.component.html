@@ -4,6 +4,9 @@
   [triggerId]="triggerId()"
   placeholder="None"
 >
+  <ng-template appComboboxPrefix let-option>
+    <app-initials-avatar [fullName]="option?.label" [color]="option?.data?.color" size="md" />
+  </ng-template>
   <ng-template appSelectNullOption>
     <app-initials-avatar size="md" />
     <span class="option-label placeholder">None</span>
