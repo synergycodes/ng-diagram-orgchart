@@ -83,7 +83,7 @@ export class PropertiesSidebarService {
       this.updateNodeData(change.nodeId, updatedNodeData);
     }
 
-    if (this.hasHierarchicalChanges(change) && !this.layoutGate.isIdle()) {
+    if (this.hasHierarchicalChanges(change) && this.layoutGate.isIdle()) {
       this.updateNodeParent(change.nodeId, change.formData.reportsTo);
     }
   }
