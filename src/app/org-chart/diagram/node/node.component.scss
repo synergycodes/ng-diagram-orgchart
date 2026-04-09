@@ -8,7 +8,10 @@
   --card-box-shadow: var(--ngd-token-radius-shadow-xxs-x) var(--ngd-token-radius-shadow-xxs-y)
     var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10); /* No Figma token - shadow color */
   --add-btn-opacity: 1;
-  --add-btn-pointer-events: auto;
+
+  &.add-buttons-fading-out {
+    --add-btn-opacity: 0;
+  }
 
   &:active {
     cursor: grabbing;
@@ -62,6 +65,7 @@
 
   &--visible {
     opacity: 0.5;
+    animation: indicator-fade-in 200ms ease;
   }
 
   &--highlighted {
@@ -100,6 +104,12 @@
     &.drop-indicator--no-toggle {
       bottom: var(--drop-indicator-horizontal-padding);
     }
+  }
+}
+
+@keyframes indicator-fade-in {
+  from {
+    opacity: 0;
   }
 }
 

@@ -12,6 +12,8 @@
   border: none;
   background: transparent;
   padding: 0;
+  opacity: var(--add-btn-opacity, 1);
+  transition: opacity 150ms ease;
   animation: fade-in 150ms ease;
 
   &:hover &__icon {

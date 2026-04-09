@@ -31,24 +31,26 @@
   />
 }
 
-<div
-  class="drop-indicator drop-indicator--left"
-  [class.drop-indicator--visible]="showLeftIndicator()"
-  [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
-></div>
-<div
-  class="drop-indicator drop-indicator--right"
-  [class.drop-indicator--visible]="showRightIndicator()"
-  [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
-></div>
-<div
-  class="drop-indicator drop-indicator--bottom"
-  [class.drop-indicator--visible]="showBottomIndicator()"
-  [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
-  [class.drop-indicator--no-toggle]="!hasChildren()"
-></div>
+@if (showIndicators()) {
+  <div
+    class="drop-indicator drop-indicator--left"
+    [class.drop-indicator--visible]="isInDropRange() && !isSideHidden('left')"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
+  ></div>
+  <div
+    class="drop-indicator drop-indicator--right"
+    [class.drop-indicator--visible]="isInDropRange() && !isSideHidden('right')"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
+  ></div>
+  <div
+    class="drop-indicator drop-indicator--bottom"
+    [class.drop-indicator--visible]="isInDropRange() && !isSideHidden('bottom')"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
+    [class.drop-indicator--no-toggle]="!hasChildren()"
+  ></div>
+}
 
-@if (showAddButtons()) {
+@if (showAddButtonsDom()) {
   @if (!isRoot()) {
     <app-add-button
   
