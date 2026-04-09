@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import {
   NgDiagramModelService,
   NgDiagramPortComponent,
@@ -63,6 +63,8 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[style.pointer-events]': 'isHidden() ? "none" : null',
     '[class.layout-horizontal]': 'isHorizontal()',
     '[class.node-dragging]': 'dragReorderService.isReorderActive()',
+    '(mouseenter)': 'isHovered.set(true)',
+    '(mouseleave)': 'isHovered.set(false)',
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
@@ -135,6 +137,10 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   protected hasChildren = computed(() => getHasChildren(this.node()));
   protected collapsedChildrenCount = computed(() => getCollapsedChildrenCount(this.node()));
 
+  isHovered = signal(false);
+  showAddButtons = computed(
+    () => this.isHovered() && !this.dragReorderService.isReorderActive(),
+  );
   isAddButtonDisabled = computed(() => !this.layoutGate.isIdle());
 
   /** Toggle the collapsed state of this node's subtree and re-layout. */

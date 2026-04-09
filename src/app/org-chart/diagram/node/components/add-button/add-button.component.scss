@@ -12,9 +12,7 @@
   border: none;
   background: transparent;
   padding: 0;
-  opacity: var(--add-btn-opacity);
-  pointer-events: var(--add-btn-pointer-events);
-  transition: opacity 150ms ease;
+  animation: fade-in 150ms ease;
 
   &:hover &__icon {
     background-color: var(--ngd-nav-button-icon-primary-default);
@@ -77,5 +75,11 @@
     right: calc(-1 * var(--ngd-primitive-4rule-40)); /* No Figma token - no designs */
     top: 50%;
     transform: translateY(-50%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
   }
 }

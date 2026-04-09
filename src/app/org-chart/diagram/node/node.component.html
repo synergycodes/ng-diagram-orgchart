@@ -48,29 +48,32 @@
   [class.drop-indicator--no-toggle]="!hasChildren()"
 ></div>
 
-@if (!isRoot()) {
+@if (showAddButtons()) {
+  @if (!isRoot()) {
+    <app-add-button
+  
+      position="left"
+      [horizontal]="isHorizontal()"
+      [disabled]="isAddButtonDisabled()"
+      (add)="onAddLeft($event)"
+    />
+    <app-add-button
+  
+      position="right"
+      [horizontal]="isHorizontal()"
+      [disabled]="isAddButtonDisabled()"
+      (add)="onAddRight($event)"
+    />
+  }
   <app-add-button
-    position="left"
-    [horizontal]="isHorizontal()"
-    [disabled]="isAddButtonDisabled()"
-    (add)="onAddLeft($event)"
-  />
-  <app-add-button
-    position="right"
-    [horizontal]="isHorizontal()"
-    [disabled]="isAddButtonDisabled()"
-    (add)="onAddRight($event)"
-  />
-}
-<app-add-button
-  position="bottom"
-  [horizontal]="isHorizontal()"
-  [disabled]="isAddButtonDisabled()"
-  (add)="onAddBottom($event)"
-/>
 
-<!-- Invisible hover zone so "+" buttons outside the node boundary remain reachable. -->
-<div class="hover-zone" data-no-drag="true"></div>
+    position="bottom"
+    [horizontal]="isHorizontal()"
+    [disabled]="isAddButtonDisabled()"
+    (add)="onAddBottom($event)"
+  />
+  <div class="hover-zone" data-no-drag="true"></div>
+}
 
 <!-- Connection ports: incoming edge port and outgoing edge port. -->
 @if (isHorizontal()) {
