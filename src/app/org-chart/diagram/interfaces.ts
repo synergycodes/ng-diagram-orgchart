@@ -40,7 +40,7 @@ export interface OrgChartVacantNodeData extends OrgChartBaseNodeData {
   type: 'vacant';
 }
 
-interface OrgChartBaseNodeData {
+export interface OrgChartBaseNodeData {
   role?: OrgChartRole;
   description?: string;
   reports: number;

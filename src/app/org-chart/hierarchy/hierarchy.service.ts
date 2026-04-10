@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
+import { getHasChildren } from '../diagram/data-getters';
 import { isOrgChartNodeData } from '../diagram/guards';
 import { EdgeTemplateType } from '../diagram/interfaces';
 import { ModelChanges } from '../diagram/model-changes';
@@ -114,7 +115,7 @@ export class HierarchyService {
       if (
         oldParent &&
         isOrgChartNodeData(oldParent.data) &&
-        oldParent.data.hasChildren &&
+        getHasChildren(oldParent) &&
         !oldParentWillHaveChildren
       ) {
         changes.addNodeUpdates({
@@ -126,7 +127,7 @@ export class HierarchyService {
 
     if (newParentId) {
       const newParent = this.modelService.getNodeById(newParentId);
-      if (newParent && isOrgChartNodeData(newParent.data) && !newParent.data.hasChildren) {
+      if (newParent && isOrgChartNodeData(newParent.data) && !getHasChildren(newParent)) {
         changes.addNodeUpdates({ id: newParentId, data: { ...newParent.data, hasChildren: true } });
       }
     }

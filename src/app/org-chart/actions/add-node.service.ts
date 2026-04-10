@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Edge, type Node } from 'ng-diagram';
 import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { isOrgChartNode } from '../diagram/guards';
-import { getIsCollapsed } from '../diagram/node-data-getters';
+import { getIsCollapsed } from '../diagram/data-getters';
 import {
   EdgeTemplateType,
   NodeTemplateType,

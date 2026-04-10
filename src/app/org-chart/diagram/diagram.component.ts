@@ -20,7 +20,7 @@ import { PropertiesSidebarService } from '../properties-sidebar/properties-sideb
 import { diagramModel } from './data';
 import { EdgeComponent } from './edge/edge.component';
 import { isOrgChartNode } from './guards';
-import { getHasChildren } from './node-data-getters';
+import { getHasChildren } from './data-getters';
 import { EdgeTemplateType, NodeTemplateType } from './interfaces';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';

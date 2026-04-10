@@ -21,7 +21,7 @@ import {
   getHasChildren,
   getIsCollapsed,
   getIsHidden,
-} from '../node-data-getters';
+} from '../data-getters';
 import { NodeVisibilityService } from '../node-visibility/node-visibility.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';

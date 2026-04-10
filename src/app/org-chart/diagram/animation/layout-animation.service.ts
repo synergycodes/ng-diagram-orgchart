@@ -3,6 +3,7 @@ import { NgDiagramModelService, type Node as DiagramNode, type Point } from 'ng-
 import { LayoutService } from '../layout/layout.service';
 import { ModelChanges } from '../model-changes';
 import { animate } from './animate';
+import { getIsCollapsed, getIsHidden } from '../data-getters';
 
 interface NodeAnimation {
   id: string;
@@ -33,7 +34,6 @@ export class LayoutAnimationService {
 
   /**
    * Reads `changes` and builds the animation start state.
-   * Does **not** mutate position values in `changes`.
    *
    * @returns Animation state and start changes, or `null` if nothing to animate.
    */
@@ -55,14 +55,9 @@ export class LayoutAnimationService {
     return { state: { nodes }, startChanges };
   }
 
-  /** Interpolates node positions from start to final over 300ms. */
   run(state: unknown): Promise<void> {
     return this.runAnimation(state as { nodes: NodeAnimation[] });
   }
-
-  // ---------------------------------------------------------------------------
-  // Start overrides
-  // ---------------------------------------------------------------------------
 
   /**
    * Derives start position overrides from the changes content:
@@ -87,9 +82,9 @@ export class LayoutAnimationService {
       if (toggledEdge) {
         // All expanding descendants slide out from the toggled ancestor
         for (const update of changes.nodeUpdates) {
-          if (update.data?.isHidden !== false) continue;
+          if (getIsHidden(update) !== false) continue;
           const existing = this.modelService.getNodeById(update.id);
-          if (!(existing?.data as { isHidden?: boolean } | undefined)?.isHidden) continue;
+          if (!existing || !getIsHidden(existing)) continue;
           overrides.set(update.id, toggledEdge);
         }
       }
@@ -101,22 +96,17 @@ export class LayoutAnimationService {
   /** Finds the node transitioning from collapsed to expanded and returns its edge position. */
   private findToggledAncestorEdge(changes: ModelChanges): Point | undefined {
     for (const update of changes.nodeUpdates) {
-      if (update.data?.isCollapsed !== false) continue;
+      if (getIsCollapsed(update) !== false) continue;
       const existing = this.modelService.getNodeById(update.id);
-      if (!existing) continue;
-      if (!(existing.data as { isCollapsed?: boolean }).isCollapsed) continue;
+      if (!existing || !getIsCollapsed(existing)) continue;
       return this.computeParentEdgePosition(existing);
     }
     return undefined;
   }
 
-  // ---------------------------------------------------------------------------
-  // Collect & build
-  // ---------------------------------------------------------------------------
-
   /**
    * Reads position updates from `changes.nodeUpdates` and builds animation
-   * entries. Does **not** mutate position values in `changes`.
+   * entries.
    */
   private collectNodeAnimations(
     changes: ModelChanges,
@@ -176,10 +166,6 @@ export class LayoutAnimationService {
     return start;
   }
 
-  // ---------------------------------------------------------------------------
-  // Geometry
-  // ---------------------------------------------------------------------------
-
   private computeParentEdgePosition(node: DiagramNode): Point {
     const w = node.measuredBounds?.width ?? node.size?.width ?? 0;
     const h = node.measuredBounds?.height ?? node.size?.height ?? 0;
@@ -187,10 +173,6 @@ export class LayoutAnimationService {
       ? { x: node.position.x + w, y: node.position.y }
       : { x: node.position.x, y: node.position.y + h };
   }
-
-  // ---------------------------------------------------------------------------
-  // Run
-  // ---------------------------------------------------------------------------
 
   private runAnimation(state: { nodes: NodeAnimation[] }): Promise<void> {
     return animate((eased) => {
