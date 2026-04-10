@@ -83,7 +83,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     const filter = this.filterText().toLowerCase();
     if (!filter) return this.allOptions();
     return this.allOptions().filter(
-      (item) => item.type === 'null' || item.option.label.toLowerCase().includes(filter),
+      (item) => item.type === 'option' && item.option.label.toLowerCase().includes(filter),
     );
   });
 
@@ -98,7 +98,11 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     return this.options().find((o) => o.value === value) ?? null;
   });
 
-  protected readonly prefixOption = signal<ComboboxOption<T> | null>(null);
+  protected readonly prefixOption = computed(() => {
+    const opt = this.selectedOption();
+    if (!opt) return null;
+    return this.inputText() === opt.label ? opt : null;
+  });
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -109,10 +113,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
 
     effect(() => {
       const opt = this.selectedOption();
-      untracked(() => {
-        this.inputText.set(opt ? opt.label : '');
-        this.prefixOption.set(opt);
-      });
+      untracked(() => this.inputText.set(opt ? opt.label : ''));
     });
   }
 
@@ -130,6 +131,9 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
 
   protected onTriggerClick(): void {
     this.inputEl()?.nativeElement.focus();
+    if (!this.isOpen()) {
+      this.openPanel();
+    }
   }
 
   protected onChevronClick(): void {
@@ -144,7 +148,6 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
   protected select(item: ComboboxItem<T>): void {
     this.value.set(item.value);
     this.inputText.set(item.type === 'option' ? item.option.label : '');
-    this.prefixOption.set(item.type === 'option' ? item.option : null);
     this.closePanel();
   }
 
@@ -155,7 +158,6 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     if (raw === '') {
       this.filterText.set('');
       this.focusedIndex.set(0);
-      this.prefixOption.set(null);
       if (!this.isOpen()) {
         this.openPanel();
       }
@@ -232,6 +234,10 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
   }
 
   private openPanel(): void {
+    if (this.blurTimer !== null) {
+      clearTimeout(this.blurTimer);
+      this.blurTimer = null;
+    }
     this.filterText.set('');
     this.isOpen.set(true);
     this.initFocusedIndex();
