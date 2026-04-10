@@ -33,26 +33,29 @@
   />
 }
 
-@if (showIndicators()) {
+@if (isInDropRange()) {
   <div
     class="drop-indicator drop-indicator--left"
-    [class.drop-indicator--visible]="isInDropRange() && !hiddenSides().left"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().left"
     [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
   ></div>
   <div
     class="drop-indicator drop-indicator--right"
-    [class.drop-indicator--visible]="isInDropRange() && !hiddenSides().right"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().right"
     [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
   ></div>
   <div
     class="drop-indicator drop-indicator--bottom"
-    [class.drop-indicator--visible]="isInDropRange() && !hiddenSides().bottom"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().bottom"
     [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
     [class.drop-indicator--no-toggle]="!hasChildren()"
   ></div>
 }
 
-@if (showAddButtonsDom()) {
+@if (showAddButtons()) {
   @if (!isRoot()) {
     <app-add-button
   

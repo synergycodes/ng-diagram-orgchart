@@ -23,7 +23,6 @@ import {
   getIsHidden,
 } from '../node-data-getters';
 import { NodeVisibilityService } from '../node-visibility/node-visibility.service';
-import { deferredHide } from '../utils/deferred-hide';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
 import { FullNodeComponent } from './components/full-node/full-node.component';
@@ -64,7 +63,6 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[style.pointer-events]': 'isHidden() ? "none" : null',
     '[class.layout-horizontal]': 'isHorizontal()',
     '[class.node-dragging]': 'dragReorderService.isReorderActive()',
-    '[class.add-buttons-fading-out]': 'showAddButtonsDom() && !showAddButtons()',
     '(mouseenter)': 'isHovered.set(true)',
     '(mouseleave)': 'isHovered.set(false)',
   },
@@ -93,8 +91,6 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
       this.dragReorderService.isReorderActive() &&
       this.dragReorderService.isNodeInDropRange(this.node().id),
   );
-
-  showIndicators = deferredHide(this.isInDropRange, 200);
 
   protected hiddenSides = computed(() => {
     const id = this.node().id;
@@ -137,8 +133,6 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
 
   protected isHovered = signal(false);
   showAddButtons = computed(() => this.isHovered() && !this.dragReorderService.isReorderActive());
-
-  showAddButtonsDom = deferredHide(this.showAddButtons, 150);
 
   isAddButtonDisabled = computed(() => !this.layoutGate.isIdle());
 

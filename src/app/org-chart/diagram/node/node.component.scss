@@ -7,12 +7,6 @@
   --card-border-style: solid;
   --card-box-shadow: var(--ngd-token-radius-shadow-xxs-x) var(--ngd-token-radius-shadow-xxs-y)
     var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10); /* No Figma token - shadow color */
-  --add-btn-opacity: 1;
-
-  &.add-buttons-fading-out {
-    --add-btn-opacity: 0;
-  }
-
   &:active {
     cursor: grabbing;
   }
@@ -69,6 +63,11 @@
 
   &--highlighted {
     background: var(--ngd-colors-acc1-500); /* No Figma token */
+  }
+
+  &--leaving {
+    opacity: 0;
+    transition: opacity 200ms ease;
   }
 
   --drop-indicator-height: 6px; /* No Figma token */
