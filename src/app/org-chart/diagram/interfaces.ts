@@ -24,20 +24,20 @@ export enum OrgChartRole {
 }
 
 export const ORG_CHART_ROLE_COLORS: Record<OrgChartRole, string> = {
-  [OrgChartRole.PlantDirector]: '#2D9B4E',
+  [OrgChartRole.PlantDirector]: '#AF3',
   [OrgChartRole.OperationsManager]: '#3AB0F6',
   [OrgChartRole.HseSafetyLead]: '#EB8147',
-  [OrgChartRole.HseInspector]: '#E8963A',
-  [OrgChartRole.MaintenanceHead]: '#D45D5D',
+  [OrgChartRole.HseInspector]: '#EB8147',
+  [OrgChartRole.MaintenanceHead]: '#EB8147',
   [OrgChartRole.HrPayrollManager]: '#A977FF',
-  [OrgChartRole.ShiftASupervisor]: '#3A8FD6',
-  [OrgChartRole.ShiftBSupervisor]: '#5B7FC7',
-  [OrgChartRole.ShiftALead]: '#54B8D9',
-  [OrgChartRole.ShiftBLead]: '#7B9ED4',
-  [OrgChartRole.SeniorElectrician]: '#C75D8A',
-  [OrgChartRole.MaintenanceTechnician]: '#D97B5D',
-  [OrgChartRole.UnionRepresentative]: '#9C6BD6',
-  [OrgChartRole.ProductionCoordinator]: '#4DB89A',
+  [OrgChartRole.ShiftASupervisor]: '#3AB0F6',
+  [OrgChartRole.ShiftBSupervisor]: '#D45D5D', // New generated
+  [OrgChartRole.ShiftALead]: '#54B8D9', // New generated
+  [OrgChartRole.ShiftBLead]: '#3AB0F6',
+  [OrgChartRole.SeniorElectrician]: '#EB8147',
+  [OrgChartRole.MaintenanceTechnician]: '#D97B5D', // New generated
+  [OrgChartRole.UnionRepresentative]: '#A977FF',
+  [OrgChartRole.ProductionCoordinator]: '#4DB89A', // New generated
 };
 
 export function getColorForRole(role: OrgChartRole | undefined): string | undefined {
