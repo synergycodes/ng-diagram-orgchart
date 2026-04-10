@@ -1,8 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNode } from './guards';
-import { type OrgChartEdgeData, type OrgChartNodeData } from './interfaces';
 import { getCollapsedChildrenCount, getIsCollapsed } from './data-getters';
+import {
+  COLLAPSED_CHILDREN_COUNT,
+  EDGE_IS_HIDDEN,
+  IS_COLLAPSED,
+  IS_HIDDEN,
+  type OrgChartEdgeData,
+  type OrgChartNodeData,
+} from './interfaces';
 import { ModelChanges } from './model-changes';
 
 export interface ToggleResult {
@@ -44,8 +51,8 @@ export class ExpandCollapseService {
         id: nodeId,
         data: {
           ...node.data,
-          isCollapsed: collapsing,
-          collapsedChildrenCount: collapsing ? this.countAllDescendants(nodeId) : undefined,
+          [IS_COLLAPSED]: collapsing,
+          [COLLAPSED_CHILDREN_COUNT]: collapsing ? this.countAllDescendants(nodeId) : undefined,
         },
       },
       ...nodeUpdates,
@@ -127,14 +134,17 @@ export class ExpandCollapseService {
     for (const id of subtreeIds) {
       const node = this.modelService.getNodeById(id);
       if (!node || !isOrgChartNode(node)) continue;
-      nodeUpdates.push({ id, data: { ...node.data, isHidden: hidden } });
+      nodeUpdates.push({ id, data: { ...node.data, [IS_HIDDEN]: hidden } });
     }
 
     const edgeUpdates: { id: string; data: OrgChartEdgeData }[] = [];
     for (const id of subtreeIds) {
       for (const edge of this.modelService.getConnectedEdges(id)) {
         if (edge.target === id) {
-          edgeUpdates.push({ id: edge.id, data: { type: 'orgChart', isHidden: hidden } });
+          edgeUpdates.push({
+            id: edge.id,
+            data: { ...(edge.data as OrgChartEdgeData), [EDGE_IS_HIDDEN]: hidden },
+          });
         }
       }
     }

@@ -70,7 +70,12 @@ export class DragService {
 
     const candidateSize = candidate.size ?? { width: 0, height: 0 };
     const strategy = getZoneDetectionStrategy(this.layoutService.direction());
-    const side = strategy.detect(draggedCenter, candidate.position, candidateSize, this.config.drag.alignmentPadding);
+    const side = strategy.detect(
+      draggedCenter,
+      candidate.position,
+      candidateSize,
+      this.config.drag.alignmentPadding,
+    );
 
     const candidateHidden = hiddenSides.get(candidate.id);
     if (candidateHidden?.has(side)) return null;
@@ -116,7 +121,10 @@ export class DragService {
     draggedRect: Rect,
     hiddenSides: Map<string, Set<DropZone>>,
   ) {
-    const nodesInRange = this.modelService.getNodesInRange(draggedCenter, this.config.drag.queryRange);
+    const nodesInRange = this.modelService.getNodesInRange(
+      draggedCenter,
+      this.config.drag.queryRange,
+    );
 
     let nearest = null;
     let minDistance = Infinity;

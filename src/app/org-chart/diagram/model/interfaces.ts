@@ -46,6 +46,18 @@ export function getColorForRole(role: OrgChartRole | undefined): string | undefi
 
 export type OrgChartNodeData = OrgChartOccupiedNodeData | OrgChartVacantNodeData;
 
+/**
+ * Centralized property keys for org-chart node and edge data.
+ *
+ * To rename a property, change the key here and in the interface.
+ */
+export const IS_COLLAPSED = 'isCollapsed' as const;
+export const IS_HIDDEN = 'isHidden' as const;
+export const HAS_CHILDREN = 'hasChildren' as const;
+export const COLLAPSED_CHILDREN_COUNT = 'collapsedChildrenCount' as const;
+export const SORT_ORDER = 'sortOrder' as const;
+export const EDGE_IS_HIDDEN = 'isHidden' as const;
+
 export interface OrgChartEdgeData {
   type: 'orgChart';
   isHidden?: boolean;

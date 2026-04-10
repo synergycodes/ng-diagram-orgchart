@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
+import { getSortOrder } from './data-getters';
+import { SORT_ORDER } from './interfaces';
 import { isOrgChartNode } from './guards';
 import { type OrgChartNodeData } from './interfaces';
 import { ModelChanges } from './model-changes';
@@ -33,7 +35,7 @@ export class SortOrderService {
         const node = this.modelService.getNodeById(e.target);
         return {
           id: e.target,
-          sortOrder: isOrgChartNode(node) ? (node.data.sortOrder ?? 0) : 0,
+          sortOrder: isOrgChartNode(node) ? (getSortOrder(node) ?? 0) : 0,
         };
       })
       .sort((a, b) => a.sortOrder - b.sortOrder);
@@ -90,7 +92,7 @@ export class SortOrderService {
     const model = this.modelService.getModel();
     const nodes = model.getNodes();
 
-    const needsInit = nodes.some((n) => isOrgChartNode(n) && n.data.sortOrder === undefined);
+    const needsInit = nodes.some((n) => isOrgChartNode(n) && getSortOrder(n) === undefined);
     if (!needsInit) return modelChanges;
 
     const edges = model.getEdges();
@@ -106,7 +108,7 @@ export class SortOrderService {
 
     for (const node of nodes) {
       if (isOrgChartNode(node) && !targetIds.has(node.id)) {
-        modelChanges.addNodeUpdates({ id: node.id, data: { ...node.data, sortOrder: 0 } });
+        modelChanges.addNodeUpdates({ id: node.id, data: { ...node.data, [SORT_ORDER]: 0 } });
       }
     }
 
@@ -165,8 +167,8 @@ export class SortOrderService {
     for (let i = 0; i < nodeIds.length; i++) {
       const node = this.modelService.getNodeById(nodeIds[i]);
       if (!node || !isOrgChartNode(node)) continue;
-      if ((node.data.sortOrder ?? 0) === i) continue;
-      updates.push({ id: nodeIds[i], data: { ...node.data, sortOrder: i } });
+      if ((getSortOrder(node) ?? 0) === i) continue;
+      updates.push({ id: nodeIds[i], data: { ...node.data, [SORT_ORDER]: i } });
     }
 
     return updates;

@@ -118,7 +118,8 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node())) return 'vacant';
     return this.viewportService.scale() < this.config.viewport.compactScaleThreshold
-      ? 'compact' : 'full';
+      ? 'compact'
+      : 'full';
   });
 
   protected color = computed(() => getColorForRole(this.node().data.role));

@@ -4,8 +4,12 @@ import { ExpandCollapseService } from './expand-collapse.service';
 import { isOrgChartNode } from './guards';
 import { getIsCollapsed } from './data-getters';
 import {
+  COLLAPSED_CHILDREN_COUNT,
   EdgeTemplateType,
+  HAS_CHILDREN,
+  IS_COLLAPSED,
   NodeTemplateType,
+  SORT_ORDER,
   type OrgChartEdgeData,
   type OrgChartNodeData,
   type OrgChartVacantNodeData,
@@ -106,8 +110,8 @@ export class AddNodeService {
       id: parentNode.id,
       data: {
         ...parentNode.data,
-        hasChildren: true,
-        ...(needsExpand ? { isCollapsed: false, collapsedChildrenCount: undefined } : {}),
+        [HAS_CHILDREN]: true,
+        ...(needsExpand ? { [IS_COLLAPSED]: false, [COLLAPSED_CHILDREN_COUNT]: undefined } : {}),
       },
     });
 
@@ -126,9 +130,9 @@ export class AddNodeService {
         reports: Math.floor(Math.random() * 11),
         span: Math.floor(Math.random() * 2001),
         shiftCapacity: Math.floor(Math.random() * 101),
-        sortOrder,
-        isCollapsed: false,
-        hasChildren: false,
+        [SORT_ORDER]: sortOrder,
+        [IS_COLLAPSED]: false,
+        [HAS_CHILDREN]: false,
       },
     };
   }

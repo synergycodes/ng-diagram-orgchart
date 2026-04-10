@@ -78,10 +78,7 @@ export function provideOrgChartConfig(overrides: PartialOrgChartConfig) {
   };
 }
 
-function mergeConfig(
-  defaults: OrgChartConfig,
-  overrides: PartialOrgChartConfig,
-): OrgChartConfig {
+function mergeConfig(defaults: OrgChartConfig, overrides: PartialOrgChartConfig): OrgChartConfig {
   return {
     animation: { ...defaults.animation, ...overrides.animation },
     layout: { ...defaults.layout, ...overrides.layout },

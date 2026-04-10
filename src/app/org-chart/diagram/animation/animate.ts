@@ -5,10 +5,7 @@
  * @param durationMs - Animation duration in milliseconds. Default: `300`.
  * @returns Promise that resolves when the animation completes.
  */
-export function animate(
-  onFrame: (eased: number) => void,
-  durationMs = 300,
-): Promise<void> {
+export function animate(onFrame: (eased: number) => void, durationMs = 300): Promise<void> {
   return new Promise<void>((resolve) => {
     const startTime = performance.now();
 

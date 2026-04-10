@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { getHasChildren } from './data-getters';
 import { isOrgChartNodeData } from './guards';
-import { EdgeTemplateType } from './interfaces';
+import { EdgeTemplateType, HAS_CHILDREN } from './interfaces';
 import { ModelChanges } from './model-changes';
 import { SortOrderService } from './sort-order.service';
 
@@ -128,7 +128,7 @@ export class HierarchyService {
 
       const node = this.modelService.getNodeById(parentId);
       if (node && isOrgChartNodeData(node.data) && getHasChildren(node)) {
-        changes.addNodeUpdates({ id: parentId, data: { ...node.data, hasChildren: false } });
+        changes.addNodeUpdates({ id: parentId, data: { ...node.data, [HAS_CHILDREN]: false } });
       }
     }
   }
@@ -154,7 +154,7 @@ export class HierarchyService {
       ) {
         changes.addNodeUpdates({
           id: oldParentId,
-          data: { ...oldParent.data, hasChildren: false },
+          data: { ...oldParent.data, [HAS_CHILDREN]: false },
         });
       }
     }
@@ -162,7 +162,10 @@ export class HierarchyService {
     if (newParentId) {
       const newParent = this.modelService.getNodeById(newParentId);
       if (newParent && isOrgChartNodeData(newParent.data) && !getHasChildren(newParent)) {
-        changes.addNodeUpdates({ id: newParentId, data: { ...newParent.data, hasChildren: true } });
+        changes.addNodeUpdates({
+          id: newParentId,
+          data: { ...newParent.data, [HAS_CHILDREN]: true },
+        });
       }
     }
   }
