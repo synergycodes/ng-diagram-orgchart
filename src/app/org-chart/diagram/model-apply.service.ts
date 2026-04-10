@@ -61,6 +61,10 @@ export class ModelApplyService {
           const toDelete = changes.deleteEdgeIds.filter((id) => this.modelService.getEdgeById(id));
           if (toDelete.length > 0) this.modelService.deleteEdges(toDelete);
         }
+        if (changes.deleteNodeIds.length > 0) {
+          const toDelete = changes.deleteNodeIds.filter((id) => this.modelService.getNodeById(id));
+          if (toDelete.length > 0) this.modelService.deleteNodes(toDelete);
+        }
         if (changes.newNodes.length > 0) {
           const toAdd = changes.newNodes.filter((n) => !this.modelService.getNodeById(n.id));
           if (toAdd.length > 0) this.modelService.addNodes(toAdd);

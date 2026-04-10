@@ -75,6 +75,7 @@ export class LayoutService {
     if (changes.deleteNodeIds.length > 0) {
       const deleteSet = new Set(changes.deleteNodeIds);
       nodes = nodes.filter((n) => !deleteSet.has(n.id));
+      edges = edges.filter((e) => !deleteSet.has(e.source) && !deleteSet.has(e.target));
     }
 
     const edgeSourceOverrides = changes.edgeUpdates.filter((u) => u.source);
