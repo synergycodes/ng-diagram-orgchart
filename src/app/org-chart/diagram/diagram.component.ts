@@ -5,7 +5,6 @@ import {
   NgDiagramBackgroundComponent,
   NgDiagramComponent,
   NgDiagramEdgeTemplateMap,
-  NgDiagramModelService,
   NgDiagramNodeTemplateMap,
   NgDiagramViewportService,
   type Edge,
@@ -48,7 +47,6 @@ import { NodeComponent } from './node/node.component';
   providers: [DragService, DropService, DragReorderService],
 })
 export class DiagramComponent {
-  private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);

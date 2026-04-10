@@ -26,7 +26,13 @@ import { SidebarFormService } from './sidebar-form.service';
 
 @Component({
   selector: 'app-sidebar-form',
-  imports: [FormField, FormFieldComponent, ReportsToFieldComponent, ComboboxComponent, AutofocusDirective],
+  imports: [
+    FormField,
+    FormFieldComponent,
+    ReportsToFieldComponent,
+    ComboboxComponent,
+    AutofocusDirective,
+  ],
   templateUrl: './sidebar-form.component.html',
   styleUrl: './sidebar-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,4 +67,5 @@ export class SidebarFormComponent {
         this.formService.loadFormData(nodeId, formData);
       });
     });
-  }}
+  }
+}

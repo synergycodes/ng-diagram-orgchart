@@ -112,9 +112,7 @@ export class HierarchyService {
     for (const parentId of parentIds) {
       const stillHasChildren = this.modelService
         .getConnectedEdges(parentId)
-        .some(
-          (e) => e.source === parentId && (!excludeChildIds || !excludeChildIds.has(e.target)),
-        );
+        .some((e) => e.source === parentId && (!excludeChildIds || !excludeChildIds.has(e.target)));
       if (stillHasChildren) continue;
 
       const node = this.modelService.getNodeById(parentId);

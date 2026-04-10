@@ -83,8 +83,7 @@ export function computeEnsureVisibleTarget(
   let flowDy = 0;
 
   if (rect.left < viewportRect.left) flowDx = rect.left - viewportRect.left - EDGE_PADDING;
-  else if (rect.right > viewportRect.right)
-    flowDx = rect.right - viewportRect.right + EDGE_PADDING;
+  else if (rect.right > viewportRect.right) flowDx = rect.right - viewportRect.right + EDGE_PADDING;
 
   if (rect.top < viewportRect.top) flowDy = rect.top - viewportRect.top - EDGE_PADDING;
   else if (rect.bottom > viewportRect.bottom)
