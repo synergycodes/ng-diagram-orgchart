@@ -7,7 +7,7 @@
     <app-compact-node
       [fullName]="data?.fullName"
       [role]="data?.role"
-      [color]="data?.color"
+      [color]="color()"
     />
   }
   @case ('full') {
@@ -15,7 +15,7 @@
     <app-full-node
       [fullName]="data?.fullName"
       [role]="data?.role"
-      [color]="data?.color"
+      [color]="color()"
       [reports]="data?.reports"
       [span]="data?.span"
       [shiftCapacity]="data?.shiftCapacity"
