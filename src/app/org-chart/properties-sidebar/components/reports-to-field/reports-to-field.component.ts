@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
 import { type FormValueControl } from '@angular/forms/signals';
 import { type Node } from 'ng-diagram';
-import { type OrgChartOccupiedNodeData } from '../../../diagram/interfaces';
+import { type OrgChartOccupiedNodeData, getColorForRole } from '../../../diagram/interfaces';
 import {
   ComboboxNullOptionDef,
   ComboboxOptionDef,
@@ -41,6 +41,6 @@ export class ReportsToFieldComponent implements FormValueControl<string | null> 
   private mapNodeToOption = (node: Node<OrgChartOccupiedNodeData>): ComboboxOption<string> => ({
     value: node.id,
     label: node.data.fullName,
-    data: { color: node.data.color ?? '#999' },
+    data: { color: getColorForRole(node.data.role) },
   });
 }

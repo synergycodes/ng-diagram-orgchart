@@ -44,10 +44,9 @@ export function formDataToNodeData(
   existingData: OrgChartNodeData,
 ): OrgChartNodeData & Record<string, unknown> {
   const { type, role, description, ...base } = existingData;
-  const color = isOccupiedNodeData(existingData) ? existingData.color : undefined;
 
   const variantData = formData.fullName
-    ? { type: 'occupied' as const, fullName: formData.fullName, color }
+    ? { type: 'occupied' as const, fullName: formData.fullName }
     : { type: 'vacant' as const };
 
   return {

@@ -12,7 +12,7 @@ import { DragReorderService } from '../../dragging/drag-reorder.service';
 import { PropertiesSidebarService } from '../../properties-sidebar/properties-sidebar.service';
 import { ExpandCollapseService } from '../expand-collapse/expand-collapse.service';
 import { isOccupiedNodeData, isVacantNode } from '../guards';
-import { type OrgChartNodeData } from '../interfaces';
+import { type OrgChartNodeData, getColorForRole } from '../interfaces';
 import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService } from '../layout/layout.service';
 import { ModelApplyService } from '../model-apply.service';
@@ -117,6 +117,8 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     if (isVacantNode(this.node())) return 'vacant';
     return this.viewportService.scale() < 1 ? 'compact' : 'full';
   });
+
+  protected color = computed(() => getColorForRole(this.node().data.role));
 
   occupiedData = computed(() => {
     const data = this.node().data;
