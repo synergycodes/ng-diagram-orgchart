@@ -19,12 +19,10 @@ export function createSiblingDropAction(deps: DropDeps): DropActionStrategy {
       const oldParentId = hierarchyService.getParentId(draggedNodeId);
       const newParentId = hierarchyService.getParentId(targetNodeId);
 
-      const changes = new ModelChanges();
-      const isSameParent = newParentId === oldParentId;
+      if (newParentId === oldParentId) {
+        if (!newParentId) return { changes: new ModelChanges() };
 
-      if (isSameParent) {
-        if (!newParentId) return { changes };
-
+        const changes = new ModelChanges();
         sortOrderService.reorderChildren(
           newParentId,
           [{ nodeId: draggedNodeId, referenceId: targetNodeId, position }],
@@ -35,14 +33,11 @@ export function createSiblingDropAction(deps: DropDeps): DropActionStrategy {
         return { changes };
       }
 
-      hierarchyService.updateNodeParent(
+      return hierarchyService.updateNodeParent(
         draggedNodeId,
         newParentId,
         newParentId ? { referenceId: targetNodeId, position } : undefined,
-        changes,
       );
-
-      return { changes };
     },
   };
 }
