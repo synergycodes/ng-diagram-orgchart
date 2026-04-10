@@ -128,7 +128,7 @@ export class HierarchyService {
 
       const node = this.modelService.getNodeById(parentId);
       if (node && isOrgChartNodeData(node.data) && getHasChildren(node)) {
-        changes.addNodeUpdates({ id: parentId, data: { ...node.data, [HAS_CHILDREN]: false } });
+        changes.addNodeUpdates({ id: parentId, data: { [HAS_CHILDREN]: false } });
       }
     }
   }
@@ -154,7 +154,7 @@ export class HierarchyService {
       ) {
         changes.addNodeUpdates({
           id: oldParentId,
-          data: { ...oldParent.data, [HAS_CHILDREN]: false },
+          data: { [HAS_CHILDREN]: false },
         });
       }
     }
@@ -164,7 +164,7 @@ export class HierarchyService {
       if (newParent && isOrgChartNodeData(newParent.data) && !getHasChildren(newParent)) {
         changes.addNodeUpdates({
           id: newParentId,
-          data: { ...newParent.data, [HAS_CHILDREN]: true },
+          data: { [HAS_CHILDREN]: true },
         });
       }
     }

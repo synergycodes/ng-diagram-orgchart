@@ -1,7 +1,10 @@
 import { type Edge as DiagramEdge, type Node as DiagramNode } from 'ng-diagram';
 import { type OrgChartEdgeData, type OrgChartNodeData } from './interfaces';
 
-type NodeUpdate = Partial<DiagramNode<OrgChartNodeData>> & { id: string };
+type NodeUpdate = Omit<Partial<DiagramNode<OrgChartNodeData>>, 'data'> & {
+  id: string;
+  data?: Partial<OrgChartNodeData>;
+};
 type EdgeUpdate = Partial<DiagramEdge<OrgChartEdgeData>> & { id: string };
 
 /**

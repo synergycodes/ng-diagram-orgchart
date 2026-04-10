@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
+import { NgDiagramModelService, NgDiagramService, type Edge, type Node } from 'ng-diagram';
 import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import { LayoutAnimationService } from '../animation/layout-animation.service';
 import { LayoutGate } from '../layout/layout-gate';
@@ -81,15 +81,67 @@ export class ModelApplyService {
           if (toAdd.length > 0) this.modelService.addEdges(toAdd);
         }
         if (changes.nodeUpdates.length > 0) {
-          this.modelService.updateNodes(changes.nodeUpdates);
+          this.modelService.updateNodes(this.resolveNodeUpdates(changes.nodeUpdates));
         }
         if (changes.edgeUpdates.length > 0) {
-          this.modelService.updateEdges(changes.edgeUpdates);
+          this.modelService.updateEdges(this.resolveEdgeUpdates(changes.edgeUpdates));
         }
       },
       { waitForMeasurements: true },
     );
 
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  }
+
+  /**
+   * Deduplicates updates by ID, merges partial data fields,
+   * and resolves against current model state so ng-diagram receives full data.
+   */
+  private resolveUpdates(
+    updates: { id: string; data?: unknown; [key: string]: unknown }[],
+    getById: (id: string) => { data?: unknown } | null,
+  ) {
+    const byId = new Map<string, Record<string, unknown>>();
+
+    for (const update of updates) {
+      const existing = byId.get(update.id);
+      if (existing) {
+        for (const [key, value] of Object.entries(update)) {
+          if (key === 'id') continue;
+          if (key === 'data' && value) {
+            existing['data'] = { ...((existing['data'] as object) ?? {}), ...(value as object) };
+          } else if (value !== undefined) {
+            existing[key] = value;
+          }
+        }
+      } else {
+        byId.set(update.id, { ...update });
+      }
+    }
+
+    const result: { id: string; [key: string]: unknown }[] = [];
+    for (const [id, entry] of byId) {
+      if (entry['data']) {
+        const current = getById(id);
+        if (current?.data) {
+          entry['data'] = { ...(current.data as object), ...(entry['data'] as object) };
+        }
+      }
+      result.push(entry as { id: string; [key: string]: unknown });
+    }
+
+    return result;
+  }
+
+  private resolveNodeUpdates(
+    updates: { id: string; data?: unknown }[],
+  ): (Pick<Node, 'id'> & Partial<Node>)[] {
+    return this.resolveUpdates(updates, (id) => this.modelService.getNodeById(id));
+  }
+
+  private resolveEdgeUpdates(
+    updates: { id: string; data?: unknown; source?: unknown }[],
+  ): (Pick<Edge, 'id'> & Partial<Edge>)[] {
+    return this.resolveUpdates(updates, (id) => this.modelService.getEdgeById(id));
   }
 }
