@@ -1,0 +1,105 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  pointer-events: all;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--ngd-token-radius-toolbar-hor-l);
+  border: 1px solid var(--ngd-ui-stroke-secondary-default);
+  background: var(--ngd-ui-bg-primary-default);
+  box-shadow: var(--ngd-token-shadow-shadow-s-x) var(--ngd-token-shadow-shadow-s-y)
+    var(--ngd-token-shadow-shadow-s-blur) var(--ngd-token-shadow-shadow-s-spread) var(--ngd-shadow);
+  overflow: hidden;
+  color: var(--ngd-nav-button-icon-primary-default);
+  text-align: center;
+}
+
+.minimap-canvas {
+  display: grid;
+  grid-template-rows: 1fr;
+  .animate & {
+    transition: grid-template-rows 200ms ease;
+  }
+
+  .collapsed & {
+    grid-template-rows: 0fr;
+  }
+
+  ng-diagram-minimap {
+    position: static;
+    overflow: hidden;
+    min-height: 0;
+    --ngd-minimap-background: transparent;
+    --ngd-minimap-border-color: transparent;
+    --ngd-minimap-shadow-color: transparent;
+    --ngd-minimap-border-radius: 0;
+    --ngd-minimap-margin: 0;
+  }
+}
+
+.minimap-actions {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ngd-token-spacing-toolbar-hor-pad);
+  align-items: center;
+  gap: var(--ngd-token-spacing-toolbar-hor-gap);
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--ngd-nav-button-border-radius);
+  padding: var(--ngd-nav-button-padding);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--ngd-nav-button-background-color-hover);
+  }
+
+  &:disabled {
+    cursor: default;
+
+    .icon {
+      background-color: var(--ngd-nav-button-color-disabled);
+    }
+  }
+}
+
+.icon {
+  --icon-size: var(--ngd-nav-button-size);
+  display: inline-block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-color: var(--ngd-nav-button-color);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.icon-zoom-out {
+  mask-image: url('/assets/minus.svg');
+  -webkit-mask-image: url('/assets/minus.svg');
+}
+
+.icon-zoom-in {
+  mask-image: url('/assets/plus.svg');
+  -webkit-mask-image: url('/assets/plus.svg');
+}
+
+.icon-map {
+  mask-image: url('/assets/map-trifold.svg');
+  -webkit-mask-image: url('/assets/map-trifold.svg');
+}
+
+.zoom-level {
+  flex: 1;
+  min-width: 3rem;
+  text-align: center;
+  user-select: none;
+}

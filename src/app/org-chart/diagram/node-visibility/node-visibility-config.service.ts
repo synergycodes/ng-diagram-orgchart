@@ -1,45 +1,38 @@
-import { ElementRef, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { type ViewportInsets } from '../utils/viewport';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
+type BoundsProvider = () => DOMRect;
 
 @Injectable()
 export class NodeVisibilityConfigService {
-  private readonly overlays = new Map<string, ElementRef<HTMLElement>>();
-  private viewportRef?: ElementRef<HTMLElement>;
+  private readonly overlays = new Map<string, BoundsProvider>();
+  private viewportBounds?: BoundsProvider;
 
-  registerViewport(elementRef: ElementRef<HTMLElement>): void {
-    this.viewportRef = elementRef;
+  registerViewport(boundsProvider: BoundsProvider): void {
+    this.viewportBounds = boundsProvider;
   }
 
   unregisterViewport(): void {
-    this.viewportRef = undefined;
+    this.viewportBounds = undefined;
   }
 
-  register(id: string, elementRef: ElementRef<HTMLElement>): void {
-    this.overlays.set(id, elementRef);
+  registerOverlay(key: string, boundsProvider: BoundsProvider): void {
+    this.overlays.set(key, boundsProvider);
   }
 
-  unregister(id: string): void {
-    this.overlays.delete(id);
+  unregisterOverlay(key: string): void {
+    this.overlays.delete(key);
   }
 
   getViewportInsets(): ViewportInsets {
-    if (!this.viewportRef) {
-      return {};
-    }
+    if (!this.viewportBounds) return {};
 
-    const diagramRect = this.viewportRef.nativeElement.getBoundingClientRect();
+    const diagramRect = this.viewportBounds();
+    const inset = { top: 0, right: 0, bottom: 0, left: 0 };
 
-    const inset = {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-    };
-
-    for (const elementRef of this.overlays.values()) {
-      const overlayRect = elementRef.nativeElement.getBoundingClientRect();
+    for (const getBounds of this.overlays.values()) {
+      const overlayRect = getBounds();
       const side = this.getOverlaySide(overlayRect, diagramRect);
 
       switch (side) {

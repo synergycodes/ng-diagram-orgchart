@@ -1,6 +1,6 @@
-<app-diagram #diagram />
+<app-diagram #diagram appViewportBounds />
 <div class="ui-overlay">
-  <app-top-navbar class="top-navbar" />
+  <app-top-navbar class="top-navbar" appViewportOverlay />
   <div class="top-toolbar-wrapper">
     <app-toolbar-horizontal
       class="top-toolbar"
@@ -10,7 +10,7 @@
     />
   </div>
   <div class="content-area">
-    <app-properties-sidebar />
-    <ng-diagram-minimap [showZoomControls]="true" />
+    <app-properties-sidebar appViewportOverlay />
+    <app-minimap-panel />
   </div>
 </div>

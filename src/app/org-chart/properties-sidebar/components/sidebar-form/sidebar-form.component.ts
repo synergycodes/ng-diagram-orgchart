@@ -18,9 +18,9 @@ import {
   type OrgChartRole,
 } from '../../../diagram/interfaces';
 import {
-  SelectDropdownComponent,
-  type SelectDropdownOption,
-} from '../../../shared/select-dropdown/select-dropdown.component';
+  ComboboxComponent,
+  type ComboboxOption,
+} from '../../../shared/combobox/combobox.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
 import { nodeDataToFormData } from './sidebar-form.mappers';
@@ -28,7 +28,7 @@ import { SidebarFormService } from './sidebar-form.service';
 
 @Component({
   selector: 'app-sidebar-form',
-  imports: [FormField, FormFieldComponent, ReportsToFieldComponent, SelectDropdownComponent],
+  imports: [FormField, FormFieldComponent, ReportsToFieldComponent, ComboboxComponent],
   templateUrl: './sidebar-form.component.html',
   styleUrl: './sidebar-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,7 +42,7 @@ export class SidebarFormComponent {
   readonly nodeData = input.required<OrgChartNodeData>();
   readonly nodeParentId = input.required<string | null>();
   readonly reportsToCandidateNodes = input.required<Node<OrgChartOccupiedNodeData>[]>();
-  readonly roleOptions = input.required<SelectDropdownOption<OrgChartRole>[]>();
+  readonly roleOptions = input.required<ComboboxOption<OrgChartRole>[]>();
 
   protected readonly fieldTree = this.formService.fieldTree;
 
