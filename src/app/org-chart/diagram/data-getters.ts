@@ -1,21 +1,19 @@
-import { Edge, type Node } from 'ng-diagram';
-import { type OrgChartNodeData } from './interfaces';
+import { OrgChartBaseNodeData } from './interfaces';
 
-type WithData = { data?: Partial<OrgChartNodeData> };
-type AnyPart = Node | Edge | WithData;
+type WithOrgData = { data?: Partial<OrgChartBaseNodeData> };
 
-export function getIsCollapsed(part: AnyPart) {
-  return (part as WithData).data?.isCollapsed;
+export function getIsCollapsed(part: WithOrgData) {
+  return part.data?.isCollapsed;
 }
 
-export function getIsHidden(part: AnyPart) {
-  return (part as WithData).data?.isHidden;
+export function getIsHidden(part: WithOrgData) {
+  return part.data?.isHidden;
 }
 
-export function getHasChildren(node: Node | WithData) {
-  return (node as WithData).data?.hasChildren;
+export function getHasChildren(part: WithOrgData) {
+  return part.data?.hasChildren;
 }
 
-export function getCollapsedChildrenCount(node: Node | WithData) {
-  return (node as WithData).data?.collapsedChildrenCount;
+export function getCollapsedChildrenCount(part: WithOrgData) {
+  return part.data?.collapsedChildrenCount;
 }

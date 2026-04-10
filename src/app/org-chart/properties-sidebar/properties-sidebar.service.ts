@@ -8,6 +8,7 @@ import {
 } from '../diagram/interfaces';
 import { LayoutGate } from '../diagram/layout/layout-gate';
 import { ModelApplyService } from '../diagram/model-apply.service';
+import { ModelChanges } from '../diagram/model-changes';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { type ComboboxOption } from '../shared/combobox/combobox.component';
@@ -72,6 +73,22 @@ export class PropertiesSidebarService {
 
   toggleSidebarVisibility(): void {
     this.isExpanded.update((v) => !v);
+  }
+
+  async removeSelectedNode(): Promise<void> {
+    const node = this.selectedNode();
+    if (!node || !this.layoutGate.isIdle()) return;
+
+    const parentId = this.hierarchyService.getParentId(node.id);
+
+    const changes = new ModelChanges();
+    changes.addDeleteNodeIds(node.id);
+
+    if (parentId) {
+      this.hierarchyService.clearHasChildrenFlags([parentId], changes, new Set([node.id]));
+    }
+
+    await this.modelApplyService.applyWithLayout(changes);
   }
 
   handleFieldChange(change: SidebarFieldChange): void {

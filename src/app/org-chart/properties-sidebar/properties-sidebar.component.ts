@@ -40,4 +40,8 @@ export class PropertiesSidebarComponent {
   protected onHeaderToggle(): void {
     this.sidebarService.toggleSidebarVisibility();
   }
+
+  protected onRemoveNode(): void {
+    this.sidebarService.removeSelectedNode();
+  }
 }
