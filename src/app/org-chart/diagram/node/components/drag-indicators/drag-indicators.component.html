@@ -1,0 +1,21 @@
+@if (isInDropRange()) {
+  <div
+    class="drop-indicator drop-indicator--left"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().left"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
+  ></div>
+  <div
+    class="drop-indicator drop-indicator--right"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().right"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
+  ></div>
+  <div
+    class="drop-indicator drop-indicator--bottom"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().bottom"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
+    [class.drop-indicator--no-toggle]="!hasChildren()"
+  ></div>
+}
