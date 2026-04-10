@@ -1,12 +1,9 @@
 import {
-  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
-  ElementRef,
   inject,
-  Injector,
   input,
   untracked,
 } from '@angular/core';
@@ -21,6 +18,7 @@ import {
   ComboboxComponent,
   type ComboboxOption,
 } from '../../../shared/combobox/combobox.component';
+import { AutofocusDirective } from '../../../shared/autofocus/autofocus.directive';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
 import { nodeDataToFormData } from './sidebar-form.mappers';
@@ -28,15 +26,13 @@ import { SidebarFormService } from './sidebar-form.service';
 
 @Component({
   selector: 'app-sidebar-form',
-  imports: [FormField, FormFieldComponent, ReportsToFieldComponent, ComboboxComponent],
+  imports: [FormField, FormFieldComponent, ReportsToFieldComponent, ComboboxComponent, AutofocusDirective],
   templateUrl: './sidebar-form.component.html',
   styleUrl: './sidebar-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarFormComponent {
   private readonly formService = inject(SidebarFormService);
-  private readonly el = inject(ElementRef<HTMLElement>).nativeElement;
-  private readonly injector = inject(Injector);
 
   readonly nodeId = input.required<string>();
   readonly nodeData = input.required<OrgChartNodeData>();
@@ -48,7 +44,6 @@ export class SidebarFormComponent {
 
   constructor() {
     this.syncFormWithInputs();
-    this.focusOnNodeChange();
 
     inject(DestroyRef).onDestroy(() => {
       this.formService.flush();
@@ -66,21 +61,4 @@ export class SidebarFormComponent {
         this.formService.loadFormData(nodeId, formData);
       });
     });
-  }
-
-  private focusOnNodeChange(): void {
-    effect(() => {
-      this.nodeId();
-      untracked(() => {
-        afterNextRender(() => this.focusFirstControl(), { injector: this.injector });
-      });
-    });
-  }
-
-  private focusFirstControl(): void {
-    const focusable: HTMLElement | null = this.el.querySelector(
-      'input, textarea, select, [tabindex]',
-    );
-    focusable?.focus();
-  }
-}
+  }}
