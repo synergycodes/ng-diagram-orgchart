@@ -42,7 +42,6 @@
     inset: 0 -40px -55px;
     z-index: -1;
     pointer-events: none;
-
   }
 
   &:hover .hover-zone {
@@ -57,19 +56,19 @@
 
 .drop-indicator {
   position: absolute;
-  background: var(--ngd-colors-acc1-500-50); /* No Figma token */
+  background: var(--ngd-colors-acc1-500-30); /* No Figma token */
   border-radius: var(--ngd-token-radius-progressbar);
   pointer-events: none;
   opacity: 0;
   transition: opacity 200ms ease;
 
   &--visible {
-    opacity: 0.5;
+    opacity: 1;
     animation: indicator-fade-in 200ms ease;
   }
 
   &--highlighted {
-    opacity: 1;
+    background: var(--ngd-colors-acc1-500); /* No Figma token */
   }
 
   --drop-indicator-height: 6px; /* No Figma token */
