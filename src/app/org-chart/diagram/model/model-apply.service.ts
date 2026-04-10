@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
+import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import { LayoutAnimationService } from '../animation/layout-animation.service';
 import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService, type VisibilityHint } from '../layout/layout.service';
@@ -18,6 +19,7 @@ export interface ApplyWithLayoutOptions {
  */
 @Injectable()
 export class ModelApplyService {
+  private readonly config = inject(ORG_CHART_CONFIG);
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly layoutGate = inject(LayoutGate);
@@ -31,7 +33,7 @@ export class ModelApplyService {
     changes: ModelChanges = new ModelChanges(),
     options?: ApplyWithLayoutOptions,
   ): Promise<void> {
-    const animate = options?.animate !== false;
+    const animate = this.config.animation.layoutEnabled && options?.animate !== false;
 
     await this.layoutGate.execute(async () => {
       await this.layoutService.computeLayout(changes, options?.visibility);

@@ -5,6 +5,10 @@ export interface OrgChartConfig {
   animation: {
     /** Duration in ms for layout transitions and viewport pans. Default: `300` */
     durationMs: number;
+    /** Whether to animate node position changes during layout transitions. Default: `true` */
+    layoutEnabled: boolean;
+    /** Whether to animate viewport pans (e.g. ensureVisible). Default: `true` */
+    viewportEnabled: boolean;
   };
 
   /** ELK layout engine parameters. */
@@ -41,7 +45,7 @@ export interface OrgChartConfig {
 }
 
 export const ORG_CHART_DEFAULTS: OrgChartConfig = {
-  animation: { durationMs: 300 },
+  animation: { durationMs: 300, layoutEnabled: true, viewportEnabled: true },
   layout: { nodeSpacing: 140 },
   viewport: {
     compactScaleThreshold: 0.75,

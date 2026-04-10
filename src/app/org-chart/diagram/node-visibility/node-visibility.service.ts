@@ -19,7 +19,7 @@ export class NodeVisibilityService {
       node,
       this.viewportService,
       this.configService?.getViewportInsets(),
-      true,
+      this.config.animation.viewportEnabled,
       this.config.viewport.edgePadding,
       this.config.animation.durationMs,
     );
