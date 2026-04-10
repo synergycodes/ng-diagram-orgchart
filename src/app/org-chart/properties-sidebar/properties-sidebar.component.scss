@@ -39,6 +39,33 @@ app-sidebar-placeholder {
   display: flex;
 }
 
+.sidebar-actions {
+  padding: var(--ngd-primitive-4rule-16); /* No Figma token */
+  margin-top: auto;
+}
+
+.remove-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--ngd-token-radius-button-m);
+  background: var(--ngd-button-primary-bg-default);
+  color: var(--ngd-txt-primary-white);
+  cursor: pointer;
+  padding: var(--ngd-token-spacing-button-m-v-pad-2);
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--ngd-button-primary-bg-hover);
+  }
+
+  &:active {
+    background: var(--ngd-button-primary-bg-active);
+  }
+}
+
 .sidebar-enter {
   animation: sidebar-enter 200ms ease forwards;
 }

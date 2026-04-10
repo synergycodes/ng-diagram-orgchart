@@ -100,6 +100,30 @@ export class HierarchyService {
     }
   }
 
+  /**
+   * Clears `hasChildren` on parent nodes that no longer have outgoing edges.
+   * `excludeChildIds` allows ignoring children that are about to be removed.
+   */
+  clearHasChildrenFlags(
+    parentIds: string[],
+    changes: ModelChanges,
+    excludeChildIds?: Set<string>,
+  ): void {
+    for (const parentId of parentIds) {
+      const stillHasChildren = this.modelService
+        .getConnectedEdges(parentId)
+        .some(
+          (e) => e.source === parentId && (!excludeChildIds || !excludeChildIds.has(e.target)),
+        );
+      if (stillHasChildren) continue;
+
+      const node = this.modelService.getNodeById(parentId);
+      if (node && isOrgChartNodeData(node.data) && getHasChildren(node)) {
+        changes.addNodeUpdates({ id: parentId, data: { ...node.data, hasChildren: false } });
+      }
+    }
+  }
+
   private updateHasChildrenFlags(
     changes: ModelChanges,
     nodeId: string,

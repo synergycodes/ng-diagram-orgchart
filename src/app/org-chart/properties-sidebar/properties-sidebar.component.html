@@ -11,6 +11,15 @@
           [reportsToCandidateNodes]="reportsToCandidateNodes()"
           [roleOptions]="roleOptions"
         />
+        <div class="sidebar-actions">
+          <button
+            class="remove-button p10"
+            type="button"
+            (click)="onRemoveNode()"
+          >
+            Remove node
+          </button>
+        </div>
       } @else if (state() === 'empty') {
         <app-sidebar-placeholder
           title="No selection"

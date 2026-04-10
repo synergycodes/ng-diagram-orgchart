@@ -16,16 +16,17 @@ import {
 import { DragReorderService } from '../dragging/drag-reorder.service';
 import { DragService } from '../dragging/drag.service';
 import { DropService } from '../dragging/drop.service';
+import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
 import { EdgeComponent } from './edge/edge.component';
 import { isOrgChartNode } from './guards';
-import { getHasChildren } from './data-getters';
 import { EdgeTemplateType, NodeTemplateType } from './interfaces';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
 import { ModelApplyService } from './model-apply.service';
 import { ModelChanges } from './model-changes';
+import { NodeVisibilityConfigService } from './node-visibility/node-visibility-config.service';
 import { NodeVisibilityService } from './node-visibility/node-visibility.service';
 import { NodeComponent } from './node/node.component';
 import { SortOrderService } from './sort-order/sort-order.service';
@@ -54,8 +55,10 @@ export class DiagramComponent {
   private readonly dragReorderService = inject(DragReorderService);
   private readonly modelApplyService = inject(ModelApplyService);
   private readonly sortOrderService = inject(SortOrderService);
+  private readonly hierarchyService = inject(HierarchyService);
   private readonly sidebarService = inject(PropertiesSidebarService);
   private readonly nodeVisibilityService = inject(NodeVisibilityService);
+  private readonly nodeVisibilityConfigService = inject(NodeVisibilityConfigService);
 
   protected readonly isLayoutInitialized = this.layoutGate.isInitialized;
   readonly isLayoutIdle = this.layoutGate.isIdle;
@@ -95,7 +98,7 @@ export class DiagramComponent {
     this.layoutService.setDirection(value);
     requestAnimationFrame(async () => {
       await this.modelApplyService.applyWithLayout();
-      this.viewportService.zoomToFit();
+      this.zoomToFit();
     });
   }
 
@@ -106,7 +109,7 @@ export class DiagramComponent {
     const changes = this.sortOrderService.initSortOrder();
     await this.modelApplyService.applyWithLayout(changes, { animate: false });
     this.dragReorderService.init();
-    this.viewportService.zoomToFit();
+    this.zoomToFit();
   }
 
   /**
@@ -117,21 +120,9 @@ export class DiagramComponent {
   async onSelectionRemoved(event: SelectionRemovedEvent): Promise<void> {
     if (event.deletedEdges.length === 0) return;
 
-    const changes = new ModelChanges();
-
-    for (const sourceId of new Set(event.deletedEdges.map((e) => e.source))) {
-      const stillHasChildren = this.modelService
-        .getConnectedEdges(sourceId)
-        .some((e) => e.source === sourceId);
-      if (stillHasChildren) continue;
-
-      const node = this.modelService.getNodeById(sourceId);
-      if (isOrgChartNode(node) && getHasChildren(node)) {
-        changes.addNodeUpdates({ id: sourceId, data: { ...node.data, hasChildren: false } });
-      }
-    }
-
     const parentIds = [...new Set(event.deletedEdges.map((e) => e.source))];
+    const changes = new ModelChanges();
+    this.hierarchyService.clearHasChildrenFlags(parentIds, changes);
 
     await this.modelApplyService.applyWithLayout(changes);
 
@@ -147,4 +138,16 @@ export class DiagramComponent {
     }
   }
 
+  private zoomToFit(): void {
+    const insets = this.nodeVisibilityConfigService.getViewportInsets();
+    const pad = 20;
+    this.viewportService.zoomToFit({
+      padding: [
+        (insets.top ?? 0) + pad,
+        (insets.right ?? 0) + pad,
+        (insets.bottom ?? 0) + pad,
+        (insets.left ?? 0) + pad,
+      ],
+    });
+  }
 }
