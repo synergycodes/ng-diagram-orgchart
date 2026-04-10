@@ -1,15 +1,23 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
-import { getHasChildren } from './data-getters';
-import { isOrgChartNodeData } from './guards';
+import { getHasChildren, getIsCollapsed } from './data-getters';
+import { ExpandCollapseService } from './expand-collapse.service';
+import { isOrgChartNode, isOrgChartNodeData } from './guards';
 import { EdgeTemplateType, HAS_CHILDREN } from './interfaces';
 import { ModelChanges } from './model-changes';
 import { SortOrderService } from './sort-order.service';
+import type { VisibilityHint } from '../layout/layout.service';
+
+export interface UpdateNodeParentResult {
+  changes: ModelChanges;
+  visibilityHint?: VisibilityHint;
+}
 
 /** Manages parent–child relationships in the org-chart tree. */
 @Injectable()
 export class HierarchyService {
   private readonly modelService = inject(NgDiagramModelService);
+  private readonly expandCollapseService = inject(ExpandCollapseService);
   private readonly sortOrderService = inject(SortOrderService);
 
   /** Returns the parent node ID, or `null` if the node is the root. */
@@ -43,7 +51,8 @@ export class HierarchyService {
 
   /**
    * Moves a node to a new parent, updating edges, `hasChildren` flags,
-   * and sort order on both the old and new parent.
+   * and sort order on both the old and new parent. Expands the new parent
+   * if it is collapsed.
    *
    * @param placement Optional sibling reference for insertion order.
    * @param modelChanges Accumulator to append changes to; creates a new one if omitted.
@@ -53,14 +62,25 @@ export class HierarchyService {
     newParentId: string | null,
     placement?: { referenceId: string; position: 'before' | 'after' },
     modelChanges: ModelChanges = new ModelChanges(),
-  ): ModelChanges {
+  ): UpdateNodeParentResult {
     const incomingEdge = this.modelService
       .getConnectedEdges(nodeId)
       .find((e) => e.target === nodeId);
     const oldParentId = incomingEdge?.source ?? null;
 
     if (oldParentId === newParentId) {
-      return modelChanges;
+      return { changes: modelChanges };
+    }
+
+    let visibilityHint: VisibilityHint | undefined;
+    if (newParentId) {
+      const targetNode = this.modelService.getNodeById(newParentId);
+      if (isOrgChartNode(targetNode) && getIsCollapsed(targetNode)) {
+        const result = this.expandCollapseService.prepareToggle(newParentId, modelChanges);
+        if (result) {
+          visibilityHint = { subtreeIds: result.toggledSubtreeIds, collapsing: false };
+        }
+      }
     }
 
     this.updateParentEdge(modelChanges, nodeId, newParentId, incomingEdge);
@@ -84,7 +104,7 @@ export class HierarchyService {
       );
     }
 
-    return modelChanges;
+    return { changes: modelChanges, visibilityHint };
   }
 
   /** Adds, removes, or re-targets the incoming edge to reflect the new parent. */

@@ -1,6 +1,4 @@
-import type { NgDiagramModelService } from 'ng-diagram';
 import type { VisibilityHint } from '../../diagram/layout/layout.service';
-import type { ExpandCollapseService } from '../../diagram/model/expand-collapse.service';
 import type { HierarchyService } from '../../diagram/model/hierarchy.service';
 import type { ModelChanges } from '../../diagram/model/model-changes';
 import type { SortOrderService } from '../../diagram/model/sort-order.service';
@@ -21,10 +19,8 @@ export interface DropResult {
 
 /** Services required by drop action strategies. */
 export interface DropDeps {
-  modelService: NgDiagramModelService;
   hierarchyService: HierarchyService;
   sortOrderService: SortOrderService;
-  expandCollapseService: ExpandCollapseService;
 }
 
 /** A strategy that produces model changes for a specific drop zone. */
