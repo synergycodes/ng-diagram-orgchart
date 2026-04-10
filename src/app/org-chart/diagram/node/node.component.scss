@@ -54,7 +54,9 @@
   border-radius: var(--ngd-token-radius-progressbar);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 200ms ease, background 200ms ease;
+  transition:
+    opacity 200ms ease,
+    background 200ms ease;
 
   &--visible {
     opacity: 1;

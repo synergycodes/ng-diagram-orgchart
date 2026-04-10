@@ -4,11 +4,7 @@
   }
   @case ('compact') {
     @let data = occupiedData();
-    <app-compact-node
-      [fullName]="data?.fullName"
-      [role]="data?.role"
-      [color]="color()"
-    />
+    <app-compact-node [fullName]="data?.fullName" [role]="data?.role" [color]="color()" />
   }
   @case ('full') {
     @let data = occupiedData();
@@ -58,14 +54,12 @@
 @if (showAddButtons()) {
   @if (!isRoot()) {
     <app-add-button
-  
       position="left"
       [horizontal]="isHorizontal()"
       [disabled]="isAddButtonDisabled()"
       (add)="onAddLeft($event)"
     />
     <app-add-button
-  
       position="right"
       [horizontal]="isHorizontal()"
       [disabled]="isAddButtonDisabled()"
@@ -73,7 +67,6 @@
     />
   }
   <app-add-button
-
     position="bottom"
     [horizontal]="isHorizontal()"
     [disabled]="isAddButtonDisabled()"
