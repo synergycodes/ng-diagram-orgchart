@@ -1,5 +1,6 @@
 import { ALIGNMENT_PADDING, type ZoneDetectionStrategy } from '../zone-detection.interface';
 
+/** Zone detection for horizontal (RIGHT) layout: right = child, left/right = sibling (mapped to top/bottom). */
 export const rightZoneDetection: ZoneDetectionStrategy = {
   detect(cursor, nodePosition, nodeSize) {
     const nodeCenterX = nodePosition.x + nodeSize.width / 2;

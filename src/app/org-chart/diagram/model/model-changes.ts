@@ -4,6 +4,10 @@ import { type OrgChartEdgeData, type OrgChartNodeData } from './interfaces';
 type NodeUpdate = Partial<DiagramNode<OrgChartNodeData>> & { id: string };
 type EdgeUpdate = Partial<DiagramEdge<OrgChartEdgeData>> & { id: string };
 
+/**
+ * Accumulates pending model mutations (adds, updates, deletes) that are
+ * applied atomically in a single transaction via {@link ModelApplyService}.
+ */
 export class ModelChanges {
   readonly nodeUpdates: NodeUpdate[] = [];
   readonly edgeUpdates: EdgeUpdate[] = [];

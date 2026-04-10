@@ -17,6 +17,10 @@ import {
   type SidebarFieldChange,
 } from './components/sidebar-form/sidebar-form.mappers';
 
+/**
+ * Backs the properties sidebar: tracks selection, exposes form data,
+ * and handles node updates, parent changes, and node removal.
+ */
 @Injectable()
 export class PropertiesSidebarService {
   private readonly selectionService = inject(NgDiagramSelectionService);
@@ -34,6 +38,7 @@ export class PropertiesSidebarService {
   readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(() =>
     this.selectedOrgChartNodes().at(0),
   );
+  /** Valid "reports to" targets: all occupied nodes except the selected node and its descendants. */
   readonly reportsToCandidateNodes = computed<Node<OrgChartOccupiedNodeData>[]>(() => {
     const selectedNode = this.selectedNode();
     if (!selectedNode) return [];
@@ -75,6 +80,7 @@ export class PropertiesSidebarService {
     this.isExpanded.update((v) => !v);
   }
 
+  /** Deletes the selected node, updates parent's hasChildren flag, and re-layouts. */
   async removeSelectedNode(): Promise<void> {
     const node = this.selectedNode();
     if (!node || !this.layoutGate.isIdle()) return;
@@ -91,6 +97,7 @@ export class PropertiesSidebarService {
     await this.modelApplyService.applyWithLayout(changes);
   }
 
+  /** Processes form field changes: updates node data and/or reparents if "reportsTo" changed. */
   handleFieldChange(change: SidebarFieldChange): void {
     const node = this.modelService.getNodeById(change.nodeId);
     if (!node || !isOrgChartNodeData(node.data)) return;

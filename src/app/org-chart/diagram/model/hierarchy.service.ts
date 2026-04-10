@@ -6,11 +6,13 @@ import { EdgeTemplateType } from './interfaces';
 import { ModelChanges } from './model-changes';
 import { SortOrderService } from './sort-order.service';
 
+/** Manages parent–child relationships in the org-chart tree. */
 @Injectable()
 export class HierarchyService {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly sortOrderService = inject(SortOrderService);
 
+  /** Returns the parent node ID, or `null` if the node is the root. */
   getParentId(nodeId: string): string | null {
     const incomingEdge = this.modelService
       .getConnectedEdges(nodeId)
@@ -18,6 +20,7 @@ export class HierarchyService {
     return incomingEdge?.source ?? null;
   }
 
+  /** Collects all descendant IDs below the given node (excluding the node itself). */
   getDescendantIds(nodeId: string): Set<string> {
     const childrenMap = this.buildChildrenMap();
     const descendantIds = new Set<string>();
@@ -38,6 +41,13 @@ export class HierarchyService {
     return descendantIds;
   }
 
+  /**
+   * Moves a node to a new parent, updating edges, `hasChildren` flags,
+   * and sort order on both the old and new parent.
+   *
+   * @param placement Optional sibling reference for insertion order.
+   * @param modelChanges Accumulator to append changes to; creates a new one if omitted.
+   */
   updateNodeParent(
     nodeId: string,
     newParentId: string | null,
@@ -77,6 +87,7 @@ export class HierarchyService {
     return modelChanges;
   }
 
+  /** Adds, removes, or re-targets the incoming edge to reflect the new parent. */
   private updateParentEdge(
     changes: ModelChanges,
     nodeId: string,
@@ -122,6 +133,7 @@ export class HierarchyService {
     }
   }
 
+  /** Syncs `hasChildren` on old and new parent after a move. */
   private updateHasChildrenFlags(
     changes: ModelChanges,
     nodeId: string,
@@ -155,6 +167,7 @@ export class HierarchyService {
     }
   }
 
+  /** Builds a parentId → childIds[] lookup from the current edge set. */
   private buildChildrenMap(): Map<string, string[]> {
     const childrenMap = new Map<string, string[]>();
     for (const edge of this.modelService.edges()) {

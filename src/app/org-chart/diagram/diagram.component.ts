@@ -129,6 +129,7 @@ export class DiagramComponent {
     }
   }
 
+  /** Opens the properties sidebar when org-chart nodes are selected. */
   onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {
     const hasOrgChartNodes = event.nodes.some(isOrgChartNode);
     if (hasOrgChartNodes) {
@@ -136,6 +137,7 @@ export class DiagramComponent {
     }
   }
 
+  /** Fits all nodes in view, accounting for overlay insets plus extra padding. */
   private zoomToFit(): void {
     const insets = this.nodeVisibilityConfigService.getViewportInsets();
     const pad = 20;

@@ -8,6 +8,7 @@ const sideToPosition: Record<DropZone, 'before' | 'after'> = {
   bottom: 'after',
 };
 
+/** Drop as sibling: places the dragged node before or after the target under the same parent. */
 export function createSiblingDropAction(deps: DropDeps): DropActionStrategy {
   const { hierarchyService, sortOrderService } = deps;
 

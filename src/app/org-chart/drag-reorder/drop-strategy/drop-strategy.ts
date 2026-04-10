@@ -10,10 +10,12 @@ import { createSiblingDropAction } from './strategies/sibling-drop-action';
 
 type DropStrategies = Record<DropZone, DropActionStrategy>;
 
+/** Selects the drop strategy for the given side. */
 export function getDropStrategy(strategies: DropStrategies, side: DropZone): DropActionStrategy {
   return strategies[side];
 }
 
+/** Injects dependencies and wires up the strategy map (left/right → sibling, bottom → child). */
 export function injectDropStrategies(): DropStrategies {
   const modelService = inject(NgDiagramModelService);
   const hierarchyService = inject(HierarchyService);

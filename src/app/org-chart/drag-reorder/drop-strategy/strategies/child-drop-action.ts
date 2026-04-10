@@ -3,6 +3,7 @@ import { isOrgChartNode } from '../../../diagram/model/guards';
 import { ModelChanges } from '../../../diagram/model/model-changes';
 import type { DropActionStrategy, DropDeps } from '../drop-strategy.interface';
 
+/** Drop as child: reparents the dragged node under the target, expanding it if collapsed. */
 export function createChildDropAction(deps: DropDeps): DropActionStrategy {
   const { modelService, hierarchyService, expandCollapseService } = deps;
 

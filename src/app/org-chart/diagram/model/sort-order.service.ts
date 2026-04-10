@@ -4,12 +4,17 @@ import { isOrgChartNode } from './guards';
 import { type OrgChartNodeData } from './interfaces';
 import { ModelChanges } from './model-changes';
 
+/** Describes where to insert a node relative to a sibling. */
 export interface ReorderChange {
   nodeId: string;
   referenceId: string | null;
   position: 'before' | 'after';
 }
 
+/**
+ * Manages sibling order within the org-chart tree via a `sortOrder`
+ * property on each node. ELK uses this order when laying out children.
+ */
 @Injectable()
 export class SortOrderService {
   private readonly modelService = inject(NgDiagramModelService);
@@ -41,6 +46,7 @@ export class SortOrderService {
    * @param parentId - The parent node whose children to reorder.
    * @param reorderChanges - Nodes to insert before/after a reference child, or append at the end.
    * @param modelChanges - Accumulator for model changes; created if not provided.
+   * @param excludeNodeIds - Children to skip (e.g. nodes about to be removed).
    * @returns `changes` — the accumulated model changes;
    *          `sortOrders` — assigned sortOrder for each node listed in `reorderChanges`
    *          (useful when the node hasn't been created yet).

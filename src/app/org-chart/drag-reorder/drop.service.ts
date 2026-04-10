@@ -5,6 +5,7 @@ import { NodeVisibilityService } from '../diagram/node-visibility/node-visibilit
 import { getDropStrategy, injectDropStrategies } from './drop-strategy';
 import type { HighlightedIndicator } from './interfaces';
 
+/** Executes a drop: applies the appropriate strategy and re-layouts. */
 @Injectable()
 export class DropService {
   private readonly layoutGate = inject(LayoutGate);

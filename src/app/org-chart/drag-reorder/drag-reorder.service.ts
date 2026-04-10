@@ -16,6 +16,11 @@ function setsEqual(a: Set<string>, b: Set<string>): boolean {
   return true;
 }
 
+/**
+ * Coordinates drag-and-drop reordering: listens to diagram drag events,
+ * tracks nearby nodes, highlights the active drop indicator, and delegates
+ * the final drop to {@link DropService}.
+ */
 @Injectable()
 export class DragReorderService implements OnDestroy {
   private readonly diagramService = inject(NgDiagramService);

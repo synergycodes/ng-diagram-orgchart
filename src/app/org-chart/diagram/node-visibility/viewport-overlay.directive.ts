@@ -1,6 +1,7 @@
 import { DestroyRef, Directive, ElementRef, inject } from '@angular/core';
 import { NodeVisibilityConfigService } from './node-visibility-config.service';
 
+/** Registers the host element as a UI overlay that obscures part of the viewport. */
 @Directive({
   selector: '[appViewportOverlay]',
 })

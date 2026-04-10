@@ -12,6 +12,10 @@ export interface ApplyWithLayoutOptions {
   animate?: boolean;
 }
 
+/**
+ * Orchestrates model mutations: computes layout, optionally animates,
+ * and commits changes to the diagram in a single transaction.
+ */
 @Injectable()
 export class ModelApplyService {
   private readonly diagramService = inject(NgDiagramService);
@@ -47,12 +51,13 @@ export class ModelApplyService {
   /**
    * Applies accumulated model changes to the diagram in a single transaction.
    *
-   * The transaction callback commits synchronously. We don't await the
-   * measurement Promise — instead we wait one frame for Angular to render.
-   *
    * Structural ops are guarded: skips adds for existing elements and deletes
    * for already-removed elements (safe when the same changes are applied twice
    * across start and final applies).
+   *
+   * Waits one frame after the transaction instead of awaiting the transaction
+   * Promise due to a measurementTracker issue in ng-diagram.
+   * TODO: await `diagramService.transaction` directly once the issue is fixed.
    */
   async apply(changes: ModelChanges): Promise<void> {
     this.diagramService.transaction(
@@ -83,7 +88,6 @@ export class ModelApplyService {
       { waitForMeasurements: true },
     );
 
-    // TODO: Remove it and await for diagramService.transaction once measurementTracker is fixed in ngDiagram
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   }
 }

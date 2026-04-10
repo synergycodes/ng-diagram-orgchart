@@ -3,6 +3,7 @@ import { animateViewportTo } from '../animation/viewport-animation';
 
 const EDGE_PADDING = 60;
 
+/** Per-side pixel offsets representing areas obscured by UI overlays. */
 export interface ViewportInsets {
   top?: number;
   right?: number;
@@ -10,6 +11,7 @@ export interface ViewportInsets {
   left?: number;
 }
 
+/** Converts the viewport to a flow-space rect, shrunk by overlay insets. */
 function getViewportRect(viewport: Viewport, insets?: ViewportInsets) {
   const { x: panX, y: panY, width = 0, height = 0, scale } = viewport;
   const insetLeft = (insets?.left ?? 0) / scale;
@@ -28,6 +30,7 @@ function getViewportRect(viewport: Viewport, insets?: ViewportInsets) {
   };
 }
 
+/** Returns the node's bounding rect in flow-space coordinates. */
 function getNodeRect(node: Node) {
   const nodeWidth = node.measuredBounds?.width ?? node.size?.width ?? 0;
   const nodeHeight = node.measuredBounds?.height ?? node.size?.height ?? 0;
@@ -39,6 +42,7 @@ function getNodeRect(node: Node) {
   };
 }
 
+/** Returns `true` if the node is fully inside the viewport (ignoring insets). */
 export function isNodeInViewport(node: Node, viewport: Viewport): boolean {
   if (!viewport.width || !viewport.height) return true;
 

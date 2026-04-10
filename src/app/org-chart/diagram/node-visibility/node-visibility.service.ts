@@ -3,6 +3,7 @@ import { NgDiagramModelService, NgDiagramViewportService } from 'ng-diagram';
 import { ensureNodeVisible } from './viewport';
 import { NodeVisibilityConfigService } from './node-visibility-config.service';
 
+/** Pans the viewport to bring a node into the visible (non-obscured) area. */
 @Injectable()
 export class NodeVisibilityService {
   private readonly modelService = inject(NgDiagramModelService);

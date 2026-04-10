@@ -3,6 +3,10 @@ import { isOrgChartEdge, isOrgChartNode } from '../model/guards';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../model/interfaces';
 import { getIsHidden } from '../model/data-getters';
 
+/**
+ * Returns the subset of nodes and edges that are currently visible
+ * (not hidden inside a collapsed subtree).
+ */
 export function getVisibleSet(
   nodes: DiagramNode[],
   edges: DiagramEdge[],
@@ -20,6 +24,12 @@ export function getVisibleSet(
   };
 }
 
+/**
+ * Predicts the visible set after a collapse/expand toggle is applied.
+ *
+ * @param subtreeIds IDs of nodes in the toggled subtree.
+ * @param collapsing `true` when collapsing (hide subtree), `false` when expanding (reveal subtree).
+ */
 export function getFutureVisibleSet(
   nodes: DiagramNode[],
   edges: DiagramEdge[],
@@ -44,6 +54,7 @@ export function getFutureVisibleSet(
   };
 }
 
+/** Finds the root node — the one that is never an edge target. */
 export function findRootNode(nodes: DiagramNode[], edges: DiagramEdge[]): DiagramNode | null {
   const targetIds = new Set(edges.map((e) => e.target));
   return nodes.find((n) => !targetIds.has(n.id)) ?? null;

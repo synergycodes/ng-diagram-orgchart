@@ -12,6 +12,10 @@ const DETECTION_RANGE = 100;
 /** Broad-phase range for getNodesInRange. Larger to account for node dimensions. */
 const QUERY_RANGE = 400;
 
+/**
+ * Handles drag logic: tracks which nodes are being dragged, computes
+ * hidden drop sides, and resolves the nearest valid drop zone.
+ */
 @Injectable()
 export class DragService {
   private readonly modelService = inject(NgDiagramModelService);
@@ -40,6 +44,7 @@ export class DragService {
     return this.draggedNodeIds().has(nodeId);
   }
 
+  /** Computes which drop sides to hide per node (own subtree, parent, root). */
   getHiddenSides(draggedNodeId: string): Map<string, Set<DropZone>> {
     return mergeMaps(
       this.getAllSidesForDraggedSubtree(draggedNodeId),
@@ -48,6 +53,7 @@ export class DragService {
     );
   }
 
+  /** Finds the nearest valid drop zone for the dragged node, if any. */
   resolveZone(
     draggedNodeId: string,
     hiddenSides: Map<string, Set<DropZone>>,
@@ -143,6 +149,7 @@ export class DragService {
   }
 }
 
+/** Merges multiple nodeId → hidden-sides maps, unioning the sets. */
 function mergeMaps(...maps: Map<string, Set<DropZone>>[]): Map<string, Set<DropZone>> {
   const result = new Map<string, Set<DropZone>>();
   for (const map of maps) {
