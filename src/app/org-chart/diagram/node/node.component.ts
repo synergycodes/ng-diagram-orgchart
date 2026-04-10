@@ -7,7 +7,7 @@ import {
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
-import { DragReorderService } from '../../dragging/drag-reorder.service';
+import { DragReorderService } from '../../drag-reorder/drag-reorder.service';
 import { PropertiesSidebarService } from '../../properties-sidebar/properties-sidebar.service';
 import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService } from '../layout/layout.service';

@@ -13,9 +13,9 @@ import {
   type SelectionGestureEndedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
-import { DragReorderService } from '../dragging/drag-reorder.service';
-import { DragService } from '../dragging/drag.service';
-import { DropService } from '../dragging/drop.service';
+import { DragReorderService } from '../drag-reorder/drag-reorder.service';
+import { DragService } from '../drag-reorder/drag.service';
+import { DropService } from '../drag-reorder/drop.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
 import { EdgeComponent } from './edge.component';
