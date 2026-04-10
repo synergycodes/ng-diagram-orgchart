@@ -34,24 +34,12 @@ export function createSiblingDropAction(deps: DropDeps): DropActionStrategy {
         return { changes };
       }
 
-      const incomingEdge = deps.modelService
-        .getConnectedEdges(draggedNodeId)
-        .find((e) => e.target === draggedNodeId);
-      hierarchyService.computeEdgeMutations(changes, draggedNodeId, newParentId, incomingEdge);
-
-      hierarchyService.computeParentFlagUpdates(changes, draggedNodeId, oldParentId, newParentId);
-
-      if (oldParentId) {
-        sortOrderService.reorderChildren(oldParentId, [], changes, new Set([draggedNodeId]));
-      }
-
-      if (newParentId) {
-        sortOrderService.reorderChildren(
-          newParentId,
-          [{ nodeId: draggedNodeId, referenceId: targetNodeId, position }],
-          changes,
-        );
-      }
+      hierarchyService.updateNodeParent(
+        draggedNodeId,
+        newParentId,
+        newParentId ? { referenceId: targetNodeId, position } : undefined,
+        changes,
+      );
 
       return { changes };
     },

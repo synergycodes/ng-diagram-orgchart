@@ -6,14 +6,15 @@ import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collaps
 import { LayoutGate } from '../diagram/layout/layout-gate';
 import { LayoutService } from '../diagram/layout/layout.service';
 import { ModelApplyService } from '../diagram/model-apply.service';
-import { provideNodeVisibilityConfig } from '../diagram/node-visibility/node-visibility-config.service';
+import { NodeVisibilityConfigService } from '../diagram/node-visibility/node-visibility-config.service';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
+import { ViewportBoundsDirective } from '../diagram/node-visibility/viewport-bounds.directive';
+import { ViewportOverlayDirective } from '../diagram/node-visibility/viewport-overlay.directive';
 import { SortOrderService } from '../diagram/sort-order/sort-order.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { ToolbarHorizontalComponent } from '../toolbar-horizontal/toolbar-horizontal.component';
-import { TopBarService } from '../top-navbar/top-bar.service';
 import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
 
 @Component({
@@ -24,6 +25,8 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     TopNavbarComponent,
     NgDiagramMinimapComponent,
     ToolbarHorizontalComponent,
+    ViewportBoundsDirective,
+    ViewportOverlayDirective,
   ],
   templateUrl: './org-chart-page.component.html',
   styleUrl: './org-chart-page.component.scss',
@@ -31,7 +34,6 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
   providers: [
     provideNgDiagram(),
     PropertiesSidebarService,
-    TopBarService,
     SortOrderService,
     ExpandCollapseService,
     LayoutGate,
@@ -40,7 +42,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     HierarchyService,
     AddNodeService,
     NodeVisibilityService,
-    provideNodeVisibilityConfig(),
+    NodeVisibilityConfigService,
   ],
 })
 export class OrgChartPageComponent {}
