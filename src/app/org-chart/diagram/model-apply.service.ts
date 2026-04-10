@@ -79,6 +79,7 @@ export class ModelApplyService {
       { waitForMeasurements: true },
     );
 
+    // TODO: Remove it and await for diagramService.transaction once measurementTracker is fixed in ngDiagram
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   }
 }
