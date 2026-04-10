@@ -27,7 +27,7 @@ export class ModelApplyService {
     changes: ModelChanges = new ModelChanges(),
     options?: ApplyWithLayoutOptions,
   ): Promise<void> {
-    const animate = false; // TODO: restore: options?.animate !== false;
+    const animate = options?.animate !== false;
 
     await this.layoutGate.execute(async () => {
       await this.layoutService.computeLayout(changes, options?.visibility);
