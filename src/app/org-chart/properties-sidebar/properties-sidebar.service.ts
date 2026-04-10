@@ -10,7 +10,7 @@ import { LayoutGate } from '../diagram/layout/layout-gate';
 import { ModelApplyService } from '../diagram/model-apply.service';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
-import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
+import { type ComboboxOption } from '../shared/combobox/combobox.component';
 import {
   formDataToNodeData,
   type SidebarFieldChange,
@@ -45,9 +45,9 @@ export class PropertiesSidebarService {
       );
   });
 
-  readonly roleOptions: SelectDropdownOption<OrgChartRole>[] = Object.values(OrgChartRole).map(
-    (role) => ({ value: role, label: role }),
-  );
+  readonly roleOptions: ComboboxOption<OrgChartRole>[] = Object.values(OrgChartRole)
+    .sort((a, b) => a.localeCompare(b))
+    .map((role) => ({ value: role, label: role }));
 
   readonly selectedNodeParentId = computed<string | null>(() => {
     const node = this.selectedNode();

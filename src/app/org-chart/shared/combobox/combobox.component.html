@@ -1,0 +1,74 @@
+<div class="combobox">
+  <div class="combobox-trigger" (click)="onTriggerClick()">
+    @if (prefixTpl(); as tpl) {
+      <ng-container
+        [ngTemplateOutlet]="tpl.templateRef"
+        [ngTemplateOutletContext]="{ $implicit: prefixOption() }"
+      />
+    }
+
+    <input
+      #comboboxInput
+      class="combobox-input p10"
+      type="text"
+      role="combobox"
+      autocomplete="off"
+      [attr.id]="triggerId()"
+      [attr.placeholder]="placeholder()"
+      [attr.aria-expanded]="isOpen()"
+      [attr.aria-activedescendant]="activeDescendantId()"
+      [attr.aria-controls]="isOpen() ? panelId() : null"
+      aria-autocomplete="list"
+      aria-haspopup="listbox"
+      [value]="inputText()"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+      (blur)="onBlur()"
+    />
+
+    <button
+      class="caret-button"
+      type="button"
+      tabindex="-1"
+      aria-label="Toggle options"
+      (click)="onChevronClick(); $event.stopPropagation()"
+    >
+      <span class="caret-icon" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  @if (isOpen()) {
+    <div class="combobox-listbox" role="listbox" [attr.id]="panelId()">
+      @for (item of displayedOptions(); track item.value; let i = $index) {
+        <div
+          #optionEl
+          class="combobox-option p10"
+          role="option"
+          [attr.id]="optionId(i)"
+          [attr.aria-selected]="isSelected(item)"
+          [class.selected]="isSelected(item)"
+          [class.focused]="focusedIndex() === i"
+          (mousedown)="$event.preventDefault()"
+          (click)="select(item)"
+        >
+          @if (item.type === 'null') {
+            @if (nullOptionTpl(); as tpl) {
+              <ng-container [ngTemplateOutlet]="tpl.templateRef" />
+            } @else {
+              <span class="option-label placeholder">{{ placeholder() }}</span>
+            }
+          } @else {
+            @if (optionTpl(); as tpl) {
+              <ng-container
+                [ngTemplateOutlet]="tpl.templateRef"
+                [ngTemplateOutletContext]="{ $implicit: item.option }"
+              />
+            } @else {
+              <span class="option-label">{{ item.option.label }}</span>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
