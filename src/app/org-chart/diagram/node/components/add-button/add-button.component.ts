@@ -8,6 +8,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       [class.add-btn--left]="position() === 'left'"
       [class.add-btn--right]="position() === 'right'"
       [class.add-btn--bottom]="position() === 'bottom'"
+      [disabled]="disabled()"
       (pointerdown)="$event.stopPropagation()"
       (click)="onAdd($event)"
       data-no-drag="true"
@@ -26,6 +27,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 export class AddButtonComponent {
   position = input.required<'left' | 'right' | 'bottom'>();
   horizontal = input(false);
+  disabled = input(false);
   add = output<MouseEvent>();
 
   onAdd(event: MouseEvent): void {

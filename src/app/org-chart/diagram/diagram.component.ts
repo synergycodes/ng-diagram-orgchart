@@ -10,16 +10,17 @@ import {
   NgDiagramViewportService,
   type Edge,
   type NgDiagramConfig,
-  type NodeDragEndedEvent,
-  type NodeDragStartedEvent,
   type SelectionGestureEndedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
+import { DragReorderService } from '../dragging/drag-reorder.service';
+import { DragService } from '../dragging/drag.service';
+import { DropService } from '../dragging/drop.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
-import { DragStateService } from './drag-state.service';
 import { EdgeComponent } from './edge/edge.component';
-import { isOrgChartNode, isOrgChartNodeData } from './guards';
+import { isOrgChartNode } from './guards';
+import { getHasChildren } from './node-data-getters';
 import { EdgeTemplateType, NodeTemplateType } from './interfaces';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
@@ -42,16 +43,16 @@ import { SortOrderService } from './sort-order/sort-order.service';
   templateUrl: './diagram.component.html',
   styleUrl: './diagram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DragStateService],
+  providers: [DragService, DropService, DragReorderService],
 })
 export class DiagramComponent {
   private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
+  private readonly dragReorderService = inject(DragReorderService);
   private readonly modelApplyService = inject(ModelApplyService);
   private readonly sortOrderService = inject(SortOrderService);
-  private readonly dragStateService = inject(DragStateService);
   private readonly sidebarService = inject(PropertiesSidebarService);
 
   protected readonly isLayoutInitialized = this.layoutGate.isInitialized;
@@ -104,6 +105,7 @@ export class DiagramComponent {
   async onDiagramInit(_: DiagramInitEvent): Promise<void> {
     const changes = this.sortOrderService.initSortOrder();
     await this.modelApplyService.applyWithLayout(changes);
+    this.dragReorderService.init();
     this.viewportService.zoomToFit();
   }
 
@@ -124,7 +126,7 @@ export class DiagramComponent {
       if (stillHasChildren) continue;
 
       const node = this.modelService.getNodeById(sourceId);
-      if (node && isOrgChartNodeData(node.data) && node.data.hasChildren) {
+      if (isOrgChartNode(node) && getHasChildren(node)) {
         changes.addNodeUpdates({ id: sourceId, data: { ...node.data, hasChildren: false } });
       }
     }
@@ -139,11 +141,4 @@ export class DiagramComponent {
     }
   }
 
-  onNodeDragStarted(event: NodeDragStartedEvent): void {
-    this.dragStateService.setDraggedNodes(event);
-  }
-
-  onNodeDragEnded(_: NodeDragEndedEvent): void {
-    this.dragStateService.clearDrag();
-  }
 }

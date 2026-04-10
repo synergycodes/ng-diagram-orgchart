@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Edge, type Node } from 'ng-diagram';
+import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { isOrgChartNode } from '../diagram/guards';
+import { getIsCollapsed } from '../diagram/node-data-getters';
 import {
   EdgeTemplateType,
   NodeTemplateType,
@@ -8,7 +10,6 @@ import {
   type OrgChartNodeData,
   type OrgChartVacantNodeData,
 } from '../diagram/interfaces';
-import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { LayoutGate } from '../diagram/layout/layout-gate';
 import { ModelApplyService } from '../diagram/model-apply.service';
 import { ModelChanges } from '../diagram/model-changes';
@@ -35,15 +36,13 @@ export class AddNodeService {
    * @returns The new node's ID, or `undefined` if the operation was skipped.
    */
   async addNode(nodeId: string, action: AddNodeAction): Promise<string | undefined> {
-    if (!this.layoutGate.isIdle()) return undefined;
-
     const { parentId, referenceNodeId, position } = this.resolveParams(nodeId, action);
     if (!parentId) return undefined;
 
     const parentNode = this.modelService.getNodeById(parentId);
     if (!parentNode || !isOrgChartNode(parentNode)) return undefined;
 
-    const needsExpand = action === 'child' && !!parentNode.data.isCollapsed;
+    const needsExpand = action === 'child' && !!getIsCollapsed(parentNode);
     const newNodeId = crypto.randomUUID();
 
     const { changes, sortOrders } = this.sortOrderService.reorderChildren(parentId, [

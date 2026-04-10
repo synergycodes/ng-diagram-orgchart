@@ -38,9 +38,10 @@
 
   .hover-zone {
     position: absolute;
-    inset: -30px;
+    inset: -40px -40px -55px;
     z-index: -1;
     pointer-events: none;
+
   }
 
   &:hover .hover-zone {
@@ -62,7 +63,11 @@
   transition: opacity 200ms ease;
 
   &--visible {
-    opacity: 0.6;
+    opacity: 0.5;
+  }
+
+  &--highlighted {
+    opacity: 1;
   }
 
   --drop-indicator-height: 6px; /* No Figma token */
@@ -97,6 +102,15 @@
     &.drop-indicator--no-toggle {
       bottom: var(--drop-indicator-horizontal-padding);
     }
+  }
+}
+
+:host(.node-dragging):hover {
+  --add-btn-opacity: 0;
+  --add-btn-pointer-events: none;
+
+  .hover-zone {
+    pointer-events: none;
   }
 }
 

@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
 import { isOccupiedNode, isOrgChartNode, isOrgChartNodeData } from '../diagram/guards';
@@ -7,6 +6,9 @@ import {
   type OrgChartNodeData,
   type OrgChartOccupiedNodeData,
 } from '../diagram/interfaces';
+import { LayoutGate } from '../diagram/layout/layout-gate';
+import { ModelApplyService } from '../diagram/model-apply.service';
+import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { type ComboboxOption } from '../shared/combobox/combobox.component';
 import {
@@ -16,17 +18,14 @@ import {
 
 @Injectable()
 export class PropertiesSidebarService {
-  private readonly document = inject(DOCUMENT);
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly hierarchyService = inject(HierarchyService);
+  private readonly layoutGate = inject(LayoutGate);
+  private readonly modelApplyService = inject(ModelApplyService);
+  private readonly nodeVisibilityService = inject(NodeVisibilityService);
 
   readonly isExpanded = signal(false);
-
-  get width(): number {
-    const el = this.document.querySelector('app-properties-sidebar');
-    return parseFloat(el ? getComputedStyle(el).getPropertyValue('--sidebar-width') : '') || 0;
-  }
 
   readonly selectedOrgChartNodes = computed<Node<OrgChartNodeData>[]>(() =>
     this.selectionService.selection().nodes.filter(isOrgChartNode),
@@ -84,13 +83,20 @@ export class PropertiesSidebarService {
       this.updateNodeData(change.nodeId, updatedNodeData);
     }
 
-    if (this.hasHierarchicalChanges(change)) {
-      this.hierarchyService.updateNodeParent(change.nodeId, change.formData.reportsTo);
+    if (this.hasHierarchicalChanges(change) && this.layoutGate.isIdle()) {
+      this.updateNodeParent(change.nodeId, change.formData.reportsTo);
     }
   }
 
+  private async updateNodeParent(nodeId: string, newParentId: string | null): Promise<void> {
+    const changes = this.hierarchyService.updateNodeParent(nodeId, newParentId);
+    await this.modelApplyService.applyWithLayout(changes);
+    this.nodeVisibilityService.ensureVisible(nodeId);
+  }
+
   private hasHierarchicalChanges(change: SidebarFieldChange): boolean {
-    return change.fields.includes('reportsTo');
+    const currentParentId = this.hierarchyService.getParentId(change.nodeId);
+    return change.fields.includes('reportsTo') && change.formData.reportsTo !== currentParentId;
   }
 
   private hasNodeDataChanges(change: SidebarFieldChange): boolean {
