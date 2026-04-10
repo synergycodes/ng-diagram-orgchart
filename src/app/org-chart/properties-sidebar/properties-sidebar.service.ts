@@ -1,5 +1,5 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
 import { isOccupiedNode, isOrgChartNode, isOrgChartNodeData } from '../diagram/guards';
 import {
@@ -8,7 +8,7 @@ import {
   type OrgChartOccupiedNodeData,
 } from '../diagram/interfaces';
 import { HierarchyService } from '../hierarchy/hierarchy.service';
-import { type SelectDropdownOption } from '../shared/select-dropdown/select-dropdown.component';
+import { type ComboboxOption } from '../shared/combobox/combobox.component';
 import {
   formDataToNodeData,
   type SidebarFieldChange,
@@ -46,9 +46,9 @@ export class PropertiesSidebarService {
       );
   });
 
-  readonly roleOptions: SelectDropdownOption<OrgChartRole>[] = Object.values(OrgChartRole).map(
-    (role) => ({ value: role, label: role }),
-  );
+  readonly roleOptions: ComboboxOption<OrgChartRole>[] = Object.values(OrgChartRole)
+    .sort((a, b) => a.localeCompare(b))
+    .map((role) => ({ value: role, label: role }));
 
   readonly selectedNodeParentId = computed<string | null>(() => {
     const node = this.selectedNode();

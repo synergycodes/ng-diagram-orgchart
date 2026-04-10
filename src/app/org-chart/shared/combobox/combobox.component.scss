@@ -1,40 +1,60 @@
 :host {
-  --dropdown-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
+  --combobox-trigger-padding: var(--ngd-token-spacing-input-m-v-pad)
     var(--ngd-token-spacing-input-m-h-pad);
-  --dropdown-trigger-label-padding: var(--ngd-token-spacing-dropdown-item-s-v-pad)
+  --combobox-input-padding: var(--ngd-token-spacing-dropdown-item-s-v-pad)
     var(--ngd-token-spacing-dropdown-item-s-h-pad);
 }
 
-.dropdown {
+.combobox {
   position: relative;
 }
 
-.dropdown-trigger {
+.combobox-trigger {
   display: flex;
   align-items: center;
-  gap: var(--ngd-primitive-4rule-12); /* No Figma token */
   width: 100%;
-  padding: var(--dropdown-trigger-padding);
+  padding: var(--combobox-trigger-padding);
   border: var(--ngd-primitive-odd-1) solid var(--ngd-input-stroke-primary-default); /* No Figma token */
   border-radius: var(--ngd-token-radius-input-m);
   background: var(--ngd-ui-bg-primary-default);
   color: var(--ngd-txt-primary-default);
-  outline: none;
   transition: border-color 150ms ease;
   box-sizing: border-box;
-  cursor: pointer;
   position: relative;
   text-align: left;
 
-  &:focus {
+  &:focus-within {
     border-color: var(--ngd-input-stroke-primary-focus);
   }
+}
+
+.combobox-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  padding: var(--combobox-input-padding);
+
+  &::placeholder {
+    color: var(--ngd-txt-secondary-default);
+  }
+}
+
+.caret-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px; /* No Figma token */
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  margin-left: auto;
+  flex-shrink: 0;
 
   .caret-icon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
     width: 9px;
     height: 5px;
     background-color: var(--ngd-txt-secondary-default);
@@ -43,15 +63,10 @@
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
-    pointer-events: none;
-  }
-
-  .option-label {
-    padding: var(--dropdown-trigger-label-padding);
   }
 }
 
-.dropdown-panel {
+.combobox-listbox {
   position: absolute;
   top: calc(100% + var(--ngd-token-spacing-dropdown-wrap-s-gap));
   left: 0;
@@ -67,7 +82,7 @@
     var(--ngd-token-shadow-shadow-s-blur) var(--ngd-token-shadow-shadow-s-spread) var(--ngd-shadow);
 }
 
-.dropdown-option {
+.combobox-option {
   display: flex;
   align-items: center;
   width: 100%;
