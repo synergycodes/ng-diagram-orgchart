@@ -852,4 +852,20 @@ html[data-theme='dark'] {
   --ngd-token-spacing-spacing-32: var(--ngd-primitive-4rule-32);
   --ngd-token-stroke-edge-regular: var(--ngd-primitive-even-2);
   --ngd-token-stroke-edge-bold: var(--ngd-primitive-odd-3);
+
+  /* role colors */
+  --ngd-role-plant-director: var(--acc8-400);
+  --ngd-role-operations-manager: var(--ngd-colors-acc4-400);
+  --ngd-role-hse-safety-lead: var(--acc9-400);
+  --ngd-role-hse-inspector: var(--acc9-400);
+  --ngd-role-maintenance-head: var(--acc9-400);
+  --ngd-role-hr-payroll-manager: var(--ngd-colors-acc1-400);
+  --ngd-role-shift-a-supervisor: var(--ngd-colors-acc4-400);
+  --ngd-role-shift-b-supervisor: var(--ngd-colors-acc2-400); /* No Figma token */
+  --ngd-role-shift-a-lead: var(--ngd-colors-acc4-300); /* No Figma token */
+  --ngd-role-shift-b-lead: var(--ngd-colors-acc4-400);
+  --ngd-role-senior-electrician: var(--acc9-400);
+  --ngd-role-maintenance-technician: var(--acc9-300); /* No Figma token */
+  --ngd-role-union-representative: var(--ngd-colors-acc1-400);
+  --ngd-role-production-coordinator: var(--ngd-colors-acc3-400); /* No Figma token */
 }

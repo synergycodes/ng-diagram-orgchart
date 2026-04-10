@@ -24,20 +24,20 @@ export enum OrgChartRole {
 }
 
 export const ORG_CHART_ROLE_COLORS: Record<OrgChartRole, string> = {
-  [OrgChartRole.PlantDirector]: '#AF3',
-  [OrgChartRole.OperationsManager]: '#3AB0F6',
-  [OrgChartRole.HseSafetyLead]: '#EB8147',
-  [OrgChartRole.HseInspector]: '#EB8147',
-  [OrgChartRole.MaintenanceHead]: '#EB8147',
-  [OrgChartRole.HrPayrollManager]: '#A977FF',
-  [OrgChartRole.ShiftASupervisor]: '#3AB0F6',
-  [OrgChartRole.ShiftBSupervisor]: '#D45D5D', // New generated
-  [OrgChartRole.ShiftALead]: '#54B8D9', // New generated
-  [OrgChartRole.ShiftBLead]: '#3AB0F6',
-  [OrgChartRole.SeniorElectrician]: '#EB8147',
-  [OrgChartRole.MaintenanceTechnician]: '#D97B5D', // New generated
-  [OrgChartRole.UnionRepresentative]: '#A977FF',
-  [OrgChartRole.ProductionCoordinator]: '#4DB89A', // New generated
+  [OrgChartRole.PlantDirector]: 'var(--ngd-role-plant-director)',
+  [OrgChartRole.OperationsManager]: 'var(--ngd-role-operations-manager)',
+  [OrgChartRole.HseSafetyLead]: 'var(--ngd-role-hse-safety-lead)',
+  [OrgChartRole.HseInspector]: 'var(--ngd-role-hse-inspector)',
+  [OrgChartRole.MaintenanceHead]: 'var(--ngd-role-maintenance-head)',
+  [OrgChartRole.HrPayrollManager]: 'var(--ngd-role-hr-payroll-manager)',
+  [OrgChartRole.ShiftASupervisor]: 'var(--ngd-role-shift-a-supervisor)',
+  [OrgChartRole.ShiftBSupervisor]: 'var(--ngd-role-shift-b-supervisor)',
+  [OrgChartRole.ShiftALead]: 'var(--ngd-role-shift-a-lead)',
+  [OrgChartRole.ShiftBLead]: 'var(--ngd-role-shift-b-lead)',
+  [OrgChartRole.SeniorElectrician]: 'var(--ngd-role-senior-electrician)',
+  [OrgChartRole.MaintenanceTechnician]: 'var(--ngd-role-maintenance-technician)',
+  [OrgChartRole.UnionRepresentative]: 'var(--ngd-role-union-representative)',
+  [OrgChartRole.ProductionCoordinator]: 'var(--ngd-role-production-coordinator)',
 };
 
 export function getColorForRole(role: OrgChartRole | undefined): string | undefined {
