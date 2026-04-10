@@ -3,20 +3,22 @@
     <app-vacant-node [role]="node().data.role" />
   }
   @case ('compact') {
+    @let data = occupiedData();
     <app-compact-node
-      [fullName]="occupiedData()?.fullName"
-      [role]="occupiedData()?.role"
-      [color]="occupiedData()?.color"
+      [fullName]="data?.fullName"
+      [role]="data?.role"
+      [color]="data?.color"
     />
   }
   @case ('full') {
+    @let data = occupiedData();
     <app-full-node
-      [fullName]="occupiedData()?.fullName"
-      [role]="occupiedData()?.role"
-      [color]="occupiedData()?.color"
-      [reports]="occupiedData()?.reports"
-      [span]="occupiedData()?.span"
-      [shiftCapacity]="occupiedData()?.shiftCapacity"
+      [fullName]="data?.fullName"
+      [role]="data?.role"
+      [color]="data?.color"
+      [reports]="data?.reports"
+      [span]="data?.span"
+      [shiftCapacity]="data?.shiftCapacity"
     />
   }
 }
@@ -31,46 +33,54 @@
   />
 }
 
-<div
-  class="drop-indicator drop-indicator--left"
-  [class.drop-indicator--visible]="showLeftIndicator()"
-  [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
-></div>
-<div
-  class="drop-indicator drop-indicator--right"
-  [class.drop-indicator--visible]="showRightIndicator()"
-  [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
-></div>
-<div
-  class="drop-indicator drop-indicator--bottom"
-  [class.drop-indicator--visible]="showBottomIndicator()"
-  [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
-  [class.drop-indicator--no-toggle]="!hasChildren()"
-></div>
-
-@if (!isRoot()) {
-  <app-add-button
-    position="left"
-    [horizontal]="isHorizontal()"
-    [disabled]="isAddButtonDisabled()"
-    (add)="onAddLeft($event)"
-  />
-  <app-add-button
-    position="right"
-    [horizontal]="isHorizontal()"
-    [disabled]="isAddButtonDisabled()"
-    (add)="onAddRight($event)"
-  />
+@if (isInDropRange()) {
+  <div
+    class="drop-indicator drop-indicator--left"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().left"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
+  ></div>
+  <div
+    class="drop-indicator drop-indicator--right"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().right"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
+  ></div>
+  <div
+    class="drop-indicator drop-indicator--bottom"
+    animate.leave="drop-indicator--leaving"
+    [class.drop-indicator--visible]="!hiddenSides().bottom"
+    [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
+    [class.drop-indicator--no-toggle]="!hasChildren()"
+  ></div>
 }
-<app-add-button
-  position="bottom"
-  [horizontal]="isHorizontal()"
-  [disabled]="isAddButtonDisabled()"
-  (add)="onAddBottom($event)"
-/>
 
-<!-- Invisible hover zone so "+" buttons outside the node boundary remain reachable. -->
-<div class="hover-zone" data-no-drag="true"></div>
+@if (showAddButtons()) {
+  @if (!isRoot()) {
+    <app-add-button
+  
+      position="left"
+      [horizontal]="isHorizontal()"
+      [disabled]="isAddButtonDisabled()"
+      (add)="onAddLeft($event)"
+    />
+    <app-add-button
+  
+      position="right"
+      [horizontal]="isHorizontal()"
+      [disabled]="isAddButtonDisabled()"
+      (add)="onAddRight($event)"
+    />
+  }
+  <app-add-button
+
+    position="bottom"
+    [horizontal]="isHorizontal()"
+    [disabled]="isAddButtonDisabled()"
+    (add)="onAddBottom($event)"
+  />
+  <div class="hover-zone" data-no-drag="true"></div>
+}
 
 <!-- Connection ports: incoming edge port and outgoing edge port. -->
 @if (isHorizontal()) {

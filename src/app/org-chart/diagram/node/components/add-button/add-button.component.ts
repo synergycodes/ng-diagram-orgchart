@@ -5,6 +5,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   template: `
     <button
       class="add-btn"
+      animate.leave="add-btn--leaving"
       [class.add-btn--left]="position() === 'left'"
       [class.add-btn--right]="position() === 'right'"
       [class.add-btn--bottom]="position() === 'bottom'"

@@ -34,7 +34,7 @@ export class DragReorderService implements OnDestroy {
   private readonly _nodesInRange = signal<Set<string>>(new Set(), { equal: setsEqual });
 
   private draggedNodeId: string | null = null;
-  private hiddenSides = new Map<string, Set<DropZone>>();
+  private readonly _hiddenSides = signal(new Map<string, Set<DropZone>>());
   private pendingDrop: Promise<void> = Promise.resolve();
 
   private readonly onDragStartedBound = (event: { nodes: { id: string }[] }) =>
@@ -69,7 +69,7 @@ export class DragReorderService implements OnDestroy {
       return;
     }
     this._isReorderActive.set(true);
-    this.hiddenSides = this.dragService.getHiddenSides(this.draggedNodeId);
+    this._hiddenSides.set(this.dragService.getHiddenSides(this.draggedNodeId));
     this.updateNodesInRange();
 
     this.diagramService.addEventListener('selectionMoved', this.onSelectionMovedBound);
@@ -79,7 +79,7 @@ export class DragReorderService implements OnDestroy {
     if (!this.draggedNodeId) return;
 
     this.updateNodesInRange();
-    const result = this.dragService.resolveZone(this.draggedNodeId, this.hiddenSides);
+    const result = this.dragService.resolveZone(this.draggedNodeId, this._hiddenSides());
     this._highlightedIndicator.set(result);
   }
 
@@ -96,7 +96,7 @@ export class DragReorderService implements OnDestroy {
   }
 
   isSideHidden(nodeId: string, side: DropZone): boolean {
-    return this.hiddenSides.get(nodeId)?.has(side) ?? false;
+    return this._hiddenSides().get(nodeId)?.has(side) ?? false;
   }
 
   isNodeInDropRange(nodeId: string): boolean {
@@ -134,7 +134,7 @@ export class DragReorderService implements OnDestroy {
     this.diagramService.removeEventListener('selectionMoved', this.onSelectionMovedBound);
     this._highlightedIndicator.set(null);
     this._nodesInRange.set(new Set());
-    this.hiddenSides = new Map();
+    this._hiddenSides.set(new Map());
     this._isReorderActive.set(false);
     this.draggedNodeId = null;
   }

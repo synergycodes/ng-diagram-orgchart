@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import {
   NgDiagramModelService,
   NgDiagramPortComponent,
@@ -63,6 +63,8 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[style.pointer-events]': 'isHidden() ? "none" : null',
     '[class.layout-horizontal]': 'isHorizontal()',
     '[class.node-dragging]': 'dragReorderService.isReorderActive()',
+    '(mouseenter)': 'isHovered.set(true)',
+    '(mouseleave)': 'isHovered.set(false)',
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
@@ -84,30 +86,24 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
 
   isHorizontal = this.layoutService.isHorizontal;
 
-  showLeftIndicator = computed(
+  isInDropRange = computed(
     () =>
       this.dragReorderService.isReorderActive() &&
-      this.dragReorderService.isNodeInDropRange(this.node().id) &&
-      !this.dragReorderService.isSideHidden(this.node().id, 'left'),
+      this.dragReorderService.isNodeInDropRange(this.node().id),
   );
 
-  showRightIndicator = computed(
-    () =>
-      this.dragReorderService.isReorderActive() &&
-      this.dragReorderService.isNodeInDropRange(this.node().id) &&
-      !this.dragReorderService.isSideHidden(this.node().id, 'right'),
-  );
-
-  showBottomIndicator = computed(
-    () =>
-      this.dragReorderService.isReorderActive() &&
-      this.dragReorderService.isNodeInDropRange(this.node().id) &&
-      !this.dragReorderService.isSideHidden(this.node().id, 'bottom'),
-  );
+  protected hiddenSides = computed(() => {
+    const id = this.node().id;
+    return {
+      left: this.dragReorderService.isSideHidden(id, 'left'),
+      right: this.dragReorderService.isSideHidden(id, 'right'),
+      bottom: this.dragReorderService.isSideHidden(id, 'bottom'),
+    };
+  });
 
   highlightedSide = computed(() => {
-    const highlightedIndicator = this.dragReorderService.highlightedIndicator();
-    return highlightedIndicator?.nodeId === this.node().id ? highlightedIndicator.side : null;
+    const indicator = this.dragReorderService.highlightedIndicator();
+    return indicator?.nodeId === this.node().id ? indicator.side : null;
   });
 
   isRoot = computed(() => {
@@ -134,6 +130,9 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   protected isCollapsed = computed(() => getIsCollapsed(this.node()));
   protected hasChildren = computed(() => getHasChildren(this.node()));
   protected collapsedChildrenCount = computed(() => getCollapsedChildrenCount(this.node()));
+
+  protected isHovered = signal(false);
+  showAddButtons = computed(() => this.isHovered() && !this.dragReorderService.isReorderActive());
 
   isAddButtonDisabled = computed(() => !this.layoutGate.isIdle());
 

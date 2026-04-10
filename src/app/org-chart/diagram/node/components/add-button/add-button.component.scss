@@ -12,9 +12,9 @@
   border: none;
   background: transparent;
   padding: 0;
-  opacity: var(--add-btn-opacity);
-  pointer-events: var(--add-btn-pointer-events);
+  opacity: 1;
   transition: opacity 150ms ease;
+  animation: fade-in 150ms ease;
 
   &:hover &__icon {
     background-color: var(--ngd-nav-button-icon-primary-default);
@@ -53,6 +53,10 @@
     left: 50%;
     transform: translate(-50%, 100%);
   }
+
+  &--leaving {
+    opacity: 0;
+  }
 }
 
 :host(.layout-horizontal) .add-btn {
@@ -77,5 +81,11 @@
     right: calc(-1 * var(--ngd-primitive-4rule-40)); /* No Figma token - no designs */
     top: 50%;
     transform: translateY(-50%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
   }
 }
