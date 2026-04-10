@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramViewportService } from 'ng-diagram';
-import { ensureNodeVisible } from '../utils/viewport';
+import { ensureNodeVisible } from './viewport';
 import { NodeVisibilityConfigService } from './node-visibility-config.service';
 
 @Injectable()

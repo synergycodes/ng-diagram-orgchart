@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
-import { ExpandCollapseService } from '../../diagram/expand-collapse/expand-collapse.service';
-import { SortOrderService } from '../../diagram/sort-order/sort-order.service';
-import { HierarchyService } from '../../hierarchy/hierarchy.service';
+import { ExpandCollapseService } from '../../diagram/model/expand-collapse.service';
+import { HierarchyService } from '../../diagram/model/hierarchy.service';
+import { SortOrderService } from '../../diagram/model/sort-order.service';
 import type { DropZone } from '../zone-detection/index';
 import type { DropActionStrategy } from './drop-strategy.interface';
 import { createChildDropAction } from './strategies/child-drop-action';

@@ -13,7 +13,7 @@ import {
   type OrgChartNodeData,
   type OrgChartOccupiedNodeData,
   type OrgChartRole,
-} from '../../../diagram/interfaces';
+} from '../../../diagram/model/interfaces';
 import {
   ComboboxComponent,
   type ComboboxOption,

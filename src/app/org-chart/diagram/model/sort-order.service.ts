@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
-import { isOrgChartNode } from '../guards';
-import { type OrgChartNodeData } from '../interfaces';
-import { ModelChanges } from '../model-changes';
+import { isOrgChartNode } from './guards';
+import { type OrgChartNodeData } from './interfaces';
+import { ModelChanges } from './model-changes';
 
 export interface ReorderChange {
   nodeId: string;

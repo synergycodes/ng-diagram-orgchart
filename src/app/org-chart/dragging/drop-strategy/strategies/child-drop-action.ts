@@ -1,6 +1,6 @@
-import { isOrgChartNode } from '../../../diagram/guards';
-import { getIsCollapsed } from '../../../diagram/data-getters';
-import { ModelChanges } from '../../../diagram/model-changes';
+import { getIsCollapsed } from '../../../diagram/model/data-getters';
+import { isOrgChartNode } from '../../../diagram/model/guards';
+import { ModelChanges } from '../../../diagram/model/model-changes';
 import type { DropActionStrategy, DropDeps } from '../drop-strategy.interface';
 
 export function createChildDropAction(deps: DropDeps): DropActionStrategy {

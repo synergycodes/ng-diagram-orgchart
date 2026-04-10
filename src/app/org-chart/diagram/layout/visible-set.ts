@@ -1,7 +1,7 @@
 import { type Edge as DiagramEdge, type Node as DiagramNode } from 'ng-diagram';
-import { isOrgChartEdge, isOrgChartNode } from '../guards';
-import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
-import { getIsHidden } from '../data-getters';
+import { isOrgChartEdge, isOrgChartNode } from '../model/guards';
+import { type OrgChartEdgeData, type OrgChartNodeData } from '../model/interfaces';
+import { getIsHidden } from '../model/data-getters';
 
 export function getVisibleSet(
   nodes: DiagramNode[],

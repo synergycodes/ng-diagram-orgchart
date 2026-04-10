@@ -34,6 +34,7 @@ This is a **well-architected Angular 21 application** that demonstrates strong a
 **Key strengths:**
 - Declarative-first design with signals and computed derivations
 - Clean separation of concerns across 15 focused services
+- Cohesive `diagram/model/` layer grouping all domain types and services
 - Strategy pattern properly applied for extensible drag-and-drop behavior
 - Strict TypeScript configuration with discriminated unions and type guards
 - Comprehensive design token system with light/dark theme support
@@ -51,72 +52,70 @@ This is a **well-architected Angular 21 application** that demonstrates strong a
 
 ```
 src/app/
-├── app.component.ts                    # Root shell (minimal)
-├── app.config.ts                       # Provider configuration
-├── app.routes.ts                       # Lazy-loaded routing
+├── app.component.ts                       # Root shell (minimal)
+├── app.config.ts                          # Provider configuration
+├── app.routes.ts                          # Lazy-loaded routing
 └── org-chart/
-    ├── pages/                          # Page-level containers
+    ├── pages/                             # Page-level containers
     │   └── org-chart-page.component.ts
-    ├── diagram/                        # Core diagram feature
-    │   ├── interfaces.ts               # Domain models (discriminated unions)
-    │   ├── guards.ts                   # Type guard functions
-    │   ├── data.ts                     # Seed data
-    │   ├── data-getters.ts             # Data accessor functions
-    │   ├── model-changes.ts            # Change accumulator
-    │   ├── model-apply.service.ts      # Change orchestration
-    │   ├── node/                       # Node rendering
-    │   │   ├── node.component.ts       # Node template (container)
-    │   │   └── components/             # Presentational variants
+    ├── diagram/                           # Core diagram feature
+    │   ├── diagram.component.ts           # Main diagram container
+    │   ├── edge.component.ts              # Edge template
+    │   ├── data.ts                        # Seed data
+    │   ├── model/                         # Domain types & services
+    │   │   ├── interfaces.ts              # Domain models (discriminated unions)
+    │   │   ├── guards.ts                  # Type guard functions
+    │   │   ├── data-getters.ts            # Data accessor functions
+    │   │   ├── model-changes.ts           # Change accumulator
+    │   │   ├── model-apply.service.ts     # Change orchestration
+    │   │   ├── hierarchy.service.ts       # Parent-child relationships
+    │   │   ├── expand-collapse.service.ts # Subtree visibility toggling
+    │   │   ├── sort-order.service.ts      # Child reordering logic
+    │   │   └── add-node.service.ts        # Node creation workflow
+    │   ├── node/                          # Node rendering
+    │   │   ├── node.component.ts          # Node template (container)
+    │   │   └── components/                # Presentational variants
     │   │       ├── full-node/
     │   │       ├── compact-node/
     │   │       ├── vacant-node/
     │   │       ├── node-header/
     │   │       ├── add-button/
     │   │       └── toggle-expand-button/
-    │   ├── edge/                       # Edge rendering
-    │   ├── layout/                     # ELK.js layout engine
+    │   ├── layout/                        # ELK.js layout engine
     │   │   ├── layout.service.ts
-    │   │   ├── layout-gate.ts          # Concurrency control
-    │   │   └── perform-layout.ts       # ELK wrapper (pure)
-    │   ├── animation/                  # Frame-based animation
+    │   │   ├── layout-gate.ts             # Concurrency control
+    │   │   ├── perform-layout.ts          # ELK wrapper (pure)
+    │   │   └── visible-set.ts             # Visibility filtering (pure)
+    │   ├── animation/                     # Frame-based animation
     │   │   ├── layout-animation.service.ts
-    │   │   ├── animate.ts              # requestAnimationFrame loop
-    │   │   └── viewport-animation.ts   # Viewport panning
-    │   ├── expand-collapse/
-    │   ├── sort-order/
-    │   ├── node-visibility/
-    │   │   ├── node-visibility.service.ts
-    │   │   ├── node-visibility-config.service.ts
-    │   │   ├── viewport-bounds.directive.ts
-    │   │   └── viewport-overlay.directive.ts
-    │   └── utils/                      # Pure functions
-    │       ├── visible-set.ts
-    │       └── viewport.ts
-    ├── dragging/                       # Drag-and-drop subsystem
+    │   │   ├── animate.ts                 # requestAnimationFrame loop
+    │   │   └── viewport-animation.ts      # Viewport panning
+    │   └── node-visibility/               # Viewport-aware node visibility
+    │       ├── node-visibility.service.ts
+    │       ├── node-visibility-config.service.ts
+    │       ├── viewport-bounds.directive.ts
+    │       ├── viewport-overlay.directive.ts
+    │       └── viewport.ts                # Viewport calculations (pure)
+    ├── dragging/                           # Drag-and-drop subsystem
     │   ├── drag.service.ts
     │   ├── drop.service.ts
     │   ├── drag-reorder.service.ts
     │   ├── interfaces.ts
     │   ├── proximity.ts
-    │   ├── drag-service.utils.ts
-    │   ├── zone-detection/             # Strategy pattern
+    │   ├── zone-detection/                # Strategy pattern
     │   │   ├── zone-detection.interface.ts
     │   │   ├── get-zone-detection-strategy.ts
     │   │   ├── strategies/
     │   │   │   ├── down-zone-detection.ts
     │   │   │   └── right-zone-detection.ts
     │   │   └── index.ts
-    │   └── drop-strategy/              # Strategy pattern
+    │   └── drop-strategy/                 # Strategy pattern
     │       ├── drop-strategy.interface.ts
     │       ├── drop-strategy.ts
     │       ├── strategies/
     │       │   ├── child-drop-action.ts
     │       │   └── sibling-drop-action.ts
     │       └── index.ts
-    ├── actions/
-    │   └── add-node.service.ts
-    ├── hierarchy/
-    │   └── hierarchy.service.ts
     ├── properties-sidebar/
     │   ├── properties-sidebar.component.ts
     │   ├── properties-sidebar.service.ts
@@ -137,10 +136,17 @@ src/app/
     │   └── autofocus/
     ├── top-navbar/
     │   ├── top-navbar.component.ts
-    │   └── theme-toggle/
+    │   └── theme-toggle.component.ts
     ├── toolbar-horizontal/
     └── minimap-panel/
 ```
+
+### Organizing Principles
+
+- **`diagram/model/`** groups all domain types and domain-logic services together. These 9 files all operate on the same data model (`OrgChartNodeData`, `ModelChanges`), depend on each other, and change together. The dependency direction is clean: everything else imports from `model/`, never the reverse.
+- **`diagram/layout/`** and **`diagram/node-visibility/`** each own their utility files (`visible-set.ts`, `viewport.ts`) — no catch-all `utils/` folder.
+- **`dragging/`** stays separate from `model/` because it's a UI interaction layer (mouse events, zones, proximity) that *consumes* domain services, not part of the domain itself.
+- Single-component folders like `edge.component.ts` and `theme-toggle.component.ts` are flattened into their parent directory to avoid unnecessary nesting.
 
 ### Verdict
 
@@ -148,9 +154,7 @@ src/app/
 
 Feature-based, co-located organization. Each concern lives in its own directory. No bloated `shared/` or `core/` catch-all folders. The structure scales well — adding a new feature means adding a new directory without touching existing code.
 
-**Minor gaps:**
-- Barrel files (`index.ts`) only exist in `zone-detection/` and `drop-strategy/` — inconsistent public API control across feature boundaries.
-- `data.ts` (seed data) lives alongside domain logic in `diagram/` — could be separated for clarity.
+**Minor gap:** Barrel files (`index.ts`) only exist in `zone-detection/` and `drop-strategy/` — inconsistent public API control across feature boundaries.
 
 ---
 
@@ -761,15 +765,10 @@ Prettier is configured (`.prettierrc`):
 
 **None.** No Husky, lint-staged, or similar tooling.
 
-### CI/CD
-
-**None visible.** No `.github/workflows`, no CI configuration.
-
 ### Verdict
 
 **Testing: 1/10** — Critical gap. No safety net for refactoring.  
-**Linting: 2/10** — Only Prettier for formatting.  
-**CI/CD: 1/10** — No automation.
+**Linting: 2/10** — Only Prettier for formatting.
 
 ---
 
@@ -793,10 +792,10 @@ Prettier is configured (`.prettierrc`):
 | **TypeScript Config** | 9.5/10 | Maximum strictness |
 | **Build & Bootstrap** | 9/10 | Modern Vite, lazy loading, proper bootstrap |
 | **Testing** | 1/10 | Zero coverage |
-| **Linting & CI** | 2/10 | Prettier only, no ESLint, no CI |
+| **Linting** | 2/10 | Prettier only, no ESLint |
 
 **Architecture Score: 8.7/10** (excluding testing/tooling)  
-**Overall Project Maturity: 7.0/10** (testing and tooling gaps reduce confidence)
+**Overall Project Maturity: 7.2/10** (testing and tooling gaps reduce confidence)
 
 ---
 
@@ -810,48 +809,45 @@ Start with the highest-risk services: `ExpandCollapseService`, `SortOrderService
 **2. Add ESLint**  
 Install `@angular-eslint/*` packages. Enforce rules for unused imports, naming conventions, component complexity, and injection best practices. This prevents drift.
 
-**3. Set up CI pipeline**  
-GitHub Actions (or equivalent) running lint, test, and build on every PR. Without this, the other recommendations degrade over time.
-
 ### High Priority (architectural improvements)
 
-**4. Refactor NodeComponent**  
+**3. Refactor NodeComponent**  
 Extract responsibilities into sub-components or directives:
 - Drag indicator logic -> `DragIndicatorDirective`
 - Add-button coordination -> dedicated sub-component
 - Expand/collapse handling -> dedicated sub-component
 Target: NodeComponent should inject 3-4 services maximum.
 
-**5. Fix data-getters type safety**  
+**4. Fix data-getters type safety**  
 Replace `as WithData` casts with proper type guards from `guards.ts`. Rename `getIsCollapsed` -> `isCollapsed`, `getIsHidden` -> `isHidden`, `getHasChildren` -> `hasChildren`.
 
-**6. Split PropertiesSidebarService**  
+**5. Split PropertiesSidebarService**  
 Separate sidebar state (visibility, toggle) from node editing (data updates, hierarchy changes). This reduces the 6-dependency count and clarifies responsibilities.
 
-**7. Complete barrel file exports**  
+**6. Complete barrel file exports**  
 Add type exports to `zone-detection/index.ts` and `drop-strategy/index.ts`. Consider adding barrel files to other feature directories.
 
 ### Medium Priority (consistency improvements)
 
-**8. Simplify LayoutGate**  
+**7. Simplify LayoutGate**  
 Remove `_locked` boolean flag. Derive locked state from `_phase` signal: `readonly isLocked = computed(() => this._phase() === 'layouting')`. Consider adding a request queue instead of silently dropping operations.
 
-**9. Add pre-commit hooks**  
+**8. Add pre-commit hooks**  
 Install Husky + lint-staged to enforce formatting and linting before commits.
 
-**10. Clean up ModelChanges**  
+**9. Clean up ModelChanges**  
 Add deduplication for delete operations. Consider making arrays readonly and providing only builder methods. Add validation to prevent conflicting operations on the same node.
 
 ### Low Priority (polish)
 
-**11. Separate seed data**  
+**10. Separate seed data**  
 Move `data.ts` content into a dedicated `seed-data/` directory. Separate the raw data definition from model instantiation.
 
-**12. Replace manual event listeners in DragReorderService**  
+**11. Replace manual event listeners in DragReorderService**  
 Use RxJS operators or Angular event abstractions for diagram event handling and throttling.
 
-**13. Create a `provideOrgChart()` factory**  
+**12. Create a `provideOrgChart()` factory**  
 Replace the 12-item `providers` array in `OrgChartPageComponent` with a single factory function for readability and reusability.
 
-**14. Document the design token system**  
+**13. Document the design token system**  
 Create a reference for the `--ngd-*` token namespace, explaining naming conventions, theme variables, and how to extend the system.

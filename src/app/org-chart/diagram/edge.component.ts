@@ -5,9 +5,9 @@ import {
   type Edge,
   type NgDiagramEdgeTemplate,
 } from 'ng-diagram';
-import { getIsHidden } from '../data-getters';
-import { isVacantNode } from '../guards';
-import { type OrgChartEdgeData } from '../interfaces';
+import { getIsHidden } from './model/data-getters';
+import { isVacantNode } from './model/guards';
+import { type OrgChartEdgeData } from './model/interfaces';
 
 /**
  * Custom org-chart edge template.

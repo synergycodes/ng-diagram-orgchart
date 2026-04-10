@@ -1,9 +1,9 @@
 import type { NgDiagramModelService } from 'ng-diagram';
-import type { ExpandCollapseService } from '../../diagram/expand-collapse/expand-collapse.service';
 import type { VisibilityHint } from '../../diagram/layout/layout.service';
-import type { ModelChanges } from '../../diagram/model-changes';
-import type { SortOrderService } from '../../diagram/sort-order/sort-order.service';
-import type { HierarchyService } from '../../hierarchy/hierarchy.service';
+import type { ExpandCollapseService } from '../../diagram/model/expand-collapse.service';
+import type { HierarchyService } from '../../diagram/model/hierarchy.service';
+import type { ModelChanges } from '../../diagram/model/model-changes';
+import type { SortOrderService } from '../../diagram/model/sort-order.service';
 import type { DropZone } from '../zone-detection';
 
 export interface DropContext {

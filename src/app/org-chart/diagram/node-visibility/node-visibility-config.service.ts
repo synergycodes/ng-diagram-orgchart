@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { type ViewportInsets } from '../utils/viewport';
+import { type ViewportInsets } from './viewport';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 type BoundsProvider = () => DOMRect;

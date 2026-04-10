@@ -1,20 +1,20 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Edge, type Node } from 'ng-diagram';
-import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
-import { isOrgChartNode } from '../diagram/guards';
-import { getIsCollapsed } from '../diagram/data-getters';
+import { ExpandCollapseService } from './expand-collapse.service';
+import { isOrgChartNode } from './guards';
+import { getIsCollapsed } from './data-getters';
 import {
   EdgeTemplateType,
   NodeTemplateType,
   type OrgChartEdgeData,
   type OrgChartNodeData,
   type OrgChartVacantNodeData,
-} from '../diagram/interfaces';
-import { LayoutGate } from '../diagram/layout/layout-gate';
-import { ModelApplyService } from '../diagram/model-apply.service';
-import { ModelChanges } from '../diagram/model-changes';
-import { SortOrderService } from '../diagram/sort-order/sort-order.service';
-import { HierarchyService } from '../hierarchy/hierarchy.service';
+} from './interfaces';
+import { LayoutGate } from '../layout/layout-gate';
+import { ModelApplyService } from './model-apply.service';
+import { ModelChanges } from './model-changes';
+import { SortOrderService } from './sort-order.service';
+import { HierarchyService } from './hierarchy.service';
 
 export type AddNodeAction = 'child' | 'siblingBefore' | 'siblingAfter';
 

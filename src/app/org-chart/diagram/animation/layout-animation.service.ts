@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Node as DiagramNode, type Point } from 'ng-diagram';
 import { LayoutService } from '../layout/layout.service';
-import { ModelChanges } from '../model-changes';
+import { ModelChanges } from '../model/model-changes';
 import { animate } from './animate';
-import { getIsCollapsed, getIsHidden } from '../data-getters';
+import { getIsCollapsed, getIsHidden } from '../model/data-getters';
 
 interface NodeAnimation {
   id: string;

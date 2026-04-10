@@ -16,20 +16,20 @@ import {
 import { DragReorderService } from '../dragging/drag-reorder.service';
 import { DragService } from '../dragging/drag.service';
 import { DropService } from '../dragging/drop.service';
-import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
-import { EdgeComponent } from './edge/edge.component';
-import { isOrgChartNode } from './guards';
-import { EdgeTemplateType, NodeTemplateType } from './interfaces';
+import { EdgeComponent } from './edge.component';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
-import { ModelApplyService } from './model-apply.service';
-import { ModelChanges } from './model-changes';
+import { HierarchyService } from './model/hierarchy.service';
+import { isOrgChartNode } from './model/guards';
+import { EdgeTemplateType, NodeTemplateType } from './model/interfaces';
+import { ModelApplyService } from './model/model-apply.service';
+import { ModelChanges } from './model/model-changes';
+import { SortOrderService } from './model/sort-order.service';
 import { NodeVisibilityConfigService } from './node-visibility/node-visibility-config.service';
 import { NodeVisibilityService } from './node-visibility/node-visibility.service';
 import { NodeComponent } from './node/node.component';
-import { SortOrderService } from './sort-order/sort-order.service';
 
 /**
  * Org Chart Diagram

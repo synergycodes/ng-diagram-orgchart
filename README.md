@@ -1,59 +1,73 @@
-# NgDiagramOrgchart
+# ng-diagram-orgchart
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+Interactive organizational chart demo built with Angular 21 and [ng-diagram](https://www.npmjs.com/package/ng-diagram).
 
-## Development server
+Features drag-and-drop reordering, expand/collapse subtrees, node editing via sidebar, horizontal/vertical layout switching, dark/light theme, minimap navigation, and animated transitions powered by [ELK.js](https://www.npmjs.com/package/elkjs).
 
-To start a local development server, run:
+## Prerequisites
 
-```bash
-ng serve
-```
+- Node.js v20.19+ or v22.12+
+- npm 10+
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Getting Started
 
 ```bash
-ng generate component component-name
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Open [http://localhost:4200](http://localhost:4200) in your browser.
 
-```bash
-ng generate --help
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm start` | Start dev server with hot reload |
+| `npm run build` | Production build to `dist/` |
+| `npm test` | Run unit tests (Vitest) |
+| `npm run format` | Format code with Prettier |
+
+## Project Structure
+
+```
+src/app/
+├── app.component.ts                    # Root shell
+├── app.config.ts                       # App providers
+├── app.routes.ts                       # Lazy-loaded routing
+└── org-chart/
+    ├── pages/                          # Page containers
+    ├── diagram/                        # Core diagram feature
+    │   ├── diagram.component.ts        # Main diagram component
+    │   ├── edge.component.ts           # Edge template
+    │   ├── data.ts                     # Seed data
+    │   ├── model/                      # Domain types & services
+    │   │   ├── interfaces.ts           # OrgChartNodeData, OrgChartEdgeData
+    │   │   ├── guards.ts              # Type guard functions
+    │   │   ├── data-getters.ts        # Data accessor helpers
+    │   │   ├── model-changes.ts       # Change accumulator
+    │   │   ├── model-apply.service.ts # Applies changes with layout
+    │   │   ├── hierarchy.service.ts   # Parent-child relationships
+    │   │   ├── expand-collapse.service.ts
+    │   │   ├── sort-order.service.ts
+    │   │   └── add-node.service.ts
+    │   ├── node/                       # Node rendering (3 variants)
+    │   ├── layout/                     # ELK.js layout engine
+    │   ├── animation/                  # Layout transition animations
+    │   └── node-visibility/            # Viewport-aware visibility
+    ├── dragging/                       # Drag-and-drop subsystem
+    │   ├── zone-detection/             # Drop zone strategies
+    │   └── drop-strategy/              # Drop action strategies
+    ├── properties-sidebar/             # Node editing panel
+    ├── shared/                         # Reusable UI (combobox, avatar)
+    ├── top-navbar/                     # Navigation bar + theme toggle
+    ├── toolbar-horizontal/             # Layout direction toolbar
+    └── minimap-panel/                  # Minimap with zoom controls
 ```
 
-## Building
+## Tech Stack
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **Angular 21** — standalone components, signals, OnPush change detection
+- **ng-diagram** — diagram rendering, viewport management, selection
+- **ELK.js** — automatic graph layout computation (via Web Worker)
+- **Vitest** — unit test runner
+- **Prettier** — code formatting

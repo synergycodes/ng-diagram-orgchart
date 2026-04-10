@@ -4,9 +4,9 @@ import {
   type Edge as DiagramEdge,
   type Node as DiagramNode,
 } from 'ng-diagram';
-import { type OrgChartNodeData } from '../interfaces';
-import { ModelChanges } from '../model-changes';
-import { findRootNode, getFutureVisibleSet, getVisibleSet } from '../utils/visible-set';
+import { type OrgChartNodeData } from '../model/interfaces';
+import { ModelChanges } from '../model/model-changes';
+import { findRootNode, getFutureVisibleSet, getVisibleSet } from './visible-set';
 import { performLayout } from './perform-layout';
 
 export type LayoutDirection = 'DOWN' | 'RIGHT';

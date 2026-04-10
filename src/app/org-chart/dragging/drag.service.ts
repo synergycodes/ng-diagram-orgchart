@@ -1,8 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, type NodeDragStartedEvent, type Rect } from 'ng-diagram';
 import { LayoutService } from '../diagram/layout/layout.service';
-import { HierarchyService } from '../hierarchy/hierarchy.service';
-import { mergeMaps } from './drag-service.utils';
+import { HierarchyService } from '../diagram/model/hierarchy.service';
 import type { HighlightedIndicator } from './interfaces';
 import { edgeToEdgeDistance, rectFromNode } from './proximity';
 import type { DropZone } from './zone-detection/index';
@@ -142,4 +141,21 @@ export class DragService {
     const edges = this.modelService.getConnectedEdges(nodeId);
     return !edges.some((e) => e.target === nodeId);
   }
+}
+
+function mergeMaps(...maps: Map<string, Set<DropZone>>[]): Map<string, Set<DropZone>> {
+  const result = new Map<string, Set<DropZone>>();
+  for (const map of maps) {
+    for (const [nodeId, sides] of map) {
+      const existing = result.get(nodeId);
+      if (existing) {
+        for (const side of sides) {
+          existing.add(side);
+        }
+      } else {
+        result.set(nodeId, new Set(sides));
+      }
+    }
+  }
+  return result;
 }

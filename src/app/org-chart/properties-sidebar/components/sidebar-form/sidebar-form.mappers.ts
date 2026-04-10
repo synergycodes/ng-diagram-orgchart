@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
-import { isOccupiedNodeData } from '../../../diagram/guards';
-import { type OrgChartNodeData, type OrgChartRole } from '../../../diagram/interfaces';
+import { isOccupiedNodeData } from '../../../diagram/model/guards';
+import { type OrgChartNodeData, type OrgChartRole } from '../../../diagram/model/interfaces';
 
 export interface SidebarFieldChange {
   nodeId: string;

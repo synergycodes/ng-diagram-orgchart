@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { LayoutGate } from '../diagram/layout/layout-gate';
-import { ModelApplyService } from '../diagram/model-apply.service';
+import { ModelApplyService } from '../diagram/model/model-apply.service';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { getDropStrategy, injectDropStrategies } from './drop-strategy';
 import type { HighlightedIndicator } from './interfaces';

@@ -12,7 +12,7 @@ import {
   NgDiagramViewportService,
   Node,
 } from 'ng-diagram';
-import { getIsHidden } from '../diagram/data-getters';
+import { getIsHidden } from '../diagram/model/data-getters';
 
 const ZOOM_STEP = 0.1;
 

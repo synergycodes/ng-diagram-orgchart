@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
-import { LayoutAnimationService } from './animation/layout-animation.service';
-import { LayoutGate } from './layout/layout-gate';
-import { LayoutService, type VisibilityHint } from './layout/layout.service';
+import { LayoutAnimationService } from '../animation/layout-animation.service';
+import { LayoutGate } from '../layout/layout-gate';
+import { LayoutService, type VisibilityHint } from '../layout/layout.service';
 import { ModelChanges } from './model-changes';
 
 export interface ApplyWithLayoutOptions {

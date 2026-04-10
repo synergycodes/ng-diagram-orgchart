@@ -7,21 +7,21 @@ import {
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
-import { AddNodeService, type AddNodeAction } from '../../actions/add-node.service';
 import { DragReorderService } from '../../dragging/drag-reorder.service';
 import { PropertiesSidebarService } from '../../properties-sidebar/properties-sidebar.service';
-import { ExpandCollapseService } from '../expand-collapse/expand-collapse.service';
-import { isOccupiedNodeData, isVacantNode } from '../guards';
-import { type OrgChartNodeData, getColorForRole } from '../interfaces';
 import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService } from '../layout/layout.service';
-import { ModelApplyService } from '../model-apply.service';
+import { AddNodeService, type AddNodeAction } from '../model/add-node.service';
 import {
   getCollapsedChildrenCount,
   getHasChildren,
   getIsCollapsed,
   getIsHidden,
-} from '../data-getters';
+} from '../model/data-getters';
+import { ExpandCollapseService } from '../model/expand-collapse.service';
+import { isOccupiedNodeData, isVacantNode } from '../model/guards';
+import { type OrgChartNodeData, getColorForRole } from '../model/interfaces';
+import { ModelApplyService } from '../model/model-apply.service';
 import { NodeVisibilityService } from '../node-visibility/node-visibility.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';

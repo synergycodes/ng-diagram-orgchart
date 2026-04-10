@@ -1,16 +1,16 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
-import { isOccupiedNode, isOrgChartNode, isOrgChartNodeData } from '../diagram/guards';
+import { LayoutGate } from '../diagram/layout/layout-gate';
+import { isOccupiedNode, isOrgChartNode, isOrgChartNodeData } from '../diagram/model/guards';
+import { HierarchyService } from '../diagram/model/hierarchy.service';
 import {
   OrgChartRole,
   type OrgChartNodeData,
   type OrgChartOccupiedNodeData,
-} from '../diagram/interfaces';
-import { LayoutGate } from '../diagram/layout/layout-gate';
-import { ModelApplyService } from '../diagram/model-apply.service';
-import { ModelChanges } from '../diagram/model-changes';
+} from '../diagram/model/interfaces';
+import { ModelApplyService } from '../diagram/model/model-apply.service';
+import { ModelChanges } from '../diagram/model/model-changes';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
-import { HierarchyService } from '../hierarchy/hierarchy.service';
 import { type ComboboxOption } from '../shared/combobox/combobox.component';
 import {
   formDataToNodeData,

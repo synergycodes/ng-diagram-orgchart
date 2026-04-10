@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
-import { getHasChildren } from '../diagram/data-getters';
-import { isOrgChartNodeData } from '../diagram/guards';
-import { EdgeTemplateType } from '../diagram/interfaces';
-import { ModelChanges } from '../diagram/model-changes';
-import { SortOrderService } from '../diagram/sort-order/sort-order.service';
+import { getHasChildren } from './data-getters';
+import { isOrgChartNodeData } from './guards';
+import { EdgeTemplateType } from './interfaces';
+import { ModelChanges } from './model-changes';
+import { SortOrderService } from './sort-order.service';
 
 @Injectable()
 export class HierarchyService {

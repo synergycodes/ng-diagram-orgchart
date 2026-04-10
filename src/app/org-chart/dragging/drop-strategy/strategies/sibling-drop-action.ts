@@ -1,4 +1,4 @@
-import { ModelChanges } from '../../../diagram/model-changes';
+import { ModelChanges } from '../../../diagram/model/model-changes';
 import type { DropZone } from '../../zone-detection';
 import type { DropActionStrategy, DropDeps } from '../drop-strategy.interface';
 
