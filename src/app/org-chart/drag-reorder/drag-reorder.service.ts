@@ -1,12 +1,10 @@
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
+import { ORG_CHART_CONFIG } from '../org-chart.config';
 import { DragService } from './drag.service';
 import { DropService } from './drop.service';
 import type { HighlightedIndicator } from './interfaces';
 import type { DropZone } from './zone-detection/index';
-
-const INDICATOR_RANGE = 400;
-const THROTTLE_MS = 100;
 
 function setsEqual(a: Set<string>, b: Set<string>): boolean {
   if (a.size !== b.size) return false;
@@ -23,6 +21,7 @@ function setsEqual(a: Set<string>, b: Set<string>): boolean {
  */
 @Injectable()
 export class DragReorderService implements OnDestroy {
+  private readonly config = inject(ORG_CHART_CONFIG);
   private readonly diagramService = inject(NgDiagramService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly dragService = inject(DragService);
@@ -48,7 +47,7 @@ export class DragReorderService implements OnDestroy {
     this.onDragEnded(event);
   private readonly onSelectionMovedBound = this.createThrottle(
     () => this.onSelectionMoved(),
-    THROTTLE_MS,
+    this.config.drag.throttleMs,
   );
 
   init(): void {
@@ -120,7 +119,7 @@ export class DragReorderService implements OnDestroy {
       y: draggedNode.position.y + size.height / 2,
     };
 
-    const nearby = this.modelService.getNodesInRange(center, INDICATOR_RANGE);
+    const nearby = this.modelService.getNodesInRange(center, this.config.drag.indicatorRange);
     this._nodesInRange.set(new Set(nearby.map((n) => n.id)));
   }
 

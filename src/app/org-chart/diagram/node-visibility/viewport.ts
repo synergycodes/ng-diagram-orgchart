@@ -1,8 +1,6 @@
 import { type NgDiagramViewportService, type Node, type Viewport } from 'ng-diagram';
 import { animateViewportTo } from '../animation/viewport-animation';
 
-const EDGE_PADDING = 60;
-
 /** Per-side pixel offsets representing areas obscured by UI overlays. */
 export interface ViewportInsets {
   top?: number;
@@ -68,6 +66,7 @@ export function computeEnsureVisibleTarget(
   node: Node,
   viewport: Viewport,
   insets?: ViewportInsets,
+  edgePadding = 60,
 ): { x: number; y: number } | null {
   if (!viewport.width || !viewport.height) return null;
 
@@ -86,12 +85,12 @@ export function computeEnsureVisibleTarget(
   let flowDx = 0;
   let flowDy = 0;
 
-  if (rect.left < viewportRect.left) flowDx = rect.left - viewportRect.left - EDGE_PADDING;
-  else if (rect.right > viewportRect.right) flowDx = rect.right - viewportRect.right + EDGE_PADDING;
+  if (rect.left < viewportRect.left) flowDx = rect.left - viewportRect.left - edgePadding;
+  else if (rect.right > viewportRect.right) flowDx = rect.right - viewportRect.right + edgePadding;
 
-  if (rect.top < viewportRect.top) flowDy = rect.top - viewportRect.top - EDGE_PADDING;
+  if (rect.top < viewportRect.top) flowDy = rect.top - viewportRect.top - edgePadding;
   else if (rect.bottom > viewportRect.bottom)
-    flowDy = rect.bottom - viewportRect.bottom + EDGE_PADDING;
+    flowDy = rect.bottom - viewportRect.bottom + edgePadding;
 
   // Far offscreen — center on node
   if (Math.abs(flowDx) > viewportRect.width / 2 || Math.abs(flowDy) > viewportRect.height / 2) {
@@ -121,13 +120,15 @@ export function ensureNodeVisible(
   viewportService: NgDiagramViewportService,
   insets?: ViewportInsets,
   animated = true,
+  edgePadding?: number,
+  durationMs?: number,
 ): void {
   const viewport = viewportService.viewport();
-  const target = computeEnsureVisibleTarget(node, viewport, insets);
+  const target = computeEnsureVisibleTarget(node, viewport, insets, edgePadding);
   if (!target) return;
 
   if (animated) {
-    animateViewportTo(viewportService, target);
+    animateViewportTo(viewportService, target, durationMs);
   } else {
     viewportService.moveViewport(target.x, target.y);
   }

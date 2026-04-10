@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ORG_CHART_CONFIG } from '../org-chart.config';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -47,6 +48,7 @@ import { NodeComponent } from './node/node.component';
   providers: [DragService, DropService, DragReorderService],
 })
 export class DiagramComponent {
+  private readonly orgChartConfig = inject(ORG_CHART_CONFIG);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
@@ -140,7 +142,7 @@ export class DiagramComponent {
   /** Fits all nodes in view, accounting for overlay insets plus extra padding. */
   private zoomToFit(): void {
     const insets = this.nodeVisibilityConfigService.getViewportInsets();
-    const pad = 20;
+    const pad = this.orgChartConfig.viewport.zoomToFitPadding;
     this.viewportService.zoomToFit({
       padding: [
         (insets.top ?? 0) + pad,

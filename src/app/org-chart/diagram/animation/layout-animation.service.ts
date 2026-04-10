@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Node as DiagramNode, type Point } from 'ng-diagram';
+import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import { LayoutService } from '../layout/layout.service';
 import { ModelChanges } from '../model/model-changes';
 import { animate } from './animate';
@@ -29,6 +30,7 @@ export interface AnimationResult {
  */
 @Injectable()
 export class LayoutAnimationService {
+  private readonly config = inject(ORG_CHART_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly layoutService = inject(LayoutService);
 
@@ -189,6 +191,6 @@ export class LayoutAnimationService {
       }
 
       this.modelService.updateNodes(updates);
-    });
+    }, this.config.animation.durationMs);
   }
 }

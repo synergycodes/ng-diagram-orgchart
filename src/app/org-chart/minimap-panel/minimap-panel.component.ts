@@ -13,8 +13,7 @@ import {
   Node,
 } from 'ng-diagram';
 import { getIsHidden } from '../diagram/model/data-getters';
-
-const ZOOM_STEP = 0.1;
+import { ORG_CHART_CONFIG } from '../org-chart.config';
 
 @Component({
   selector: 'app-minimap-panel',
@@ -24,6 +23,7 @@ const ZOOM_STEP = 0.1;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MinimapPanelComponent {
+  private readonly config = inject(ORG_CHART_CONFIG);
   private readonly viewportService = inject(NgDiagramViewportService);
 
   protected readonly isReady = signal(false);
@@ -49,14 +49,14 @@ export class MinimapPanelComponent {
 
   protected zoomIn(): void {
     const currentScale = this.viewportService.scale();
-    const factor = (currentScale + ZOOM_STEP) / currentScale;
+    const factor = (currentScale + this.config.viewport.zoomStep) / currentScale;
 
     this.viewportService.zoom(factor);
   }
 
   protected zoomOut(): void {
     const currentScale = this.viewportService.scale();
-    const factor = (currentScale - ZOOM_STEP) / currentScale;
+    const factor = (currentScale - this.config.viewport.zoomStep) / currentScale;
     this.viewportService.zoom(factor);
   }
 

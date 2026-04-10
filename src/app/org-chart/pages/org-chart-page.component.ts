@@ -35,6 +35,8 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     provideNgDiagram(),
+    // To customize org-chart settings, uncomment and modify:
+    // provideOrgChartConfig({ animation: { durationMs: 500 }, viewport: { zoomStep: 0.2 } }),
     PropertiesSidebarService,
     SortOrderService,
     ExpandCollapseService,

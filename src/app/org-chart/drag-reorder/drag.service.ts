@@ -2,15 +2,11 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, type NodeDragStartedEvent, type Rect } from 'ng-diagram';
 import { LayoutService } from '../diagram/layout/layout.service';
 import { HierarchyService } from '../diagram/model/hierarchy.service';
+import { ORG_CHART_CONFIG } from '../org-chart.config';
 import type { HighlightedIndicator } from './interfaces';
 import { edgeToEdgeDistance, rectFromNode } from './proximity';
 import type { DropZone } from './zone-detection/index';
 import { getZoneDetectionStrategy } from './zone-detection/index';
-
-/** Max edge-to-edge distance for a candidate to be considered. Must be less than node spacing (ELK 'spacing.nodeNode'). */
-const DETECTION_RANGE = 100;
-/** Broad-phase range for getNodesInRange. Larger to account for node dimensions. */
-const QUERY_RANGE = 400;
 
 /**
  * Handles drag logic: tracks which nodes are being dragged, computes
@@ -18,6 +14,7 @@ const QUERY_RANGE = 400;
  */
 @Injectable()
 export class DragService {
+  private readonly config = inject(ORG_CHART_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly layoutService = inject(LayoutService);
   private readonly hierarchyService = inject(HierarchyService);
@@ -73,7 +70,7 @@ export class DragService {
 
     const candidateSize = candidate.size ?? { width: 0, height: 0 };
     const strategy = getZoneDetectionStrategy(this.layoutService.direction());
-    const side = strategy.detect(draggedCenter, candidate.position, candidateSize);
+    const side = strategy.detect(draggedCenter, candidate.position, candidateSize, this.config.drag.alignmentPadding);
 
     const candidateHidden = hiddenSides.get(candidate.id);
     if (candidateHidden?.has(side)) return null;
@@ -119,7 +116,7 @@ export class DragService {
     draggedRect: Rect,
     hiddenSides: Map<string, Set<DropZone>>,
   ) {
-    const nodesInRange = this.modelService.getNodesInRange(draggedCenter, QUERY_RANGE);
+    const nodesInRange = this.modelService.getNodesInRange(draggedCenter, this.config.drag.queryRange);
 
     let nearest = null;
     let minDistance = Infinity;
@@ -132,7 +129,7 @@ export class DragService {
       const candidateRect = rectFromNode(node.position, nodeSize);
       const distance = edgeToEdgeDistance(draggedRect, candidateRect);
 
-      if (distance > DETECTION_RANGE) continue;
+      if (distance > this.config.drag.detectionRange) continue;
 
       if (distance < minDistance) {
         minDistance = distance;

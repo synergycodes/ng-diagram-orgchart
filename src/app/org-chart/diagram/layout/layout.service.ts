@@ -1,4 +1,5 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
+import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import {
   NgDiagramModelService,
   type Edge as DiagramEdge,
@@ -25,6 +26,7 @@ export interface VisibilityHint {
  */
 @Injectable()
 export class LayoutService {
+  private readonly config = inject(ORG_CHART_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
 
   private readonly _direction = signal<LayoutDirection>('DOWN');
@@ -129,7 +131,7 @@ export class LayoutService {
     nodes: DiagramNode[],
     edges: DiagramEdge[],
   ): Promise<{ id: string; position: { x: number; y: number } }[]> {
-    const laid = await performLayout(nodes, edges, this._direction());
+    const laid = await performLayout(nodes, edges, this._direction(), this.config.layout.nodeSpacing);
     const model = this.modelService.getModel();
     const root = findRootNode(model.getNodes(), model.getEdges());
 

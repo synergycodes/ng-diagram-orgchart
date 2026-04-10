@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import {
   NgDiagramModelService,
   NgDiagramPortComponent,
@@ -68,6 +69,7 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
+  private readonly config = inject(ORG_CHART_CONFIG);
   private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
   private readonly expandCollapseService = inject(ExpandCollapseService);
@@ -115,7 +117,8 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
 
   variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node())) return 'vacant';
-    return this.viewportService.scale() < 0.75 ? 'compact' : 'full';
+    return this.viewportService.scale() < this.config.viewport.compactScaleThreshold
+      ? 'compact' : 'full';
   });
 
   protected color = computed(() => getColorForRole(this.node().data.role));

@@ -33,12 +33,13 @@ export async function performLayout(
   nodes: Node[],
   edges: Edge[],
   direction: 'DOWN' | 'RIGHT' = 'DOWN',
+  nodeSpacing = 140,
 ) {
   const layoutOptions = {
     'elk.algorithm': 'mrtree',
     'elk.direction': direction,
     'elk.mrtree.edgeRoutingMode': 'MIDDLE_TO_MIDDLE',
-    'spacing.nodeNode': '140',
+    'spacing.nodeNode': String(nodeSpacing),
   };
 
   const { width, height } = getUniformNodeSize(nodes);

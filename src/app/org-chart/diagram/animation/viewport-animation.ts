@@ -8,6 +8,7 @@ import { animate } from './animate';
 export function animateViewportTo(
   viewportService: NgDiagramViewportService,
   target: { x: number; y: number },
+  durationMs?: number,
 ): void {
   const viewport = viewportService.viewport();
   const fromX = viewport.x;
@@ -18,5 +19,5 @@ export function animateViewportTo(
       fromX + (target.x - fromX) * eased,
       fromY + (target.y - fromY) * eased,
     );
-  });
+  }, durationMs);
 }
