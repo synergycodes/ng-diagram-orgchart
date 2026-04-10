@@ -1,8 +1,4 @@
-<div
-  class="diagram"
-  [class.initialized]="isLayoutInitialized()"
-  [class.rebuilding]="isRebuilding()"
->
+<div class="diagram" [class.initialized]="isLayoutInitialized()">
   <ng-diagram
     [model]="model"
     [config]="config"

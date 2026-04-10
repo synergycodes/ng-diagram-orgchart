@@ -1,7 +1,7 @@
 import { type Edge as DiagramEdge, type Node as DiagramNode } from 'ng-diagram';
 import { isOrgChartEdge, isOrgChartNode } from '../guards';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
-import { getIsHidden } from '../node-data-getters';
+import { getIsHidden } from '../data-getters';
 
 export function getVisibleSet(
   nodes: DiagramNode[],
@@ -15,7 +15,7 @@ export function getVisibleSet(
       (node): node is DiagramNode<OrgChartNodeData> => isOrgChartNode(node) && !getIsHidden(node),
     ),
     edges: edges.filter(
-      (edge): edge is DiagramEdge<OrgChartEdgeData> => isOrgChartEdge(edge) && !edge.data.isHidden,
+      (edge): edge is DiagramEdge<OrgChartEdgeData> => isOrgChartEdge(edge) && !getIsHidden(edge),
     ),
   };
 }
@@ -39,7 +39,7 @@ export function getFutureVisibleSet(
     ),
     edges: edges.filter(
       (edge): edge is DiagramEdge<OrgChartEdgeData> =>
-        isOrgChartEdge(edge) && willBeVisible(edge.target, !!edge.data.isHidden),
+        isOrgChartEdge(edge) && willBeVisible(edge.target, !!getIsHidden(edge)),
     ),
   };
 }

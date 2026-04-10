@@ -12,7 +12,7 @@ import {
   NgDiagramViewportService,
   Node,
 } from 'ng-diagram';
-import { OrgChartNodeData } from '../diagram/interfaces';
+import { getIsHidden } from '../diagram/data-getters';
 
 const ZOOM_STEP = 0.1;
 
@@ -41,8 +41,7 @@ export class MinimapPanelComponent {
   );
 
   protected readonly minimapNodeStyle: MinimapNodeStyleFn = (node: Node) => {
-    const data = node.data as OrgChartNodeData;
-    if (data.isHidden) {
+    if (getIsHidden(node)) {
       return { opacity: 0 };
     }
     return {};

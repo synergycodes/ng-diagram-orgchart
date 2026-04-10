@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { isOrgChartNode } from '../guards';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../interfaces';
-import { getCollapsedChildrenCount, getIsCollapsed } from '../node-data-getters';
+import { getCollapsedChildrenCount, getIsCollapsed } from '../data-getters';
 import { ModelChanges } from '../model-changes';
 
 export interface ToggleResult {

@@ -21,7 +21,7 @@ import {
   getHasChildren,
   getIsCollapsed,
   getIsHidden,
-} from '../node-data-getters';
+} from '../data-getters';
 import { NodeVisibilityService } from '../node-visibility/node-visibility.service';
 import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
@@ -144,9 +144,10 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     if (!result) return;
 
     await this.modelApplyService.applyWithLayout(result.changes, {
-      subtreeIds: result.toggledSubtreeIds,
-      collapsing: result.collapsing,
+      visibility: { subtreeIds: result.toggledSubtreeIds, collapsing: result.collapsing },
     });
+
+    this.nodeVisibilityService.ensureVisible(this.node().id);
   }
 
   async onAddLeft(event: MouseEvent): Promise<void> {

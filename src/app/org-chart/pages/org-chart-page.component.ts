@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { provideNgDiagram } from 'ng-diagram';
 import { AddNodeService } from '../actions/add-node.service';
+import { LayoutAnimationService } from '../diagram/animation/layout-animation.service';
 import { DiagramComponent } from '../diagram/diagram.component';
 import { ExpandCollapseService } from '../diagram/expand-collapse/expand-collapse.service';
 import { LayoutGate } from '../diagram/layout/layout-gate';
@@ -42,6 +43,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     ModelApplyService,
     HierarchyService,
     AddNodeService,
+    LayoutAnimationService,
     NodeVisibilityService,
     NodeVisibilityConfigService,
   ],

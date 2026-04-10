@@ -22,7 +22,7 @@ export class DropService {
       side: indicator.side,
     });
 
-    await this.modelApplyService.applyWithLayout(changes, visibilityHint);
+    await this.modelApplyService.applyWithLayout(changes, { visibility: visibilityHint });
     this.nodeVisibilityService.ensureVisible(draggedNodeId);
   }
 }

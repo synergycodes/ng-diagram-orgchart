@@ -1,5 +1,5 @@
 import { isOrgChartNode } from '../../../diagram/guards';
-import { getIsCollapsed } from '../../../diagram/node-data-getters';
+import { getIsCollapsed } from '../../../diagram/data-getters';
 import { ModelChanges } from '../../../diagram/model-changes';
 import type { DropActionStrategy, DropDeps } from '../drop-strategy.interface';
 

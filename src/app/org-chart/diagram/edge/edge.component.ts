@@ -5,6 +5,7 @@ import {
   type Edge,
   type NgDiagramEdgeTemplate,
 } from 'ng-diagram';
+import { getIsHidden } from '../data-getters';
 import { isVacantNode } from '../guards';
 import { type OrgChartEdgeData } from '../interfaces';
 
@@ -25,13 +26,15 @@ import { type OrgChartEdgeData } from '../interfaces';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     // Hide edges that connect to nodes inside a collapsed subtree.
-    '[style.visibility]': 'edge().data.isHidden ? "hidden" : null',
+    '[style.visibility]': 'isHidden() ? "hidden" : null',
   },
 })
 export class EdgeComponent implements NgDiagramEdgeTemplate<OrgChartEdgeData> {
   private readonly modelService = inject(NgDiagramModelService);
 
   edge = input.required<Edge<OrgChartEdgeData>>();
+
+  isHidden = computed(() => getIsHidden(this.edge()));
 
   isVacant = computed(() => {
     const targetNode = this.modelService.getNodeById(this.edge().target);
