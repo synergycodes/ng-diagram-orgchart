@@ -108,7 +108,7 @@ export class SortOrderService {
 
     for (const node of nodes) {
       if (isOrgChartNode(node) && !targetIds.has(node.id)) {
-        modelChanges.addNodeUpdates({ id: node.id, data: { ...node.data, [SORT_ORDER]: 0 } });
+        modelChanges.addNodeUpdates({ id: node.id, data: { [SORT_ORDER]: 0 } });
       }
     }
 
@@ -161,14 +161,16 @@ export class SortOrderService {
   }
 
   /** Returns model patches for nodes whose current `sortOrder` differs from their target index. */
-  private buildSortOrderUpdates(nodeIds: string[]): { id: string; data: OrgChartNodeData }[] {
-    const updates: { id: string; data: OrgChartNodeData }[] = [];
+  private buildSortOrderUpdates(
+    nodeIds: string[],
+  ): { id: string; data: Partial<OrgChartNodeData> }[] {
+    const updates: { id: string; data: Partial<OrgChartNodeData> }[] = [];
 
     for (let i = 0; i < nodeIds.length; i++) {
       const node = this.modelService.getNodeById(nodeIds[i]);
       if (!node || !isOrgChartNode(node)) continue;
       if ((getSortOrder(node) ?? 0) === i) continue;
-      updates.push({ id: nodeIds[i], data: { ...node.data, [SORT_ORDER]: i } });
+      updates.push({ id: nodeIds[i], data: { [SORT_ORDER]: i } });
     }
 
     return updates;

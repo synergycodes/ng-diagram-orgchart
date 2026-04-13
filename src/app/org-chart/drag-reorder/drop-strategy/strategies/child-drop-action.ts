@@ -1,33 +1,11 @@
-import { getIsCollapsed } from '../../../diagram/model/data-getters';
-import { isOrgChartNode } from '../../../diagram/model/guards';
-import { ModelChanges } from '../../../diagram/model/model-changes';
-import type { DropActionStrategy, DropDeps } from '../drop-strategy.interface';
+import type { HierarchyService } from '../../../diagram/model/hierarchy.service';
+import type { DropActionStrategy } from '../drop-strategy.interface';
 
 /** Drop as child: reparents the dragged node under the target, expanding it if collapsed. */
-export function createChildDropAction(deps: DropDeps): DropActionStrategy {
-  const { modelService, hierarchyService, expandCollapseService } = deps;
-
+export function createChildDropAction(hierarchyService: HierarchyService): DropActionStrategy {
   return {
     execute({ draggedNodeId, targetNodeId: newParentId }) {
-      const changes = new ModelChanges();
-
-      let expandSubtreeIds: Set<string> | undefined;
-      const targetNode = modelService.getNodeById(newParentId);
-      if (isOrgChartNode(targetNode) && getIsCollapsed(targetNode)) {
-        expandSubtreeIds = expandCollapseService.prepareToggle(
-          newParentId,
-          changes,
-        )?.toggledSubtreeIds;
-      }
-
-      hierarchyService.updateNodeParent(draggedNodeId, newParentId, undefined, changes);
-
-      return {
-        changes,
-        visibilityHint: expandSubtreeIds
-          ? { subtreeIds: expandSubtreeIds, collapsing: false }
-          : undefined,
-      };
+      return hierarchyService.updateNodeParent(draggedNodeId, newParentId);
     },
   };
 }
