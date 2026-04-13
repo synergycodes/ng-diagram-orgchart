@@ -1,11 +1,14 @@
 import { type Edge as DiagramEdge, type Node as DiagramNode } from 'ng-diagram';
 import { type OrgChartEdgeData, type OrgChartNodeData } from './interfaces';
 
-type NodeUpdate = Omit<Partial<DiagramNode<OrgChartNodeData>>, 'data'> & {
+export type NodeUpdate = Omit<Partial<DiagramNode<OrgChartNodeData>>, 'data'> & {
   id: string;
   data?: Partial<OrgChartNodeData>;
 };
-type EdgeUpdate = Partial<DiagramEdge<OrgChartEdgeData>> & { id: string };
+export type EdgeUpdate = Omit<Partial<DiagramEdge<OrgChartEdgeData>>, 'data'> & {
+  id: string;
+  data?: Partial<OrgChartEdgeData>;
+};
 
 /**
  * Accumulates pending model mutations (adds, updates, deletes) that are

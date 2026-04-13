@@ -127,7 +127,7 @@ export class ExpandCollapseService {
     hidden: boolean,
   ): {
     nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[];
-    edgeUpdates: { id: string; data: OrgChartEdgeData }[];
+    edgeUpdates: { id: string; data: Partial<OrgChartEdgeData> }[];
   } {
     const nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[] = [];
     for (const id of subtreeIds) {
@@ -136,14 +136,11 @@ export class ExpandCollapseService {
       nodeUpdates.push({ id, data: { [IS_HIDDEN]: hidden } });
     }
 
-    const edgeUpdates: { id: string; data: OrgChartEdgeData }[] = [];
+    const edgeUpdates: { id: string; data: Partial<OrgChartEdgeData> }[] = [];
     for (const id of subtreeIds) {
       for (const edge of this.modelService.getConnectedEdges(id)) {
         if (edge.target === id) {
-          edgeUpdates.push({
-            id: edge.id,
-            data: { ...(edge.data as OrgChartEdgeData), [EDGE_IS_HIDDEN]: hidden },
-          });
+          edgeUpdates.push({ id: edge.id, data: { [EDGE_IS_HIDDEN]: hidden } });
         }
       }
     }
