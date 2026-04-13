@@ -14,7 +14,7 @@ import {
 
 /**
  * Handles node data updates, hierarchy changes (updating node parent), and node removal.
- * Receives node IDs as parameters — has no dependency on sidebar state.
+ * Receives node IDs as parameters.
  */
 @Injectable()
 export class NodeMutationService {
