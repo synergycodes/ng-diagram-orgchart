@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Edge, type Node } from 'ng-diagram';
+import { getIsCollapsed } from './data-getters';
 import { ExpandCollapseService } from './expand-collapse.service';
 import { isOrgChartNode } from './guards';
-import { getIsCollapsed } from './data-getters';
+import { HierarchyService } from './hierarchy.service';
 import {
   COLLAPSED_CHILDREN_COUNT,
   EdgeTemplateType,
@@ -14,18 +15,15 @@ import {
   type OrgChartNodeData,
   type OrgChartVacantNodeData,
 } from './interfaces';
-import { LayoutGate } from '../layout/layout-gate';
 import { ModelApplyService } from './model-apply.service';
 import { ModelChanges } from './model-changes';
 import { SortOrderService } from './sort-order.service';
-import { HierarchyService } from './hierarchy.service';
 
 export type AddNodeAction = 'child' | 'siblingBefore' | 'siblingAfter';
 
 @Injectable()
 export class AddNodeService {
   private readonly modelService = inject(NgDiagramModelService);
-  private readonly layoutGate = inject(LayoutGate);
   private readonly expandCollapseService = inject(ExpandCollapseService);
   private readonly sortOrderService = inject(SortOrderService);
   private readonly modelApplyService = inject(ModelApplyService);

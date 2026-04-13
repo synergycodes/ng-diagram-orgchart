@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ORG_CHART_CONFIG } from '../org-chart.config';
 import {
   DiagramInitEvent,
   initializeModel,
@@ -16,13 +15,14 @@ import {
 import { DragReorderService } from '../drag-reorder/drag-reorder.service';
 import { DragService } from '../drag-reorder/drag.service';
 import { DropService } from '../drag-reorder/drop.service';
+import { ORG_CHART_CONFIG } from '../org-chart.config';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
 import { EdgeComponent } from './edge.component';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
-import { HierarchyService } from './model/hierarchy.service';
 import { isOrgChartNode } from './model/guards';
+import { HierarchyService } from './model/hierarchy.service';
 import { EdgeTemplateType, NodeTemplateType } from './model/interfaces';
 import { ModelApplyService } from './model/model-apply.service';
 import { ModelChanges } from './model/model-changes';

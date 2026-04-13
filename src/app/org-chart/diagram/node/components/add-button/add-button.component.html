@@ -1,0 +1,12 @@
+<button
+  class="add-btn"
+  animate.leave="add-btn--leaving"
+  [appAddButtonPosition]="position()"
+  [disabled]="isDisabled()"
+  (pointerdown)="$event.stopPropagation()"
+  (click)="onAdd($event)"
+  data-no-drag="true"
+  data-no-pan="true"
+>
+  <span class="add-btn__icon"></span>
+</button>

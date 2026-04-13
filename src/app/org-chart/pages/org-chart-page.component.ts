@@ -13,7 +13,9 @@ import { NodeVisibilityConfigService } from '../diagram/node-visibility/node-vis
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { ViewportBoundsDirective } from '../diagram/node-visibility/viewport-bounds.directive';
 import { ViewportOverlayDirective } from '../diagram/node-visibility/viewport-overlay.directive';
+import { AddButtonService } from '../diagram/node/components/add-button/add-button.service';
 import { MinimapPanelComponent } from '../minimap-panel/minimap-panel.component';
+import { NodeMutationService } from '../properties-sidebar/node-mutation.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { ToolbarHorizontalComponent } from '../toolbar-horizontal/toolbar-horizontal.component';
@@ -38,6 +40,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     // To customize org-chart settings, uncomment and modify:
     // provideOrgChartConfig({ animation: { durationMs: 500 }, viewport: { zoomStep: 0.2 } }),
     PropertiesSidebarService,
+    NodeMutationService,
     SortOrderService,
     ExpandCollapseService,
     LayoutGate,
@@ -45,6 +48,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     ModelApplyService,
     HierarchyService,
     AddNodeService,
+    AddButtonService,
     LayoutAnimationService,
     NodeVisibilityService,
     NodeVisibilityConfigService,
