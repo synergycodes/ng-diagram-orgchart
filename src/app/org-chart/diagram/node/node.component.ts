@@ -6,14 +6,15 @@ import {
   type NgDiagramNodeTemplate,
   type Node,
 } from 'ng-diagram';
+import { DragReorderService } from '../../drag-reorder/drag-reorder.service';
 import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import { LayoutService } from '../layout/layout.service';
 import { getHasChildren, getIsHidden } from '../model/data-getters';
 import { isOccupiedNodeData, isVacantNode } from '../model/guards';
 import { getColorForRole, type OrgChartNodeData } from '../model/interfaces';
-import { AddButtonsPanelComponent } from './components/add-buttons-panel/add-buttons-panel.component';
+import { AddButtonComponent } from './components/add-button/add-button.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
-import { DragIndicatorsComponent } from './components/drag-indicators/drag-indicators.component';
+import { DropIndicatorComponent } from './components/drop-indicator/drop-indicator.component';
 import { FullNodeComponent } from './components/full-node/full-node.component';
 import { ToggleExpandButtonComponent } from './components/toggle-expand-button/toggle-expand-button.component';
 import { VacantNodeComponent } from './components/vacant-node/vacant-node.component';
@@ -37,8 +38,8 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     CompactNodeComponent,
     FullNodeComponent,
     ToggleExpandButtonComponent,
-    DragIndicatorsComponent,
-    AddButtonsPanelComponent,
+    DropIndicatorComponent,
+    AddButtonComponent,
   ],
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.scss'],
@@ -51,9 +52,8 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[class.selected]': 'node().selected',
     '[style.visibility]': 'isHidden() ? "hidden" : null',
     '[style.pointer-events]': 'isHidden() ? "none" : null',
-    '[class.layout-horizontal]': 'isHorizontal()',
-    '(mouseenter)': 'isHovered.set(true)',
-    '(mouseleave)': 'isHovered.set(false)',
+    '(mouseenter)': 'isNodeHovered.set(true)',
+    '(mouseleave)': 'isNodeHovered.set(false)',
   },
 })
 export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
@@ -61,28 +61,24 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   private readonly layoutService = inject(LayoutService);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly modelService = inject(NgDiagramModelService);
+  private readonly dragReorderService = inject(DragReorderService);
 
   node = input.required<Node<OrgChartNodeData>>();
 
-  isHorizontal = this.layoutService.isHorizontal;
+  protected isNodeHovered = signal(false);
 
-  isRoot = computed(() => {
-    // Update computed each time edge changes
-    this.modelService.edges();
-    const connectedEdges = this.modelService.getConnectedEdges(this.node().id);
-    return !connectedEdges.some((e) => e.target === this.node().id);
-  });
+  protected isHorizontal = this.layoutService.isHorizontal;
 
-  variant = computed<NodeVariant>(() => {
+  protected nodeId = computed(() => this.node().id);
+  protected isHidden = computed(() => getIsHidden(this.node()));
+  protected variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node())) return 'vacant';
     return this.viewportService.scale() < this.config.viewport.compactScaleThreshold
       ? 'compact'
       : 'full';
   });
-
   protected color = computed(() => getColorForRole(this.node().data.role));
-
-  occupiedData = computed(() => {
+  protected occupiedData = computed(() => {
     const data = this.node().data;
     if (!isOccupiedNodeData(data)) {
       return undefined;
@@ -90,8 +86,21 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
     return data;
   });
 
-  protected isHidden = computed(() => getIsHidden(this.node()));
-  protected hasChildren = computed(() => getHasChildren(this.node()));
+  protected hasChildren = computed(() => !!getHasChildren(this.node()));
+  protected isInDropRange = computed(
+    () =>
+      this.dragReorderService.isReorderActive() &&
+      this.dragReorderService.isNodeInDropRange(this.nodeId()),
+  );
 
-  protected isHovered = signal(false);
+  protected isRoot = computed(() => {
+    // Update computed each time edge changes
+    this.modelService.edges();
+    const id = this.nodeId();
+    const connectedEdges = this.modelService.getConnectedEdges(id);
+    return !connectedEdges.some((e) => e.target === id);
+  });
+  protected showAddButtons = computed(
+    () => this.isNodeHovered() && !this.dragReorderService.isReorderActive(),
+  );
 }

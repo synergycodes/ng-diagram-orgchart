@@ -21,20 +21,21 @@
 
 <app-toggle-expand-button [node]="node()" [isHorizontal]="isHorizontal()" />
 
-<app-drag-indicators
-  [nodeId]="node().id"
-  [hasChildren]="!!hasChildren()"
-  [isHorizontal]="isHorizontal()"
-/>
+@if (isInDropRange()) {
+  <app-drop-indicator [nodeId]="nodeId()" side="left" />
+  <app-drop-indicator [nodeId]="nodeId()" side="right" />
+  <app-drop-indicator [nodeId]="nodeId()" side="bottom" [hasChildren]="hasChildren()" />
+}
 
-<app-add-buttons-panel
-  [nodeId]="node().id"
-  [isRoot]="isRoot()"
-  [isHorizontal]="isHorizontal()"
-  [isHovered]="isHovered()"
-/>
+@if (showAddButtons()) {
+  @if (!isRoot()) {
+    <app-add-button [nodeId]="nodeId()" position="left" />
+    <app-add-button [nodeId]="nodeId()" position="right" />
+  }
+  <app-add-button [nodeId]="nodeId()" position="bottom" />
+}
 
-@if (isHovered()) {
+@if (isNodeHovered()) {
   <div class="hover-zone" data-no-drag="true"></div>
 }
 

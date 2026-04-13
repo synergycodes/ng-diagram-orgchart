@@ -13,6 +13,7 @@ import { NodeVisibilityConfigService } from '../diagram/node-visibility/node-vis
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import { ViewportBoundsDirective } from '../diagram/node-visibility/viewport-bounds.directive';
 import { ViewportOverlayDirective } from '../diagram/node-visibility/viewport-overlay.directive';
+import { AddButtonService } from '../diagram/node/components/add-button/add-button.service';
 import { MinimapPanelComponent } from '../minimap-panel/minimap-panel.component';
 import { NodeMutationService } from '../properties-sidebar/node-mutation.service';
 import { PropertiesSidebarComponent } from '../properties-sidebar/properties-sidebar.component';
@@ -47,6 +48,7 @@ import { TopNavbarComponent } from '../top-navbar/top-navbar.component';
     ModelApplyService,
     HierarchyService,
     AddNodeService,
+    AddButtonService,
     LayoutAnimationService,
     NodeVisibilityService,
     NodeVisibilityConfigService,

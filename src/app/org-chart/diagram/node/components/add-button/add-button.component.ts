@@ -1,37 +1,39 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import type { DropZone } from '../../../../drag-reorder/zone-detection/index';
+import { LayoutGate } from '../../../layout/layout-gate';
+import { LayoutService } from '../../../layout/layout.service';
+import type { AddNodeAction } from '../../../model/add-node.service';
+import { AddButtonService } from './add-button.service';
+
+const ACTION_MAP: Record<DropZone, AddNodeAction> = {
+  left: 'siblingBefore',
+  right: 'siblingAfter',
+  bottom: 'child',
+};
 
 @Component({
   selector: 'app-add-button',
-  template: `
-    <button
-      class="add-btn"
-      animate.leave="add-btn--leaving"
-      [class.add-btn--left]="position() === 'left'"
-      [class.add-btn--right]="position() === 'right'"
-      [class.add-btn--bottom]="position() === 'bottom'"
-      [disabled]="disabled()"
-      (pointerdown)="$event.stopPropagation()"
-      (click)="onAdd($event)"
-      data-no-drag="true"
-      data-no-pan="true"
-    >
-      <span class="add-btn__icon"></span>
-    </button>
-  `,
+  templateUrl: './add-button.component.html',
   styleUrls: ['./add-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
-    '[class.layout-horizontal]': 'horizontal()',
+    '[class.layout-horizontal]': 'isHorizontal()',
   },
 })
 export class AddButtonComponent {
-  position = input.required<'left' | 'right' | 'bottom'>();
-  horizontal = input(false);
-  disabled = input(false);
-  add = output<MouseEvent>();
+  private readonly addButtonService = inject(AddButtonService);
+  private readonly layoutGate = inject(LayoutGate);
+  private readonly layoutService = inject(LayoutService);
 
-  onAdd(event: MouseEvent): void {
-    this.add.emit(event);
+  nodeId = input.required<string>();
+  position = input.required<DropZone>();
+
+  protected isHorizontal = this.layoutService.isHorizontal;
+  protected isDisabled = computed(() => !this.layoutGate.isIdle());
+
+  async onAdd(event: MouseEvent): Promise<void> {
+    event.stopPropagation();
+    await this.addButtonService.addNode(this.nodeId(), ACTION_MAP[this.position()]);
   }
 }
