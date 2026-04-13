@@ -47,8 +47,6 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
   host: {
     '[class.ng-diagram-port-hoverable-over-node]': 'true',
     '[class.variant-vacant]': 'variant() === "vacant"',
-    '[class.variant-compact]': 'variant() === "compact"',
-    '[class.variant-full]': 'variant() === "full"',
     '[class.selected]': 'node().selected',
     '[class.is-hidden]': 'isHidden()',
     '[style.visibility]': 'isHidden() ? "hidden" : null',
