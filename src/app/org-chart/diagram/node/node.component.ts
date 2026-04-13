@@ -10,7 +10,7 @@ import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import { LayoutService } from '../layout/layout.service';
 import { getHasChildren, getIsHidden } from '../model/data-getters';
 import { isOccupiedNodeData, isVacantNode } from '../model/guards';
-import { type OrgChartNodeData, getColorForRole } from '../model/interfaces';
+import { getColorForRole, type OrgChartNodeData } from '../model/interfaces';
 import { AddButtonsPanelComponent } from './components/add-buttons-panel/add-buttons-panel.component';
 import { CompactNodeComponent } from './components/compact-node/compact-node.component';
 import { DragIndicatorsComponent } from './components/drag-indicators/drag-indicators.component';
@@ -67,6 +67,7 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   isHorizontal = this.layoutService.isHorizontal;
 
   isRoot = computed(() => {
+    // Update computed each time edge changes
     this.modelService.edges();
     const connectedEdges = this.modelService.getConnectedEdges(this.node().id);
     return !connectedEdges.some((e) => e.target === this.node().id);

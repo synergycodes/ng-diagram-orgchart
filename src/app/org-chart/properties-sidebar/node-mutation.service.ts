@@ -3,7 +3,6 @@ import { NgDiagramModelService } from 'ng-diagram';
 import { LayoutGate } from '../diagram/layout/layout-gate';
 import { isOrgChartNodeData } from '../diagram/model/guards';
 import { HierarchyService } from '../diagram/model/hierarchy.service';
-import { type OrgChartNodeData } from '../diagram/model/interfaces';
 import { ModelApplyService } from '../diagram/model/model-apply.service';
 import { ModelChanges } from '../diagram/model/model-changes';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
@@ -23,11 +22,6 @@ export class NodeMutationService {
   private readonly layoutGate = inject(LayoutGate);
   private readonly modelApplyService = inject(ModelApplyService);
   private readonly nodeVisibilityService = inject(NodeVisibilityService);
-
-  // TODO: fix when ng-diagram supports generic updateNodeData. `& Record<string, unknown>` here is fix for `updateNodeData` constrains
-  updateNodeData(id: string, data: OrgChartNodeData & Record<string, unknown>): void {
-    this.modelService.updateNodeData(id, data);
-  }
 
   /** Deletes the given node, updates parent's hasChildren flag, and re-layouts. */
   async removeNode(nodeId: string): Promise<void> {
@@ -52,7 +46,7 @@ export class NodeMutationService {
 
     if (this.hasNodeDataChanges(change)) {
       const updatedNodeData = formDataToNodeData(change.formData, node.data);
-      this.updateNodeData(change.nodeId, updatedNodeData);
+      this.modelService.updateNodeData(change.nodeId, updatedNodeData);
     }
 
     if (this.hasHierarchicalChanges(change) && this.layoutGate.isIdle()) {
