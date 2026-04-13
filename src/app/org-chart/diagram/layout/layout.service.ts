@@ -1,12 +1,14 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
+import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import {
   NgDiagramModelService,
   type Edge as DiagramEdge,
   type Node as DiagramNode,
 } from 'ng-diagram';
-import { type OrgChartNodeData } from '../interfaces';
-import { ModelChanges } from '../model-changes';
-import { findRootNode, getFutureVisibleSet, getVisibleSet } from '../utils/visible-set';
+import { getSortOrder } from '../model/data-getters';
+import { type OrgChartNodeData } from '../model/interfaces';
+import { ModelChanges } from '../model/model-changes';
+import { findRootNode, getFutureVisibleSet, getVisibleSet } from './visible-set';
 import { performLayout } from './perform-layout';
 
 export type LayoutDirection = 'DOWN' | 'RIGHT';
@@ -25,6 +27,7 @@ export interface VisibilityHint {
  */
 @Injectable()
 export class LayoutService {
+  private readonly config = inject(ORG_CHART_CONFIG);
   private readonly modelService = inject(NgDiagramModelService);
 
   private readonly _direction = signal<LayoutDirection>('DOWN');
@@ -98,16 +101,17 @@ export class LayoutService {
   ): { nodes: DiagramNode<OrgChartNodeData>[]; edges: DiagramEdge[] } {
     const orderOverrides = new Map<string, number>();
     for (const update of changes.nodeUpdates) {
-      if (update.data?.sortOrder != null) {
-        orderOverrides.set(update.id, update.data.sortOrder);
+      const order = getSortOrder(update);
+      if (order != null) {
+        orderOverrides.set(update.id, order);
       }
     }
     for (const node of changes.newNodes) {
-      orderOverrides.set(node.id, (node.data as OrgChartNodeData).sortOrder ?? 0);
+      orderOverrides.set(node.id, getSortOrder(node) ?? 0);
     }
 
     const getOrder = (id: string, data: OrgChartNodeData) =>
-      orderOverrides.get(id) ?? data.sortOrder ?? 0;
+      orderOverrides.get(id) ?? getSortOrder({ data }) ?? 0;
 
     const nodes = ([...visibleNodes, ...changes.newNodes] as DiagramNode<OrgChartNodeData>[]).sort(
       (a, b) => getOrder(a.id, a.data) - getOrder(b.id, b.data),
@@ -129,7 +133,12 @@ export class LayoutService {
     nodes: DiagramNode[],
     edges: DiagramEdge[],
   ): Promise<{ id: string; position: { x: number; y: number } }[]> {
-    const laid = await performLayout(nodes, edges, this._direction());
+    const laid = await performLayout(
+      nodes,
+      edges,
+      this._direction(),
+      this.config.layout.nodeSpacing,
+    );
     const model = this.modelService.getModel();
     const root = findRootNode(model.getNodes(), model.getEdges());
 

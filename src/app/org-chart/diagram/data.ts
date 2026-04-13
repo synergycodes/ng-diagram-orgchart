@@ -1,5 +1,5 @@
 import { type Edge, type Node } from 'ng-diagram';
-import { OrgChartRole, type OrgChartEdgeData, type OrgChartNodeData } from './interfaces';
+import { OrgChartRole, type OrgChartEdgeData, type OrgChartNodeData } from './model/interfaces';
 
 // Node IDs
 const thomasWalterId = '0000-000000000001';

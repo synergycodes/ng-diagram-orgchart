@@ -1,12 +1,14 @@
-<button
-  class="toggle-btn p11"
-  [disabled]="disabled()"
-  (pointerdown)="$event.stopPropagation()"
-  (click)="onToggle($event)"
->
-  @if (isCollapsed()) {
-    {{ collapsedChildrenCount() }}
-  } @else {
-    <img src="assets/minus.svg" alt="Collapse" width="13" height="13" />
-  }
-</button>
+@if (hasChildren()) {
+  <button
+    class="toggle-btn p11"
+    [disabled]="isDisabled()"
+    (pointerdown)="$event.stopPropagation()"
+    (click)="onToggle($event)"
+  >
+    @if (isCollapsed()) {
+      {{ collapsedChildrenCount() }}
+    } @else {
+      <img src="assets/minus.svg" alt="Collapse" width="13" height="13" />
+    }
+  </button>
+}

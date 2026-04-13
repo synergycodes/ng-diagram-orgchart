@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
-import { type ViewportInsets } from '../utils/viewport';
+import { type ViewportInsets } from './viewport';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 type BoundsProvider = () => DOMRect;
 
+/**
+ * Tracks the diagram viewport and UI overlays (navbar, sidebar) so that
+ * visibility calculations can account for obscured areas.
+ *
+ * Registered via directives: `ViewportBoundsDirective` and `ViewportOverlayDirective`.
+ */
 @Injectable()
 export class NodeVisibilityConfigService {
   private readonly overlays = new Map<string, BoundsProvider>();
@@ -25,6 +31,10 @@ export class NodeVisibilityConfigService {
     this.overlays.delete(key);
   }
 
+  /**
+   * Computes how far each overlay intrudes into the viewport (in client pixels).
+   * Returns per-side insets used by `ensureVisible` and `zoomToFit`.
+   */
   getViewportInsets(): ViewportInsets {
     if (!this.viewportBounds) return {};
 
@@ -54,6 +64,7 @@ export class NodeVisibilityConfigService {
     return inset;
   }
 
+  /** Determines which viewport side an overlay is closest to (smallest intrusion wins). */
   private getOverlaySide(overlayRect: DOMRect, viewportRect: DOMRect): Side | null {
     const intrusions: { side: Side; value: number }[] = [
       { side: 'top' as const, value: overlayRect.bottom - viewportRect.top },

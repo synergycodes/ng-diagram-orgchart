@@ -5,7 +5,6 @@ import {
   NgDiagramBackgroundComponent,
   NgDiagramComponent,
   NgDiagramEdgeTemplateMap,
-  NgDiagramModelService,
   NgDiagramNodeTemplateMap,
   NgDiagramViewportService,
   type Edge,
@@ -13,23 +12,24 @@ import {
   type SelectionGestureEndedEvent,
   type SelectionRemovedEvent,
 } from 'ng-diagram';
-import { DragReorderService } from '../dragging/drag-reorder.service';
-import { DragService } from '../dragging/drag.service';
-import { DropService } from '../dragging/drop.service';
-import { HierarchyService } from '../hierarchy/hierarchy.service';
+import { DragReorderService } from '../drag-reorder/drag-reorder.service';
+import { DragService } from '../drag-reorder/drag.service';
+import { DropService } from '../drag-reorder/drop.service';
+import { ORG_CHART_CONFIG } from '../org-chart.config';
 import { PropertiesSidebarService } from '../properties-sidebar/properties-sidebar.service';
 import { diagramModel } from './data';
-import { EdgeComponent } from './edge/edge.component';
-import { isOrgChartNode } from './guards';
-import { EdgeTemplateType, NodeTemplateType } from './interfaces';
+import { EdgeComponent } from './edge.component';
 import { LayoutGate } from './layout/layout-gate';
 import { LayoutService, type LayoutDirection } from './layout/layout.service';
-import { ModelApplyService } from './model-apply.service';
-import { ModelChanges } from './model-changes';
+import { isOrgChartNode } from './model/guards';
+import { HierarchyService } from './model/hierarchy.service';
+import { EdgeTemplateType, NodeTemplateType } from './model/interfaces';
+import { ModelApplyService } from './model/model-apply.service';
+import { ModelChanges } from './model/model-changes';
+import { SortOrderService } from './model/sort-order.service';
 import { NodeVisibilityConfigService } from './node-visibility/node-visibility-config.service';
 import { NodeVisibilityService } from './node-visibility/node-visibility.service';
 import { NodeComponent } from './node/node.component';
-import { SortOrderService } from './sort-order/sort-order.service';
 
 /**
  * Org Chart Diagram
@@ -48,7 +48,7 @@ import { SortOrderService } from './sort-order/sort-order.service';
   providers: [DragService, DropService, DragReorderService],
 })
 export class DiagramComponent {
-  private readonly modelService = inject(NgDiagramModelService);
+  private readonly orgChartConfig = inject(ORG_CHART_CONFIG);
   private readonly viewportService = inject(NgDiagramViewportService);
   private readonly layoutGate = inject(LayoutGate);
   private readonly layoutService = inject(LayoutService);
@@ -131,6 +131,7 @@ export class DiagramComponent {
     }
   }
 
+  /** Opens the properties sidebar when org-chart nodes are selected. */
   onSelectionGestureEnded(event: SelectionGestureEndedEvent): void {
     const hasOrgChartNodes = event.nodes.some(isOrgChartNode);
     if (hasOrgChartNodes) {
@@ -138,9 +139,10 @@ export class DiagramComponent {
     }
   }
 
+  /** Fits all nodes in view, accounting for overlay insets plus extra padding. */
   private zoomToFit(): void {
     const insets = this.nodeVisibilityConfigService.getViewportInsets();
-    const pad = 20;
+    const pad = this.orgChartConfig.viewport.zoomToFitPadding;
     this.viewportService.zoomToFit({
       padding: [
         (insets.top ?? 0) + pad,

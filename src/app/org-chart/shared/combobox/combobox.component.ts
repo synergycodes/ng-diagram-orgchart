@@ -26,16 +26,24 @@ let nextId = 0;
 
 const FILTER_DEBOUNCE_MS = 150;
 
+/** A selectable option exposed to consumers of the combobox. */
 export interface ComboboxOption<T = unknown> {
   value: T;
   label: string;
   data?: unknown;
 }
 
+/** Internal wrapper that adds a null-option alongside real options. */
 type ComboboxItem<T> =
   | { type: 'null'; value: null }
   | { type: 'option'; value: T; option: ComboboxOption<T> };
 
+/**
+ * Filterable combobox with keyboard navigation and custom option templates.
+ *
+ * Supports a prefix template (e.g. avatar), a null option ("None"),
+ * and custom option rendering via content-projected directives.
+ */
 @Component({
   selector: 'app-combobox',
   imports: [NgTemplateOutlet],
@@ -98,6 +106,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     return this.options().find((o) => o.value === value) ?? null;
   });
 
+  /** Shows the prefix template only when the input text matches the selected option's label. */
   protected readonly prefixOption = computed(() => {
     const opt = this.selectedOption();
     if (!opt) return null;
@@ -241,6 +250,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     this.filterText.set('');
     this.isOpen.set(true);
     this.initFocusedIndex();
+    this.inputEl()?.nativeElement.select();
     this.removeDocumentClick?.();
     this.removeDocumentClick = this.listenForOutsideClicks();
   }
@@ -258,6 +268,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     this.commitOrRevert();
   }
 
+  /** If the user cleared the input, set value to null; otherwise restore the selected label. */
   private commitOrRevert(): void {
     if (this.inputText() === '') {
       this.value.set(null);
@@ -265,6 +276,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     this.revertInputText();
   }
 
+  /** Resets the input text to the selected option's label (direct DOM write needed when signal value is unchanged). */
   private revertInputText(): void {
     const opt = this.selectedOption();
     const display = opt ? opt.label : '';

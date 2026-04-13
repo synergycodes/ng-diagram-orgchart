@@ -4,11 +4,7 @@
   }
   @case ('compact') {
     @let data = occupiedData();
-    <app-compact-node
-      [fullName]="data?.fullName"
-      [role]="data?.role"
-      [color]="color()"
-    />
+    <app-compact-node [fullName]="data?.fullName" [role]="data?.role" [color]="color()" />
   }
   @case ('full') {
     @let data = occupiedData();
@@ -23,62 +19,23 @@
   }
 }
 
-@if (hasChildren()) {
-  <app-toggle-expand-button
-    [isCollapsed]="!!isCollapsed()"
-    [collapsedChildrenCount]="collapsedChildrenCount()"
-    [horizontal]="isHorizontal()"
-    [disabled]="!isLayoutIdle()"
-    (toggle)="onToggle($event)"
-  />
-}
+<app-toggle-expand-button [node]="node()" [isHorizontal]="isHorizontal()" />
 
 @if (isInDropRange()) {
-  <div
-    class="drop-indicator drop-indicator--left"
-    animate.leave="drop-indicator--leaving"
-    [class.drop-indicator--visible]="!hiddenSides().left"
-    [class.drop-indicator--highlighted]="highlightedSide() === 'left'"
-  ></div>
-  <div
-    class="drop-indicator drop-indicator--right"
-    animate.leave="drop-indicator--leaving"
-    [class.drop-indicator--visible]="!hiddenSides().right"
-    [class.drop-indicator--highlighted]="highlightedSide() === 'right'"
-  ></div>
-  <div
-    class="drop-indicator drop-indicator--bottom"
-    animate.leave="drop-indicator--leaving"
-    [class.drop-indicator--visible]="!hiddenSides().bottom"
-    [class.drop-indicator--highlighted]="highlightedSide() === 'bottom'"
-    [class.drop-indicator--no-toggle]="!hasChildren()"
-  ></div>
+  <app-drop-indicator [nodeId]="nodeId()" side="left" />
+  <app-drop-indicator [nodeId]="nodeId()" side="right" />
+  <app-drop-indicator [nodeId]="nodeId()" side="bottom" [hasChildren]="hasChildren()" />
 }
 
 @if (showAddButtons()) {
   @if (!isRoot()) {
-    <app-add-button
-  
-      position="left"
-      [horizontal]="isHorizontal()"
-      [disabled]="isAddButtonDisabled()"
-      (add)="onAddLeft($event)"
-    />
-    <app-add-button
-  
-      position="right"
-      [horizontal]="isHorizontal()"
-      [disabled]="isAddButtonDisabled()"
-      (add)="onAddRight($event)"
-    />
+    <app-add-button [nodeId]="nodeId()" position="left" />
+    <app-add-button [nodeId]="nodeId()" position="right" />
   }
-  <app-add-button
+  <app-add-button [nodeId]="nodeId()" position="bottom" />
+}
 
-    position="bottom"
-    [horizontal]="isHorizontal()"
-    [disabled]="isAddButtonDisabled()"
-    (add)="onAddBottom($event)"
-  />
+@if (isNodeHovered()) {
   <div class="hover-zone" data-no-drag="true"></div>
 }
 

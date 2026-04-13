@@ -1,30 +1,23 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, NgDiagramSelectionService, type Node } from 'ng-diagram';
-import { isOccupiedNode, isOrgChartNode, isOrgChartNodeData } from '../diagram/guards';
+import { isOccupiedNode, isOrgChartNode } from '../diagram/model/guards';
+import { HierarchyService } from '../diagram/model/hierarchy.service';
 import {
   OrgChartRole,
   type OrgChartNodeData,
   type OrgChartOccupiedNodeData,
-} from '../diagram/interfaces';
-import { LayoutGate } from '../diagram/layout/layout-gate';
-import { ModelApplyService } from '../diagram/model-apply.service';
-import { ModelChanges } from '../diagram/model-changes';
-import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
-import { HierarchyService } from '../hierarchy/hierarchy.service';
+} from '../diagram/model/interfaces';
 import { type ComboboxOption } from '../shared/combobox/combobox.component';
-import {
-  formDataToNodeData,
-  type SidebarFieldChange,
-} from './components/sidebar-form/sidebar-form.mappers';
 
+/**
+ * Manages sidebar visibility state and exposes selection-derived data
+ * (selected nodes, parent info, reports-to candidates).
+ */
 @Injectable()
 export class PropertiesSidebarService {
   private readonly selectionService = inject(NgDiagramSelectionService);
   private readonly modelService = inject(NgDiagramModelService);
   private readonly hierarchyService = inject(HierarchyService);
-  private readonly layoutGate = inject(LayoutGate);
-  private readonly modelApplyService = inject(ModelApplyService);
-  private readonly nodeVisibilityService = inject(NodeVisibilityService);
 
   readonly isExpanded = signal(false);
 
@@ -34,6 +27,7 @@ export class PropertiesSidebarService {
   readonly selectedNode = computed<Node<OrgChartNodeData> | undefined>(() =>
     this.selectedOrgChartNodes().at(0),
   );
+  /** Valid "reports to" targets: all occupied nodes except the selected node and its descendants. */
   readonly reportsToCandidateNodes = computed<Node<OrgChartOccupiedNodeData>[]>(() => {
     const selectedNode = this.selectedNode();
     if (!selectedNode) return [];
@@ -62,61 +56,11 @@ export class PropertiesSidebarService {
     return 'single';
   });
 
-  // TODO: fix when ng-diagram supports generic updateNodeData. `& Record<string, unknown>` here is fix for `updateNodeData` constrains
-  updateNodeData(id: string, data: OrgChartNodeData & Record<string, unknown>): void {
-    this.modelService.updateNodeData(id, data);
-  }
-
   expandSidebar(): void {
     this.isExpanded.set(true);
   }
 
   toggleSidebarVisibility(): void {
     this.isExpanded.update((v) => !v);
-  }
-
-  async removeSelectedNode(): Promise<void> {
-    const node = this.selectedNode();
-    if (!node || !this.layoutGate.isIdle()) return;
-
-    const parentId = this.hierarchyService.getParentId(node.id);
-
-    const changes = new ModelChanges();
-    changes.addDeleteNodeIds(node.id);
-
-    if (parentId) {
-      this.hierarchyService.clearHasChildrenFlags([parentId], changes, new Set([node.id]));
-    }
-
-    await this.modelApplyService.applyWithLayout(changes);
-  }
-
-  handleFieldChange(change: SidebarFieldChange): void {
-    const node = this.modelService.getNodeById(change.nodeId);
-    if (!node || !isOrgChartNodeData(node.data)) return;
-
-    if (this.hasNodeDataChanges(change)) {
-      const updatedNodeData = formDataToNodeData(change.formData, node.data);
-      this.updateNodeData(change.nodeId, updatedNodeData);
-    }
-
-    if (this.hasHierarchicalChanges(change) && this.layoutGate.isIdle()) {
-      this.updateNodeParent(change.nodeId, change.formData.reportsTo);
-    }
-  }
-
-  private async updateNodeParent(nodeId: string, newParentId: string | null): Promise<void> {
-    const changes = this.hierarchyService.updateNodeParent(nodeId, newParentId);
-    await this.modelApplyService.applyWithLayout(changes);
-    this.nodeVisibilityService.ensureVisible(nodeId);
-  }
-
-  private hasHierarchicalChanges(change: SidebarFieldChange): boolean {
-    const currentParentId = this.hierarchyService.getParentId(change.nodeId);
-    return change.fields.includes('reportsTo') && change.formData.reportsTo !== currentParentId;
-  }
-
-  private hasNodeDataChanges(change: SidebarFieldChange): boolean {
-    return change.fields.some((f) => f !== 'reportsTo');
   }
 }

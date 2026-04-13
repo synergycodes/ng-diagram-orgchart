@@ -7,6 +7,7 @@ import {
 import { SidebarFormService } from './components/sidebar-form/sidebar-form.service';
 import { SidebarHeaderComponent } from './components/sidebar-header/sidebar-header.component';
 import { SidebarPlaceholderComponent } from './components/sidebar-placeholder/sidebar-placeholder.component';
+import { NodeMutationService } from './node-mutation.service';
 import { PropertiesSidebarService } from './properties-sidebar.service';
 
 @Component({
@@ -17,8 +18,8 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
     {
       provide: ON_FIELD_CHANGE,
       useFactory: () => {
-        const sidebarService = inject(PropertiesSidebarService);
-        return (change: SidebarFieldChange) => sidebarService.handleFieldChange(change);
+        const nodeMutationService = inject(NodeMutationService);
+        return (change: SidebarFieldChange) => nodeMutationService.handleFieldChange(change);
       },
     },
   ],
@@ -29,6 +30,7 @@ import { PropertiesSidebarService } from './properties-sidebar.service';
 })
 export class PropertiesSidebarComponent {
   private readonly sidebarService = inject(PropertiesSidebarService);
+  private readonly nodeMutationService = inject(NodeMutationService);
 
   protected readonly isExpanded = this.sidebarService.isExpanded;
   protected readonly state = this.sidebarService.sidebarState;
@@ -42,6 +44,9 @@ export class PropertiesSidebarComponent {
   }
 
   protected onRemoveNode(): void {
-    this.sidebarService.removeSelectedNode();
+    const nodeId = this.sidebarService.selectedNode()?.id;
+    if (nodeId) {
+      this.nodeMutationService.removeNode(nodeId);
+    }
   }
 }
