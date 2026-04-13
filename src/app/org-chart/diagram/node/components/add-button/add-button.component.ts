@@ -3,6 +3,7 @@ import type { DropZone } from '../../../../drag-reorder/zone-detection/index';
 import { LayoutGate } from '../../../layout/layout-gate';
 import { LayoutService } from '../../../layout/layout.service';
 import type { AddNodeAction } from '../../../model/add-node.service';
+import { AddButtonPositionDirective } from './add-button-position.directive';
 import { AddButtonService } from './add-button.service';
 
 const ACTION_MAP: Record<DropZone, AddNodeAction> = {
@@ -16,6 +17,7 @@ const ACTION_MAP: Record<DropZone, AddNodeAction> = {
   templateUrl: './add-button.component.html',
   styleUrls: ['./add-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AddButtonPositionDirective],
   host: {
     style: 'display: contents',
     '[class.layout-horizontal]': 'isHorizontal()',

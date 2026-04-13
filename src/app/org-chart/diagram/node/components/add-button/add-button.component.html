@@ -1,9 +1,7 @@
 <button
   class="add-btn"
   animate.leave="add-btn--leaving"
-  [class.add-btn--left]="position() === 'left'"
-  [class.add-btn--right]="position() === 'right'"
-  [class.add-btn--bottom]="position() === 'bottom'"
+  [appAddButtonPosition]="position()"
   [disabled]="isDisabled()"
   (pointerdown)="$event.stopPropagation()"
   (click)="onAdd($event)"
