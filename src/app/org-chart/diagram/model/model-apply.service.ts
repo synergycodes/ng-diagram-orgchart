@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { NgDiagramModelService, NgDiagramService, type Edge, type Node } from 'ng-diagram';
+import { NgDiagramModelService, NgDiagramService } from 'ng-diagram';
 import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import { LayoutAnimationService } from '../animation/layout-animation.service';
 import { LayoutGate } from '../layout/layout-gate';
 import { LayoutService, type VisibilityHint } from '../layout/layout.service';
-import { ModelChanges } from './model-changes';
+import { ModelChanges, type EdgeUpdate, type NodeUpdate } from './model-changes';
 
 export interface ApplyWithLayoutOptions {
   /** Hint for expand/collapse to determine the future visible set. */
@@ -94,54 +94,59 @@ export class ModelApplyService {
   }
 
   /**
-   * Deduplicates updates by ID, merges partial data fields,
-   * and resolves against current model state so ng-diagram receives full data.
+   * Prepares accumulated partial patches for `updateNodes` / `updateEdges`:
+   *   1. Dedupes by `id`, merging multiple patches for the same entity.
+   *   2. Resolves each merged patch's `data` against the entity's current
+   *      `data`, so ng-diagram receives a full data object.
+   *
+   * Merge semantics inside a dedupe:
+   * - **Inside `data`**: later keys win; `undefined` values are preserved.
+   * - **Top-level**: later non-`undefined` values win; `undefined` is
+   *   dropped so a later partial patch can't clobber a concrete value
+   *   set by an earlier one. (Asymmetric with `data` on purpose — top-level
+   *   `undefined` usually just means "this patch doesn't touch that field".)
    */
-  private resolveUpdates(
-    updates: { id: string; data?: unknown; [key: string]: unknown }[],
-    getById: (id: string) => { data?: unknown } | null,
-  ) {
-    const byId = new Map<string, Record<string, unknown>>();
+  private resolveUpdates<
+    TData extends object,
+    TPatch extends { id: string; data?: Partial<TData> },
+  >(updates: readonly TPatch[], getById: (id: string) => { data?: TData } | null): TPatch[] {
+    const byId = new Map<string, TPatch>();
 
     for (const update of updates) {
       const existing = byId.get(update.id);
-      if (existing) {
-        for (const [key, value] of Object.entries(update)) {
-          if (key === 'id') continue;
-          if (key === 'data' && value) {
-            existing['data'] = { ...((existing['data'] as object) ?? {}), ...(value as object) };
-          } else if (value !== undefined) {
-            existing[key] = value;
-          }
-        }
-      } else {
-        byId.set(update.id, { ...update });
-      }
+      byId.set(update.id, existing ? this.mergePatch(existing, update) : { ...update });
     }
 
-    const result: { id: string; [key: string]: unknown }[] = [];
     for (const [id, entry] of byId) {
-      if (entry['data']) {
+      if (entry.data) {
         const current = getById(id);
         if (current?.data) {
-          entry['data'] = { ...(current.data as object), ...(entry['data'] as object) };
+          entry.data = { ...current.data, ...entry.data };
         }
       }
-      result.push(entry as { id: string; [key: string]: unknown });
     }
 
-    return result;
+    return [...byId.values()];
   }
 
-  private resolveNodeUpdates(
-    updates: { id: string; data?: unknown }[],
-  ): (Pick<Node, 'id'> & Partial<Node>)[] {
+  private mergePatch<TPatch extends { id: string; data?: object }>(a: TPatch, b: TPatch): TPatch {
+    const merged: Record<string, unknown> = { ...a };
+    for (const [key, value] of Object.entries(b)) {
+      if (key === 'id') continue;
+      if (key === 'data' && value) {
+        merged['data'] = { ...((merged['data'] as object) ?? {}), ...(value as object) };
+      } else if (value !== undefined) {
+        merged[key] = value;
+      }
+    }
+    return merged as TPatch;
+  }
+
+  private resolveNodeUpdates(updates: readonly NodeUpdate[]): NodeUpdate[] {
     return this.resolveUpdates(updates, (id) => this.modelService.getNodeById(id));
   }
 
-  private resolveEdgeUpdates(
-    updates: { id: string; data?: unknown; source?: unknown }[],
-  ): (Pick<Edge, 'id'> & Partial<Edge>)[] {
+  private resolveEdgeUpdates(updates: readonly EdgeUpdate[]): EdgeUpdate[] {
     return this.resolveUpdates(updates, (id) => this.modelService.getEdgeById(id));
   }
 }
