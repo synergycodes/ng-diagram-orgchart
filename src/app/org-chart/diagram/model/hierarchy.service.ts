@@ -50,12 +50,16 @@ export class HierarchyService {
   }
 
   /**
-   * Moves a node to a new parent, updating edges, `hasChildren` flags,
-   * and sort order on both the old and new parent. Expands the new parent
-   * if it is collapsed.
+   * Moves a node to a new parent (or reorders it under the same parent when
+   * `placement` is given), updating edges, `hasChildren` flags, and sort order
+   * on both the old and new parent. Expands the new parent if it is collapsed.
    *
-   * @param placement Optional sibling reference for insertion order.
+   * @param placement Optional sibling reference for insertion order. Required
+   *                  for same-parent reorders; appends at the end otherwise.
    * @param modelChanges Accumulator to append changes to; creates a new one if omitted.
+   * @returns `changes` — the accumulated model changes
+   *          `visibilityHint` — set when the new parent was collapsed and had
+   *          to be expanded, so callers can forward it to the layout pass.
    */
   updateNodeParent(
     nodeId: string,
@@ -67,13 +71,15 @@ export class HierarchyService {
       .getConnectedEdges(nodeId)
       .find((e) => e.target === nodeId);
     const oldParentId = incomingEdge?.source ?? null;
+    const isParentChange = oldParentId !== newParentId;
 
-    if (oldParentId === newParentId) {
+    // No parent change and no reorder requested — nothing to do.
+    if (!isParentChange && !placement) {
       return { changes: modelChanges };
     }
 
     let visibilityHint: VisibilityHint | undefined;
-    if (newParentId) {
+    if (isParentChange && newParentId) {
       const targetNode = this.modelService.getNodeById(newParentId);
       if (isOrgChartNode(targetNode) && getIsCollapsed(targetNode)) {
         const result = this.expandCollapseService.prepareToggle(newParentId, modelChanges);
@@ -83,14 +89,21 @@ export class HierarchyService {
       }
     }
 
-    this.updateParentEdge(modelChanges, nodeId, newParentId, incomingEdge);
-    this.updateHasChildrenFlags(modelChanges, nodeId, oldParentId, newParentId);
+    if (isParentChange) {
+      this.updateParentEdge(modelChanges, nodeId, newParentId, incomingEdge);
+      this.updateHasChildrenFlags(modelChanges, nodeId, oldParentId, newParentId);
 
-    if (oldParentId) {
-      this.sortOrderService.reorderChildren(oldParentId, [], modelChanges, new Set([nodeId]));
+      if (oldParentId) {
+        this.sortOrderService.reorderChildren(oldParentId, [], modelChanges, new Set([nodeId]));
+      }
     }
 
     if (newParentId) {
+      // On same-parent reorders `nodeId` is already in the parent's child list,
+      // so without this exclusion it would end up twice in the new order —
+      // once at its current slot and once at the placement slot. On parent
+      // changes the node isn't yet a child of `newParentId` (the edge update
+      // is only queued in `modelChanges`), so the exclusion is a no-op.
       this.sortOrderService.reorderChildren(
         newParentId,
         [
@@ -101,6 +114,7 @@ export class HierarchyService {
           },
         ],
         modelChanges,
+        new Set([nodeId]),
       );
     }
 

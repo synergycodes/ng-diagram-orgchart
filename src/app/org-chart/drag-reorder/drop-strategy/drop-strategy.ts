@@ -1,6 +1,5 @@
 import { inject } from '@angular/core';
 import { HierarchyService } from '../../diagram/model/hierarchy.service';
-import { SortOrderService } from '../../diagram/model/sort-order.service';
 import type { DropZone } from '../zone-detection/index';
 import type { DropActionStrategy } from './drop-strategy.interface';
 import { createChildDropAction } from './strategies/child-drop-action';
@@ -15,14 +14,11 @@ export function getDropStrategy(strategies: DropStrategies, side: DropZone): Dro
 
 /** Injects dependencies and wires up the strategy map (left/right → sibling, bottom → child). */
 export function injectDropStrategies(): DropStrategies {
-  const deps = {
-    hierarchyService: inject(HierarchyService),
-    sortOrderService: inject(SortOrderService),
-  };
+  const hierarchyService = inject(HierarchyService);
 
   return {
-    bottom: createChildDropAction(deps),
-    left: createSiblingDropAction(deps),
-    right: createSiblingDropAction(deps),
+    bottom: createChildDropAction(hierarchyService),
+    left: createSiblingDropAction(hierarchyService),
+    right: createSiblingDropAction(hierarchyService),
   };
 }

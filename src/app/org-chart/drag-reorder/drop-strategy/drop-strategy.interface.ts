@@ -1,7 +1,5 @@
 import type { VisibilityHint } from '../../diagram/layout/layout.service';
-import type { HierarchyService } from '../../diagram/model/hierarchy.service';
 import type { ModelChanges } from '../../diagram/model/model-changes';
-import type { SortOrderService } from '../../diagram/model/sort-order.service';
 import type { DropZone } from '../zone-detection';
 
 /** Input for a drop action: who was dragged, where, and on which side. */
@@ -15,12 +13,6 @@ export interface DropContext {
 export interface DropResult {
   changes: ModelChanges;
   visibilityHint?: VisibilityHint;
-}
-
-/** Services required by drop action strategies. */
-export interface DropDeps {
-  hierarchyService: HierarchyService;
-  sortOrderService: SortOrderService;
 }
 
 /** A strategy that produces model changes for a specific drop zone. */
