@@ -55,8 +55,8 @@ export class NodeMutationService {
   }
 
   private async updateNodeParent(nodeId: string, newParentId: string | null): Promise<void> {
-    const changes = this.hierarchyService.updateNodeParent(nodeId, newParentId);
-    await this.modelApplyService.applyWithLayout(changes);
+    const { changes, visibilityHint } = this.hierarchyService.updateNodeParent(nodeId, newParentId);
+    await this.modelApplyService.applyWithLayout(changes, { visibility: visibilityHint });
     this.nodeVisibilityService.ensureVisible(nodeId);
   }
 

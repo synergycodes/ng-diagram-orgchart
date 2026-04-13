@@ -1,12 +1,28 @@
+// TODO: remove once ng-diagram supports hiding nodes via node API.
+// ng-diagram wraps user nodes in a `.node-content` div with `pointer-events: all`,
+// so hiding only :host leaves the wrapper intercepting clicks. We reach up to
+// the wrapper via :has(); ::ng-deep is required because .node-content is
+// outside this component's encapsulation.
+::ng-deep .node-content:has(> .is-hidden) {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 :host {
   display: block;
   position: relative;
   cursor: grab;
 
+  &.is-hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   --card-border-color: var(--ngd-ui-stroke-primary-default);
   --card-border-style: solid;
   --card-box-shadow: var(--ngd-token-radius-shadow-xxs-x) var(--ngd-token-radius-shadow-xxs-y)
     var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10); /* No Figma token - shadow color */
+
   &:active {
     cursor: grabbing;
   }

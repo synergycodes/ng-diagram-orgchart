@@ -107,7 +107,6 @@ export class AddNodeService {
     changes.addNodeUpdates({
       id: parentNode.id,
       data: {
-        ...parentNode.data,
         [HAS_CHILDREN]: true,
         ...(needsExpand ? { [IS_COLLAPSED]: false, [COLLAPSED_CHILDREN_COUNT]: undefined } : {}),
       },

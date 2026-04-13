@@ -50,6 +50,7 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[class.variant-compact]': 'variant() === "compact"',
     '[class.variant-full]': 'variant() === "full"',
     '[class.selected]': 'node().selected',
+    '[class.is-hidden]': 'isHidden()',
     '[style.visibility]': 'isHidden() ? "hidden" : null',
     '[style.pointer-events]': 'isHidden() ? "none" : null',
     '(mouseenter)': 'isNodeHovered.set(true)',

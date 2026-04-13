@@ -50,7 +50,6 @@ export class ExpandCollapseService {
       {
         id: nodeId,
         data: {
-          ...node.data,
           [IS_COLLAPSED]: collapsing,
           [COLLAPSED_CHILDREN_COUNT]: collapsing ? this.countAllDescendants(nodeId) : undefined,
         },
@@ -127,24 +126,21 @@ export class ExpandCollapseService {
     subtreeIds: Set<string>,
     hidden: boolean,
   ): {
-    nodeUpdates: { id: string; data: OrgChartNodeData }[];
-    edgeUpdates: { id: string; data: OrgChartEdgeData }[];
+    nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[];
+    edgeUpdates: { id: string; data: Partial<OrgChartEdgeData> }[];
   } {
-    const nodeUpdates: { id: string; data: OrgChartNodeData }[] = [];
+    const nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[] = [];
     for (const id of subtreeIds) {
       const node = this.modelService.getNodeById(id);
       if (!node || !isOrgChartNode(node)) continue;
-      nodeUpdates.push({ id, data: { ...node.data, [IS_HIDDEN]: hidden } });
+      nodeUpdates.push({ id, data: { [IS_HIDDEN]: hidden } });
     }
 
-    const edgeUpdates: { id: string; data: OrgChartEdgeData }[] = [];
+    const edgeUpdates: { id: string; data: Partial<OrgChartEdgeData> }[] = [];
     for (const id of subtreeIds) {
       for (const edge of this.modelService.getConnectedEdges(id)) {
         if (edge.target === id) {
-          edgeUpdates.push({
-            id: edge.id,
-            data: { ...(edge.data as OrgChartEdgeData), [EDGE_IS_HIDDEN]: hidden },
-          });
+          edgeUpdates.push({ id: edge.id, data: { [EDGE_IS_HIDDEN]: hidden } });
         }
       }
     }

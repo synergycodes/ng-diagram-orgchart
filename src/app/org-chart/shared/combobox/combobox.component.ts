@@ -250,6 +250,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     this.filterText.set('');
     this.isOpen.set(true);
     this.initFocusedIndex();
+    this.inputEl()?.nativeElement.select();
     this.removeDocumentClick?.();
     this.removeDocumentClick = this.listenForOutsideClicks();
   }
