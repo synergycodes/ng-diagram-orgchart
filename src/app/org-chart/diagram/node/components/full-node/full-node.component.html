@@ -7,18 +7,18 @@
       <span class="stat-value h9">{{ reports() }}</span>
     </div>
     <div class="card">
-      <span class="stat-label p12">Span</span>
-      <span class="stat-value h9">{{ span() }}</span>
+      <span class="stat-label p12">Headcount</span>
+      <span class="stat-value h9">{{ headcount() }}</span>
     </div>
   </div>
 
   <div class="capacity-section">
     <div class="capacity-header">
-      <span class="capacity-label p11">Shift capacity</span>
-      <span class="capacity-value p11">{{ shiftCapacity() }}%</span>
+      <span class="capacity-label p11">Utilization</span>
+      <span class="capacity-value p11">{{ utilization() }}%</span>
     </div>
     <div class="capacity-bar">
-      <div class="capacity-fill" [style.width.%]="shiftCapacity()"></div>
+      <div class="capacity-fill" [style.width.%]="utilization()"></div>
     </div>
   </div>
 </div>
