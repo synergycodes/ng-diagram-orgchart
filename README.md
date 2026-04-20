@@ -1,8 +1,10 @@
 # ng-diagram Org Chart Template
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
+
 Interactive organizational chart built with Angular 21 and [ng-diagram](https://www.npmjs.com/package/ng-diagram). Use this project as a starting point for building your own org-chart or tree-based diagram.
 
-Features: drag-and-drop reordering, expand/collapse subtrees, node editing via sidebar, node creation and removal, horizontal/vertical layout switching, dark/light theme, minimap navigation, and animated transitions powered by [ELK.js](https://www.npmjs.com/package/elkjs).
+Features: drag-and-drop reordering, expand/collapse subtrees, node editing via sidebar, node creation and removal, horizontal/vertical layout switching, dark/light theme, minimap navigation, animated transitions, and automatic tree layout powered by [ELK.js](https://www.npmjs.com/package/elkjs).
 
 ## Getting Started
 
@@ -220,3 +222,22 @@ The template contains a few workarounds and compromises driven by current librar
 - **Layout animation is naive in the template.** The animation implementation in this template is fairly naive. Proper native animation support in ng-diagram is needed so the template can drop its custom animation code. If you notice lag from animations, you can turn them off by passing `animation: { layoutEnabled: false }` to `provideOrgChartConfig` (see "Configuration" above).
 
 All of the above are the highest-priority items for the team to fix in ng-diagram. That said, the template works today and is fully usable as-is.
+
+## ng-diagram Documentation
+
+For comprehensive ng-diagram documentation, examples, and API reference, visit: **[ngdiagram.dev/docs](https://www.ngdiagram.dev/docs)**
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/synergycodes/ng-diagram-orgchart/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/synergycodes/ng-diagram-orgchart/discussions)
+- **ng-diagram Discussions**: [GitHub Discussions](https://github.com/synergycodes/ng-diagram/discussions), [Discord](https://discord.gg/FDMjRuarFb)
+- **ng-diagram Documentation**: [ngdiagram.dev/docs](https://www.ngdiagram.dev/docs)
+
+---
+
+Built with ❤️ by the [Synergy Codes](https://www.synergycodes.com/) team
