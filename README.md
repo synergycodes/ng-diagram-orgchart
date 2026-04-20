@@ -212,17 +212,11 @@ The template contains a few workarounds and compromises driven by current librar
 
 ### Issues with workarounds in this repo
 
-- **Port side doesn't update dynamically on layout direction change.** When switching between horizontal and vertical layout, ports need a frame to re-render before the new layout can measure them. *Workaround:* `DiagramComponent.changeDirection()` defers the layout pass by one animation frame.
-- **Watermark position is not configurable.** The library renders the watermark in a fixed corner. *Workaround:* CSS overrides in `diagram.component.scss` reposition it to the bottom-left.
-- **`transaction({ waitForMeasurements: true })` blocks ~2s when nothing actually resizes.** Position-only updates, visibility toggles, and data-only changes don't fire ResizeObserver events, so the measurement tracker waits for its full timeout before the promise resolves. *Workaround:* in `ModelApplyService.apply()` we fire the transaction without awaiting it and wait one animation frame instead. This keeps collapse, expand, and remove responsive.
 - **No API for hiding a node.** ng-diagram wraps each custom node in a `.node-content` div that intercepts pointer events, so hiding the custom node alone isn't enough. *Workaround:* `::ng-deep` CSS in `node.component.scss` reaches up to the wrapper to suppress both visibility and pointer events. A first-class hidden-node property would remove the `::ng-deep` entirely.
-- **`updateNodeData` is not generically typed.** Consumers must widen their node data type to satisfy the signature. *Workaround:* `formDataToNodeData()` returns `OrgChartNodeData & Record<string, unknown>`, which defeats property-level type checking on the sidebar form mapper. A generic `updateNodeData<T>` would remove this.
 
 ### Issues without workarounds (felt by end users)
 
 - **Resize batch re-runs edge routing per node.** When many nodes change size at once (for example, 500 nodes switching between compact and full variants on a zoom threshold), edges visibly disconnect from their nodes for roughly one to two seconds before snapping back.
-- **Minimap performance on larger diagrams.** The minimap currently re-renders all miniature nodes on every position change, which causes a small but noticeable FPS drop during drag and layout animations on bigger diagrams.
 - **Layout animation is naive in the template.** The animation implementation in this template is fairly naive. Proper native animation support in ng-diagram is needed so the template can drop its custom animation code. If you notice lag from animations, you can turn them off by passing `animation: { layoutEnabled: false }` to `provideOrgChartConfig` (see "Configuration" above).
-- **`measurementTracker` warning and 2 second wait after no-op layouts.** When a layout operation produces no actual position changes and animations are disabled, the next operation is blocked for 2 seconds by the measurement tracker. Reproducible by collapsing the root node with animations turned off.
 
 All of the above are the highest-priority items for the team to fix in ng-diagram. That said, the template works today and is fully usable as-is.
