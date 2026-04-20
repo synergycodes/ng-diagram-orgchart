@@ -1,6 +1,6 @@
 <div class="panel" [class.collapsed]="!isExpanded()" [class.animate]="isReady()">
   <div class="minimap-canvas">
-    <ng-diagram-minimap [showZoomControls]="false" [nodeStyle]="minimapNodeStyle" />
+    <ng-diagram-minimap [showZoomControls]="false" [nodeStyle]="minimapNodeStyle" [deferNodeUpdates]="deferNodeUpdates()" />
   </div>
   <div class="minimap-actions">
     <button
