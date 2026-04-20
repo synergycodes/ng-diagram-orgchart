@@ -72,6 +72,7 @@ export class DiagramComponent {
         type: EdgeTemplateType.OrgChartEdge,
       }),
     },
+    watermarkPosition: 'bottom-left',
     zIndex: {
       elevateOnSelection: false,
     },
