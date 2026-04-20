@@ -8,36 +8,36 @@ export enum EdgeTemplateType {
 
 export enum OrgChartRole {
   PlantDirector = 'Plant Director',
+  ChiefEngineer = 'Chief Engineer',
   OperationsManager = 'Operations Manager',
-  HseSafetyLead = 'HSE & Safety Lead',
-  HseInspector = 'HSE Inspector',
-  MaintenanceHead = 'Maintenance Head',
-  HrPayrollManager = 'HR & Payroll Manager',
-  ShiftASupervisor = 'Shift A Supervisor',
-  ShiftBSupervisor = 'Shift B (Night) Supervisor',
-  ShiftALead = 'Shift A Lead',
-  ShiftBLead = 'Shift B (Night) Lead',
-  SeniorElectrician = 'Senior Electrician',
+  SafetyComplianceLead = 'Safety & Compliance Lead',
+  HrManager = 'HR Manager',
+  RdSpecialist = 'R&D Specialist',
+  EngineeringIntern = 'Engineering Intern',
   MaintenanceTechnician = 'Maintenance Technician',
-  UnionRepresentative = 'Union Representative',
-  ProductionCoordinator = 'Production Coordinator',
+  QaAuditor = 'QA Auditor',
+  WarehouseOperator = 'Warehouse Operator',
+  SafetyInspector = 'Safety Inspector',
+  ProcurementSpecialist = 'Procurement Specialist',
+  ShiftSupervisor = 'Shift Supervisor',
+  ProcessEngineer = 'Process Engineer',
 }
 
 export const ORG_CHART_ROLE_COLORS: Record<OrgChartRole, string> = {
   [OrgChartRole.PlantDirector]: 'var(--ngd-role-plant-director)',
+  [OrgChartRole.ChiefEngineer]: 'var(--ngd-role-chief-engineer)',
   [OrgChartRole.OperationsManager]: 'var(--ngd-role-operations-manager)',
-  [OrgChartRole.HseSafetyLead]: 'var(--ngd-role-hse-safety-lead)',
-  [OrgChartRole.HseInspector]: 'var(--ngd-role-hse-inspector)',
-  [OrgChartRole.MaintenanceHead]: 'var(--ngd-role-maintenance-head)',
-  [OrgChartRole.HrPayrollManager]: 'var(--ngd-role-hr-payroll-manager)',
-  [OrgChartRole.ShiftASupervisor]: 'var(--ngd-role-shift-a-supervisor)',
-  [OrgChartRole.ShiftBSupervisor]: 'var(--ngd-role-shift-b-supervisor)',
-  [OrgChartRole.ShiftALead]: 'var(--ngd-role-shift-a-lead)',
-  [OrgChartRole.ShiftBLead]: 'var(--ngd-role-shift-b-lead)',
-  [OrgChartRole.SeniorElectrician]: 'var(--ngd-role-senior-electrician)',
+  [OrgChartRole.SafetyComplianceLead]: 'var(--ngd-role-safety-compliance-lead)',
+  [OrgChartRole.HrManager]: 'var(--ngd-role-hr-manager)',
+  [OrgChartRole.RdSpecialist]: 'var(--ngd-role-rd-specialist)',
+  [OrgChartRole.EngineeringIntern]: 'var(--ngd-role-engineering-intern)',
   [OrgChartRole.MaintenanceTechnician]: 'var(--ngd-role-maintenance-technician)',
-  [OrgChartRole.UnionRepresentative]: 'var(--ngd-role-union-representative)',
-  [OrgChartRole.ProductionCoordinator]: 'var(--ngd-role-production-coordinator)',
+  [OrgChartRole.QaAuditor]: 'var(--ngd-role-qa-auditor)',
+  [OrgChartRole.WarehouseOperator]: 'var(--ngd-role-warehouse-operator)',
+  [OrgChartRole.SafetyInspector]: 'var(--ngd-role-safety-inspector)',
+  [OrgChartRole.ProcurementSpecialist]: 'var(--ngd-role-procurement-specialist)',
+  [OrgChartRole.ShiftSupervisor]: 'var(--ngd-role-shift-supervisor)',
+  [OrgChartRole.ProcessEngineer]: 'var(--ngd-role-process-engineer)',
 };
 
 export function getColorForRole(role: OrgChartRole | undefined): string | undefined {
@@ -76,8 +76,8 @@ export interface OrgChartBaseNodeData {
   role?: OrgChartRole;
   description?: string;
   reports: number;
-  span: number;
-  shiftCapacity: number;
+  headcount: number;
+  utilization: number;
   sortOrder?: number;
   isCollapsed?: boolean;
   collapsedChildrenCount?: number;

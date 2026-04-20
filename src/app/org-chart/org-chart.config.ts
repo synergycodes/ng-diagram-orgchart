@@ -46,7 +46,7 @@ export interface OrgChartConfig {
 
 export const ORG_CHART_DEFAULTS: OrgChartConfig = {
   animation: { durationMs: 300, layoutEnabled: true, viewportEnabled: true },
-  layout: { nodeSpacing: 140 },
+  layout: { nodeSpacing: 100 },
   viewport: {
     compactScaleThreshold: 0.75,
     edgePadding: 60,

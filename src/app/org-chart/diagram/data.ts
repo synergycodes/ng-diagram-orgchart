@@ -2,29 +2,33 @@ import { type Edge, type Node } from 'ng-diagram';
 import { OrgChartRole, type OrgChartEdgeData, type OrgChartNodeData } from './model/interfaces';
 
 // Node IDs
-const thomasWalterId = '0000-000000000001';
-const sarahChenId = '0000-000000000002';
-const marcusThompsonId = '0000-000000000003';
-const jamesRodriguezId = '0000-000000000004';
-const emilyWatsonId = '0000-000000000005';
-const michaelDavisId = '0000-000000000006';
-const dianaPatelId = '0000-000000000007';
-const carlosMartinezId = '0000-000000000008';
-const thomasGreenId = '0000-000000000009';
-const vacantMaintenanceTechId = '0000-00000000000a';
-const patriciaMooreId = '0000-00000000000b';
+const nickFuryId = '0000-000000000001';
+const tonyStarkId = '0000-000000000002';
+const pepperPottsId = '0000-000000000003';
+const steveRogersId = '0000-000000000004';
+const natashaRomanoffId = '0000-000000000005';
+const bruceBannerId = '0000-000000000006';
+const peterParkerId = '0000-000000000007';
+const rocketRaccoonId = '0000-000000000008';
+const scottLangId = '0000-000000000009';
+const grootId = '0000-00000000000a';
+const buckyBarnesId = '0000-00000000000b';
+const lokiId = '0000-00000000000c';
+const vacantEhsTechId = '0000-00000000000d';
 
 // Edge IDs
-const edgeTwScId = '0001-000000000001';
-const edgeTwMtId = '0001-000000000002';
-const edgeTwJrId = '0001-000000000003';
-const edgeTwEwId = '0001-000000000004';
-const edgeScMdId = '0001-000000000005';
-const edgeScDpId = '0001-000000000006';
-const edgeMtCmId = '0001-000000000007';
-const edgeJrTgId = '0001-000000000008';
-const edgeJrVmId = '0001-000000000009';
-const edgeEwPmId = '0001-00000000000a';
+const edgeFuryStarkId = '0001-000000000001';
+const edgeFuryPottsId = '0001-000000000002';
+const edgeFuryRogersId = '0001-000000000003';
+const edgeFuryRomanoffId = '0001-000000000004';
+const edgeStarkBannerId = '0001-000000000005';
+const edgeStarkParkerId = '0001-000000000006';
+const edgeStarkRocketId = '0001-000000000007';
+const edgePottsLangId = '0001-000000000008';
+const edgePottsGrootId = '0001-000000000009';
+const edgeRogersBarnesId = '0001-00000000000a';
+const edgeRogersVacantId = '0001-00000000000b';
+const edgeRomanoffLokiId = '0001-00000000000c';
 
 export const diagramModel: {
   nodes: Node<OrgChartNodeData>[];
@@ -32,257 +36,302 @@ export const diagramModel: {
 } = {
   nodes: [
     {
-      id: thomasWalterId,
+      id: nickFuryId,
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
         type: 'occupied',
-        fullName: 'Thomas Walter',
+        fullName: 'Nick Fury',
         role: OrgChartRole.PlantDirector,
         description: '',
         reports: 4,
-        span: 1230,
-        shiftCapacity: 70,
+        headcount: 12,
+        utilization: 98,
         isCollapsed: false,
         hasChildren: true,
       },
     },
     {
-      id: sarahChenId,
+      id: tonyStarkId,
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
         type: 'occupied',
-        fullName: 'Sarah Chen',
+        fullName: 'Tony Stark',
+        role: OrgChartRole.ChiefEngineer,
+        description: '',
+        reports: 3,
+        headcount: 4,
+        utilization: 87,
+        isCollapsed: false,
+        hasChildren: true,
+      },
+    },
+    {
+      id: pepperPottsId,
+      position: { x: 0, y: 0 },
+      type: 'orgChartNode',
+      data: {
+        type: 'occupied',
+        fullName: 'Pepper Potts',
         role: OrgChartRole.OperationsManager,
         description: '',
         reports: 2,
-        span: 410,
-        shiftCapacity: 85,
+        headcount: 3,
+        utilization: 95,
         isCollapsed: false,
         hasChildren: true,
       },
     },
     {
-      id: marcusThompsonId,
+      id: steveRogersId,
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
         type: 'occupied',
-        fullName: 'Marcus Thompson',
-        role: OrgChartRole.HseSafetyLead,
-        description: '',
-        reports: 1,
-        span: 180,
-        shiftCapacity: 60,
-        isCollapsed: false,
-        hasChildren: true,
-      },
-    },
-    {
-      id: jamesRodriguezId,
-      position: { x: 0, y: 0 },
-      type: 'orgChartNode',
-      data: {
-        type: 'occupied',
-        fullName: 'James Rodriguez',
-        role: OrgChartRole.MaintenanceHead,
+        fullName: 'Steve Rogers',
+        role: OrgChartRole.SafetyComplianceLead,
         description: '',
         reports: 2,
-        span: 320,
-        shiftCapacity: 45,
+        headcount: 2,
+        utilization: 100,
         isCollapsed: false,
         hasChildren: true,
       },
     },
     {
-      id: emilyWatsonId,
+      id: natashaRomanoffId,
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
         type: 'occupied',
-        fullName: 'Emily Watson',
-        role: OrgChartRole.HrPayrollManager,
+        fullName: 'Natasha Romanoff',
+        role: OrgChartRole.HrManager,
         description: '',
         reports: 1,
-        span: 150,
-        shiftCapacity: 90,
+        headcount: 1,
+        utilization: 78,
         isCollapsed: false,
         hasChildren: true,
       },
     },
     {
-      id: michaelDavisId,
+      id: bruceBannerId,
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
         type: 'occupied',
-        fullName: 'Michael Davis',
-        role: OrgChartRole.ShiftASupervisor,
+        fullName: 'Bruce Banner',
+        role: OrgChartRole.RdSpecialist,
         description: '',
         reports: 0,
-        span: 0,
-        shiftCapacity: 75,
+        headcount: 0,
+        utilization: 92,
       },
     },
     {
-      id: dianaPatelId,
+      id: peterParkerId,
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
         type: 'occupied',
-        fullName: 'Diana Patel',
-        role: OrgChartRole.ShiftBLead,
-        description: '',
-        reports: 1,
-        span: 120,
-        shiftCapacity: 55,
-        isCollapsed: false,
-      },
-    },
-    {
-      id: carlosMartinezId,
-      position: { x: 0, y: 0 },
-      type: 'orgChartNode',
-      data: {
-        type: 'occupied',
-        fullName: 'Carlos Martinez',
-        role: OrgChartRole.HseInspector,
+        fullName: 'Peter Parker',
+        role: OrgChartRole.EngineeringIntern,
         description: '',
         reports: 0,
-        span: 0,
-        shiftCapacity: 65,
+        headcount: 0,
+        utilization: 35,
       },
     },
     {
-      id: thomasGreenId,
+      id: rocketRaccoonId,
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
         type: 'occupied',
-        fullName: 'Thomas Green',
-        role: OrgChartRole.SeniorElectrician,
+        fullName: 'Rocket Raccoon',
+        role: OrgChartRole.MaintenanceTechnician,
         description: '',
         reports: 0,
-        span: 0,
-        shiftCapacity: 80,
+        headcount: 0,
+        utilization: 110,
       },
     },
     {
-      id: vacantMaintenanceTechId,
+      id: scottLangId,
+      position: { x: 0, y: 0 },
+      type: 'orgChartNode',
+      data: {
+        type: 'occupied',
+        fullName: 'Scott Lang',
+        role: OrgChartRole.QaAuditor,
+        description: '',
+        reports: 0,
+        headcount: 0,
+        utilization: 88,
+      },
+    },
+    {
+      id: grootId,
+      position: { x: 0, y: 0 },
+      type: 'orgChartNode',
+      data: {
+        type: 'occupied',
+        fullName: 'Groot',
+        role: OrgChartRole.WarehouseOperator,
+        description: '',
+        reports: 0,
+        headcount: 0,
+        utilization: 15,
+      },
+    },
+    {
+      id: buckyBarnesId,
+      position: { x: 0, y: 0 },
+      type: 'orgChartNode',
+      data: {
+        type: 'occupied',
+        fullName: 'Bucky Barnes',
+        role: OrgChartRole.SafetyInspector,
+        description: '',
+        reports: 0,
+        headcount: 0,
+        utilization: 99,
+      },
+    },
+    {
+      id: lokiId,
+      position: { x: 0, y: 0 },
+      type: 'orgChartNode',
+      data: {
+        type: 'occupied',
+        fullName: 'Loki',
+        role: OrgChartRole.ProcurementSpecialist,
+        description: '',
+        reports: 0,
+        headcount: 0,
+        utilization: 63,
+      },
+    },
+    {
+      id: vacantEhsTechId,
       position: { x: 0, y: 0 },
       type: 'orgChartNode',
       data: {
         type: 'vacant',
-        role: OrgChartRole.MaintenanceTechnician,
+        role: OrgChartRole.ShiftSupervisor,
         description: '',
         reports: 0,
-        span: 0,
-        shiftCapacity: 0,
-      },
-    },
-    {
-      id: patriciaMooreId,
-      position: { x: 0, y: 0 },
-      type: 'orgChartNode',
-      data: {
-        type: 'occupied',
-        fullName: 'Patricia Moore',
-        role: OrgChartRole.UnionRepresentative,
-        description: '',
-        reports: 0,
-        span: 0,
-        shiftCapacity: 50,
+        headcount: 0,
+        utilization: 0,
       },
     },
   ],
   edges: [
     {
-      id: edgeTwScId,
-      source: thomasWalterId,
+      id: edgeFuryStarkId,
+      source: nickFuryId,
       sourcePort: 'port-out',
-      target: sarahChenId,
+      target: tonyStarkId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeTwMtId,
-      source: thomasWalterId,
+      id: edgeFuryPottsId,
+      source: nickFuryId,
       sourcePort: 'port-out',
-      target: marcusThompsonId,
+      target: pepperPottsId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeTwJrId,
-      source: thomasWalterId,
+      id: edgeFuryRogersId,
+      source: nickFuryId,
       sourcePort: 'port-out',
-      target: jamesRodriguezId,
+      target: steveRogersId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeTwEwId,
-      source: thomasWalterId,
+      id: edgeFuryRomanoffId,
+      source: nickFuryId,
       sourcePort: 'port-out',
-      target: emilyWatsonId,
+      target: natashaRomanoffId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeScMdId,
-      source: sarahChenId,
+      id: edgeStarkBannerId,
+      source: tonyStarkId,
       sourcePort: 'port-out',
-      target: michaelDavisId,
+      target: bruceBannerId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeScDpId,
-      source: sarahChenId,
+      id: edgeStarkParkerId,
+      source: tonyStarkId,
       sourcePort: 'port-out',
-      target: dianaPatelId,
+      target: peterParkerId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeMtCmId,
-      source: marcusThompsonId,
+      id: edgeStarkRocketId,
+      source: tonyStarkId,
       sourcePort: 'port-out',
-      target: carlosMartinezId,
+      target: rocketRaccoonId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeJrTgId,
-      source: jamesRodriguezId,
+      id: edgePottsLangId,
+      source: pepperPottsId,
       sourcePort: 'port-out',
-      target: thomasGreenId,
+      target: scottLangId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeJrVmId,
-      source: jamesRodriguezId,
+      id: edgePottsGrootId,
+      source: pepperPottsId,
       sourcePort: 'port-out',
-      target: vacantMaintenanceTechId,
+      target: grootId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },
     },
     {
-      id: edgeEwPmId,
-      source: emilyWatsonId,
+      id: edgeRogersBarnesId,
+      source: steveRogersId,
       sourcePort: 'port-out',
-      target: patriciaMooreId,
+      target: buckyBarnesId,
+      targetPort: 'port-in',
+      type: 'orgChartEdge',
+      data: { type: 'orgChart' },
+    },
+    {
+      id: edgeRogersVacantId,
+      source: steveRogersId,
+      sourcePort: 'port-out',
+      target: vacantEhsTechId,
+      targetPort: 'port-in',
+      type: 'orgChartEdge',
+      data: { type: 'orgChart' },
+    },
+    {
+      id: edgeRomanoffLokiId,
+      source: natashaRomanoffId,
+      sourcePort: 'port-out',
+      target: lokiId,
       targetPort: 'port-in',
       type: 'orgChartEdge',
       data: { type: 'orgChart' },

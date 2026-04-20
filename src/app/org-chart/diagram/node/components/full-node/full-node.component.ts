@@ -13,6 +13,6 @@ export class FullNodeComponent {
   role = input<string>();
   color = input<string>();
   reports = input<number>();
-  span = input<number>();
-  shiftCapacity = input<number>();
+  headcount = input<number>();
+  utilization = input<number>();
 }
