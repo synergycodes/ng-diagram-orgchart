@@ -72,6 +72,7 @@ export class DiagramComponent {
         type: EdgeTemplateType.OrgChartEdge,
       }),
     },
+    watermarkPosition: 'bottom-left',
     zIndex: {
       elevateOnSelection: false,
     },
@@ -83,23 +84,13 @@ export class DiagramComponent {
 
   model = initializeModel(diagramModel);
 
-  /**
-   * Layout is deferred to the next animation frame so the browser can
-   * paint the recreated port components (via `@if` in the node template)
-   * before the layout transaction measures their positions.
-   *
-   * TODO: remove requestAnimationFrame once ng-diagram fixes port
-   * dynamic side update.
-   */
-  changeDirection(value: LayoutDirection): void {
+  async changeDirection(value: LayoutDirection): Promise<void> {
     if (this.direction() === value) {
       return;
     }
     this.layoutService.setDirection(value);
-    requestAnimationFrame(async () => {
-      await this.modelApplyService.applyWithLayout();
-      this.zoomToFit();
-    });
+    await this.modelApplyService.applyWithLayout();
+    this.zoomToFit();
   }
 
   /**

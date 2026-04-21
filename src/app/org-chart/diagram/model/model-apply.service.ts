@@ -56,13 +56,9 @@ export class ModelApplyService {
    * Structural ops are guarded: skips adds for existing elements and deletes
    * for already-removed elements (safe when the same changes are applied twice
    * across start and final applies).
-   *
-   * Waits one frame after the transaction instead of awaiting the transaction
-   * Promise due to a measurementTracker issue in ng-diagram.
-   * TODO: await `diagramService.transaction` directly once the issue is fixed.
    */
   async apply(changes: ModelChanges): Promise<void> {
-    this.diagramService.transaction(
+    await this.diagramService.transaction(
       () => {
         if (changes.deleteEdgeIds.length > 0) {
           const toDelete = changes.deleteEdgeIds.filter((id) => this.modelService.getEdgeById(id));
@@ -89,8 +85,6 @@ export class ModelApplyService {
       },
       { waitForMeasurements: true },
     );
-
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   }
 
   /**

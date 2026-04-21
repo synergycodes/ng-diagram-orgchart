@@ -9,6 +9,7 @@ import {
 import {
   MinimapNodeStyleFn,
   NgDiagramMinimapComponent,
+  NgDiagramModelService,
   NgDiagramViewportService,
   Node,
 } from 'ng-diagram';
@@ -24,6 +25,7 @@ import { ORG_CHART_CONFIG } from '../org-chart.config';
 })
 export class MinimapPanelComponent {
   private readonly config = inject(ORG_CHART_CONFIG);
+  private readonly modelService = inject(NgDiagramModelService);
   private readonly viewportService = inject(NgDiagramViewportService);
 
   protected readonly isReady = signal(false);
@@ -39,6 +41,8 @@ export class MinimapPanelComponent {
   protected readonly zoomPercent = computed(
     () => Math.round(this.viewportService.scale() * 100) + '%',
   );
+
+  protected readonly deferNodeUpdates = computed(() => this.modelService.nodes().length >= 200);
 
   protected readonly minimapNodeStyle: MinimapNodeStyleFn = (node: Node) => {
     if (getIsHidden(node)) {

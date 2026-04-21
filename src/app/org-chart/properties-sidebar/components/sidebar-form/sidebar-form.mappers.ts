@@ -38,11 +38,10 @@ export function nodeDataToFormData(
   };
 }
 
-// TODO: remove `& Record<string, unknown>` when ng-diagram supports generic updateNodeData
 export function formDataToNodeData(
   formData: SidebarFormData,
   existingData: OrgChartNodeData,
-): OrgChartNodeData & Record<string, unknown> {
+): OrgChartNodeData {
   const { type, role, description, ...base } = existingData;
 
   const variantData = formData.fullName
