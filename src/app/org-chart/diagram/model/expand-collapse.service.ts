@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
-import { isOrgChartNode } from './guards';
 import { getCollapsedChildrenCount, getIsCollapsed } from './data-getters';
 import {
   COLLAPSED_CHILDREN_COUNT,
@@ -36,8 +35,8 @@ export class ExpandCollapseService {
     nodeId: string,
     modelChanges: ModelChanges = new ModelChanges(),
   ): ToggleResult | null {
-    const node = this.modelService.getNodeById(nodeId);
-    if (!node || !isOrgChartNode(node)) return null;
+    const node = this.modelService.getNodeById<OrgChartNodeData>(nodeId);
+    if (!node) return null;
 
     const collapsing = !getIsCollapsed(node);
     const subtreeIds = this.getVisibleDescendantIds(nodeId);
@@ -81,8 +80,8 @@ export class ExpandCollapseService {
         if (edge.source !== parentId) continue;
         ids.add(edge.target);
 
-        const childNode = this.modelService.getNodeById(edge.target);
-        if (isOrgChartNode(childNode) && !getIsCollapsed(childNode)) stack.push(edge.target);
+        const childNode = this.modelService.getNodeById<OrgChartNodeData>(edge.target);
+        if (childNode && !getIsCollapsed(childNode)) stack.push(edge.target);
       }
     }
 
@@ -105,10 +104,8 @@ export class ExpandCollapseService {
         if (edge.source === parentId) {
           count++;
 
-          const childNode = this.modelService.getNodeById(edge.target);
-          const collapsedCount = isOrgChartNode(childNode)
-            ? getCollapsedChildrenCount(childNode)
-            : undefined;
+          const childNode = this.modelService.getNodeById<OrgChartNodeData>(edge.target);
+          const collapsedCount = childNode ? getCollapsedChildrenCount(childNode) : undefined;
           if (collapsedCount != null) {
             count += collapsedCount;
           } else {
@@ -131,8 +128,8 @@ export class ExpandCollapseService {
   } {
     const nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[] = [];
     for (const id of subtreeIds) {
-      const node = this.modelService.getNodeById(id);
-      if (!node || !isOrgChartNode(node)) continue;
+      const node = this.modelService.getNodeById<OrgChartNodeData>(id);
+      if (!node) continue;
       nodeUpdates.push({ id, data: { [IS_HIDDEN]: hidden } });
     }
 

@@ -32,10 +32,10 @@ export class SortOrderService {
       .getConnectedEdges(parentId)
       .filter((e) => e.source === parentId)
       .map((e) => {
-        const node = this.modelService.getNodeById(e.target);
+        const node = this.modelService.getNodeById<OrgChartNodeData>(e.target);
         return {
           id: e.target,
-          sortOrder: isOrgChartNode(node) ? (getSortOrder(node) ?? 0) : 0,
+          sortOrder: node ? (getSortOrder(node) ?? 0) : 0,
         };
       })
       .sort((a, b) => a.sortOrder - b.sortOrder);
@@ -167,8 +167,8 @@ export class SortOrderService {
     const updates: { id: string; data: Partial<OrgChartNodeData> }[] = [];
 
     for (let i = 0; i < nodeIds.length; i++) {
-      const node = this.modelService.getNodeById(nodeIds[i]);
-      if (!node || !isOrgChartNode(node)) continue;
+      const node = this.modelService.getNodeById<OrgChartNodeData>(nodeIds[i]);
+      if (!node) continue;
       if ((getSortOrder(node) ?? 0) === i) continue;
       updates.push({ id: nodeIds[i], data: { [SORT_ORDER]: i } });
     }

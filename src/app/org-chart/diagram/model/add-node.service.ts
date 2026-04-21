@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Edge, type Node } from 'ng-diagram';
 import { getIsCollapsed } from './data-getters';
 import { ExpandCollapseService } from './expand-collapse.service';
-import { isOrgChartNode } from './guards';
 import { HierarchyService } from './hierarchy.service';
 import {
   COLLAPSED_CHILDREN_COUNT,
@@ -41,8 +40,8 @@ export class AddNodeService {
     const { parentId, referenceNodeId, position } = this.resolveParams(nodeId, action);
     if (!parentId) return undefined;
 
-    const parentNode = this.modelService.getNodeById(parentId);
-    if (!parentNode || !isOrgChartNode(parentNode)) return undefined;
+    const parentNode = this.modelService.getNodeById<OrgChartNodeData>(parentId);
+    if (!parentNode) return undefined;
 
     const needsExpand = action === 'child' && !!getIsCollapsed(parentNode);
     const newNodeId = crypto.randomUUID();
