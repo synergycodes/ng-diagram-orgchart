@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
 
+**[Live Demo](https://synergycodes.github.io/ng-diagram-orgchart/)**
+
 Interactive organizational chart built with Angular 21 and [ng-diagram](https://www.npmjs.com/package/ng-diagram). Use this project as a starting point for building your own org-chart or tree-based diagram.
 
 Features: drag-and-drop reordering, expand/collapse subtrees, node editing via sidebar, node creation and removal, horizontal/vertical layout switching, dark/light theme, minimap navigation, animated transitions, and automatic tree layout powered by [ELK.js](https://www.npmjs.com/package/elkjs).
