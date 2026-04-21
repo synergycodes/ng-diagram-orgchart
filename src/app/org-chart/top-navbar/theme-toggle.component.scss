@@ -11,15 +11,15 @@
 }
 
 .icon-sun {
-  mask-image: url('/assets/sun.svg');
-  -webkit-mask-image: url('/assets/sun.svg');
+  mask-image: url('../../../assets/sun.svg');
+  -webkit-mask-image: url('../../../assets/sun.svg');
   width: var(--icon-size);
   height: var(--icon-size);
 }
 
 .icon-moon {
-  mask-image: url('/assets/moon.svg');
-  -webkit-mask-image: url('/assets/moon.svg');
+  mask-image: url('../../../assets/moon.svg');
+  -webkit-mask-image: url('../../../assets/moon.svg');
   width: var(--icon-size);
   height: var(--icon-size);
 }
