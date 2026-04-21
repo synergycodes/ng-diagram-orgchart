@@ -4,9 +4,21 @@
 
 **[Live Demo](https://synergycodes.github.io/ng-diagram-orgchart/)**
 
-Interactive organizational chart built with Angular 21 and [ng-diagram](https://www.npmjs.com/package/ng-diagram). Use this project as a starting point for building your own org-chart or tree-based diagram.
+Interactive organizational chart built with Angular 21 and [ng-diagram](https://www.npmjs.com/package/ng-diagram). Use this project as a starting point for building your own org-chart or tree-based diagram. Minimal dependencies: only Angular, ng-diagram, and ELK.js, with no opinionated third-party UI libraries.
 
-Features: drag-and-drop reordering, expand/collapse subtrees, node editing via sidebar, node creation and removal, horizontal/vertical layout switching, dark/light theme, minimap navigation, animated transitions, and automatic tree layout powered by [ELK.js](https://www.npmjs.com/package/elkjs).
+Features:
+
+- Automatic tree layout powered by [ELK.js](https://www.npmjs.com/package/elkjs)
+- Horizontal and vertical layout switching
+- Expand/collapse subtrees with child count badge
+- Drag-and-drop reordering (sibling and reparenting)
+- Node creation and removal
+- Minimap with zoom controls
+- Animated layout transitions
+- Three node display variants (full, compact, vacant)
+- Color-coded roles with initials avatars
+- Dark/light theme
+- Properties sidebar demonstrating diagram-to-UI integration
 
 ## Getting Started
 
