@@ -113,7 +113,7 @@ export class LayoutService {
     const getOrder = (id: string, data: OrgChartNodeData) =>
       orderOverrides.get(id) ?? getSortOrder({ data }) ?? 0;
 
-    const nodes = ([...visibleNodes, ...changes.newNodes] as DiagramNode<OrgChartNodeData>[]).sort(
+    const nodes = [...visibleNodes, ...changes.newNodes].sort(
       (a, b) => getOrder(a.id, a.data) - getOrder(b.id, b.data),
     );
 

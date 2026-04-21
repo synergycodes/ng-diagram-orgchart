@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { LayoutGate } from '../diagram/layout/layout-gate';
-import { isOrgChartNodeData } from '../diagram/model/guards';
+import { type OrgChartNodeData } from '../diagram/model/interfaces';
 import { HierarchyService } from '../diagram/model/hierarchy.service';
 import { ModelApplyService } from '../diagram/model/model-apply.service';
 import { ModelChanges } from '../diagram/model/model-changes';
@@ -41,8 +41,8 @@ export class NodeMutationService {
 
   /** Processes form field changes: updates node data and/or update parent if "reportsTo" changed. */
   handleFieldChange(change: SidebarFieldChange): void {
-    const node = this.modelService.getNodeById(change.nodeId);
-    if (!node || !isOrgChartNodeData(node.data)) return;
+    const node = this.modelService.getNodeById<OrgChartNodeData>(change.nodeId);
+    if (!node) return;
 
     if (this.hasNodeDataChanges(change)) {
       const updatedNodeData = formDataToNodeData(change.formData, node.data);
