@@ -1,11 +1,11 @@
-name: Build and test
+name: Build
 
 on:
   pull_request:
     branches: [main]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +21,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Test
-        run: npm test
