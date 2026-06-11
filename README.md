@@ -1,4 +1,4 @@
-# ng-diagram Org Chart Template
+# ngDiagram Org Chart Template
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
 
@@ -39,9 +39,9 @@ Open [http://localhost:4200](http://localhost:4200).
 | `npm run build` | Production build to `dist/` |
 | `npm run format` | Format code with Prettier |
 
-## ng-diagram APIs Demonstrated
+## ngDiagram APIs Demonstrated
 
-This template wires up most of the ng-diagram public surface, useful as a reference for which APIs to reach for in your own integration.
+This template wires up most of the ngDiagram public surface, useful as a reference for which APIs to reach for in your own integration.
 
 | Concern | API | Where in this repo |
 |---|---|---|
@@ -142,7 +142,7 @@ Global stylesheet entry point: `src/styles.css` (imports `tokens.css`, typograph
 
 Tree positions are computed by [ELK.js](https://www.npmjs.com/package/elkjs) using the `mrtree` algorithm. The integration is intentionally narrow:
 
-- **`diagram/layout/perform-layout.ts`** - single ELK call site. Converts ng-diagram nodes/edges into ELK input, runs `elk.layout(...)`, and returns the same nodes with updated `position`. Also enforces a uniform node size across the layout (the cached max width/height across all runs) so spacing stays stable when the compact/full variants produce different sizes.
+- **`diagram/layout/perform-layout.ts`** - single ELK call site. Converts ngDiagram nodes/edges into ELK input, runs `elk.layout(...)`, and returns the same nodes with updated `position`. Also enforces a uniform node size across the layout (the cached max width/height across all runs) so spacing stays stable when the compact/full variants produce different sizes.
 - **`diagram/layout/layout.service.ts`** - orchestration. Resolves the visible set (collapsed subtrees excluded), applies pending mutations from `ModelChanges` (deletions, edge-source overrides, new nodes, sort-order overrides), invokes `performLayout`, **pins the root** so the chart doesn't jump after re-layout, then writes position updates back into the same `ModelChanges` instance.
 - **`diagram/layout/visible-set.ts`** - pure helpers: `getVisibleSet` (current), `getFutureVisibleSet` (predicted after a collapse/expand), `findRootNode`.
 
@@ -222,24 +222,24 @@ src/app/org-chart/
 - **ELK.js** - automatic tree layout
 - **Prettier** - code formatting
 
-## Known ng-diagram Issues
+## Known ngDiagram Issues
 
 The template contains a few workarounds and compromises driven by current library gaps. Resolving these would let us simplify the template.
 
 ### Issues with workarounds in this repo
 
-- **No API for hiding a node.** ng-diagram wraps each custom node in a `.node-content` div that intercepts pointer events, so hiding the custom node alone isn't enough. *Workaround:* `::ng-deep` CSS in `node.component.scss` reaches up to the wrapper to suppress both visibility and pointer events. A first-class hidden-node property would remove the `::ng-deep` entirely.
+- **No API for hiding a node.** ngDiagram wraps each custom node in a `.node-content` div that intercepts pointer events, so hiding the custom node alone isn't enough. *Workaround:* `::ng-deep` CSS in `node.component.scss` reaches up to the wrapper to suppress both visibility and pointer events. A first-class hidden-node property would remove the `::ng-deep` entirely.
 
 ### Issues without workarounds (felt by end users)
 
 - **Resize batch re-runs edge routing per node.** When many nodes change size at once (for example, 500 nodes switching between compact and full variants on a zoom threshold), edges visibly disconnect from their nodes for roughly one to two seconds before snapping back.
-- **Layout animation is naive in the template.** The animation implementation in this template is fairly naive. Proper native animation support in ng-diagram is needed so the template can drop its custom animation code. If you notice lag from animations, you can turn them off by passing `animation: { layoutEnabled: false }` to `provideOrgChartConfig` (see "Configuration" above).
+- **Layout animation is naive in the template.** The animation implementation in this template is fairly naive. Proper native animation support in ngDiagram is needed so the template can drop its custom animation code. If you notice lag from animations, you can turn them off by passing `animation: { layoutEnabled: false }` to `provideOrgChartConfig` (see "Configuration" above).
 
-All of the above are the highest-priority items for the team to fix in ng-diagram. That said, the template works today and is fully usable as-is.
+All of the above are the highest-priority items for the team to fix in ngDiagram. That said, the template works today and is fully usable as-is.
 
-## ng-diagram Documentation
+## ngDiagram Documentation
 
-For comprehensive ng-diagram documentation, examples, and API reference, visit: **[ngdiagram.dev/docs](https://www.ngdiagram.dev/docs)**
+For comprehensive ngDiagram documentation, examples, and API reference, visit: **[ngdiagram.dev/docs](https://www.ngdiagram.dev/docs)**
 
 ## License
 
@@ -249,8 +249,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: [GitHub Issues](https://github.com/synergycodes/ng-diagram-orgchart/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/synergycodes/ng-diagram-orgchart/discussions)
-- **ng-diagram Discussions**: [GitHub Discussions](https://github.com/synergycodes/ng-diagram/discussions), [Discord](https://discord.gg/FDMjRuarFb)
-- **ng-diagram Documentation**: [ngdiagram.dev/docs](https://www.ngdiagram.dev/docs)
+- **ngDiagram Discussions**: [GitHub Discussions](https://github.com/synergycodes/ng-diagram/discussions), [Discord](https://discord.gg/FDMjRuarFb)
+- **ngDiagram Documentation**: [ngdiagram.dev/docs](https://www.ngdiagram.dev/docs)
 
 ---
 
