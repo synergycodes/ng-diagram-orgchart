@@ -8,6 +8,10 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  # Release tag of synergycodes/hubspot-contact-form to embed. Bump to pull a newer widget.
+  CONTACT_FORM_VERSION: v0.1.2
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -23,8 +27,60 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Pull the built contact-form widget from its GitHub Release into public/,
+      # so Angular copies it to the site root next to index.html (referenced by
+      # <script src="contact-form.js"> there). For a private hubspot-contact-form
+      # repo, set the CONTACT_FORM_TOKEN secret (a token with read access to it);
+      # for a public repo the built-in token is enough.
+      - name: Fetch contact-form widget
+        env:
+          GH_TOKEN: ${{ secrets.CONTACT_FORM_TOKEN || github.token }}
+        run: |
+          gh release download "$CONTACT_FORM_VERSION" \
+            --repo synergycodes/hubspot-contact-form \
+            --pattern contact-form.js \
+            --output public/contact-form.js --clobber
+
       - name: Build
         run: npm run build -- --base-href /templates/org-chart/
+
+      # Inject the contact-form <script> tag into the built index.html, with the
+      # HubSpot ids taken from Actions variables so they stay out of the source.
+      # (They are not secret — they end up visible in the deployed page source —
+      # this just keeps environment-specific config out of the repo.)
+      # Every data-* option the widget supports is set explicitly here rather
+      # than relying on its built-in defaults, so this tag is the single source
+      # of truth for the form's configuration.
+      - name: Inject contact-form script tag
+        env:
+          HUBSPOT_PORTAL_ID: ${{ vars.HUBSPOT_PORTAL_ID }}
+          HUBSPOT_FORM_ID: ${{ vars.HUBSPOT_FORM_ID }}
+          # HubSpot data center of the portal: na1 or eu1
+          HUBSPOT_REGION: ${{ vars.HUBSPOT_REGION || 'na1' }}
+        run: |
+          if [ -z "$HUBSPOT_PORTAL_ID" ] || [ -z "$HUBSPOT_FORM_ID" ]; then
+            echo "::error::HUBSPOT_PORTAL_ID and HUBSPOT_FORM_ID must be set as Actions variables"
+            exit 1
+          fi
+          index="dist/ng-diagram-orgchart/browser/index.html"
+          tag="<script src=\"contact-form.js\""
+          tag+=" data-portal-id=\"$HUBSPOT_PORTAL_ID\""
+          tag+=" data-form-id=\"$HUBSPOT_FORM_ID\""
+          tag+=" data-region=\"$HUBSPOT_REGION\""
+          tag+=" data-header=\"Looking for an advanced organizational chart?\""
+          tag+=" data-description=\"Leave your details and we'll get back within 24 hours.\""
+          tag+=" data-footer=\"Using ngDiagram in your project?\""
+          tag+=" data-footer-link-label=\"GitHub\""
+          tag+=" data-footer-link-url=\"https://github.com/synergycodes/ng-diagram-orgchart\""
+          tag+=" data-arm-delay=\"5\""
+          tag+=" defer></script>"
+          node -e '
+            const fs = require("fs");
+            const [file, tag] = process.argv.slice(1);
+            const html = fs.readFileSync(file, "utf8");
+            if (!html.includes("</head>")) { console.error("no </head> in index.html"); process.exit(1); }
+            fs.writeFileSync(file, html.replace("</head>", () => tag + "</head>"));
+          ' "$index" "$tag"
 
       - name: Azure login (OIDC)
         uses: azure/login@v2
