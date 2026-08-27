@@ -1,5 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
+  afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -21,8 +22,6 @@ import {
   ComboboxOptionDef,
   ComboboxPrefixDef,
 } from './combobox-option.directive';
-
-let nextId = 0;
 
 const FILTER_DEBOUNCE_MS = 150;
 
@@ -54,11 +53,11 @@ type ComboboxItem<T> =
 export class ComboboxComponent<T = unknown> implements FormValueControl<T | null> {
   private readonly elRef = inject(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly uid = nextId++;
 
   options = input.required<ComboboxOption<T>[]>();
   placeholder = input('Select...');
-  triggerId = input<string>();
+  /** Id of the trigger. The listbox and the option ids come from it. */
+  triggerId = input.required<string>();
 
   protected readonly optionTpl = contentChild(ComboboxOptionDef);
   protected readonly nullOptionTpl = contentChild(ComboboxNullOptionDef);
@@ -76,7 +75,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
   private blurTimer: ReturnType<typeof setTimeout> | null = null;
   private removeDocumentClick: (() => void) | null = null;
 
-  protected readonly listboxId = computed(() => this.triggerId() ?? `cb-${this.uid}`);
+  protected readonly listboxId = this.triggerId;
 
   protected readonly allOptions = computed<ComboboxItem<T>[]>(() => [
     { type: 'null', value: null },
@@ -106,6 +105,8 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     return this.options().find((o) => o.value === value) ?? null;
   });
 
+  private readonly selectedLabel = computed(() => this.selectedOption()?.label ?? '');
+
   /** Shows the prefix template only when the input text matches the selected option's label. */
   protected readonly prefixOption = computed(() => {
     const opt = this.selectedOption();
@@ -117,12 +118,20 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     this.destroyRef.onDestroy(() => {
       this.removeDocumentClick?.();
       if (this.filterDebounceTimer !== null) clearTimeout(this.filterDebounceTimer);
-      if (this.blurTimer !== null) clearTimeout(this.blurTimer);
+      this.clearBlurTimer();
     });
 
     effect(() => {
-      const opt = this.selectedOption();
-      untracked(() => this.inputText.set(opt ? opt.label : ''));
+      const label = this.selectedLabel();
+      untracked(() => this.inputText.set(label));
+    });
+
+    afterRenderEffect(() => {
+      const text = this.inputText();
+      const el = this.inputEl()?.nativeElement;
+      if (el && el.value !== text) {
+        el.value = text;
+      }
     });
   }
 
@@ -168,13 +177,13 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
       this.filterText.set('');
       this.focusedIndex.set(0);
       if (!this.isOpen()) {
-        this.openPanel();
+        this.openPanel({ selectText: false });
       }
       return;
     }
 
     if (!this.isOpen()) {
-      this.openPanel();
+      this.openPanel({ selectText: false });
     }
 
     if (this.filterDebounceTimer !== null) {
@@ -210,6 +219,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
       case 'Escape':
         if (this.isOpen()) {
           event.preventDefault();
+          event.stopPropagation();
           this.closePanel();
           this.inputEl()?.nativeElement.focus();
         }
@@ -242,15 +252,14 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     }
   }
 
-  private openPanel(): void {
-    if (this.blurTimer !== null) {
-      clearTimeout(this.blurTimer);
-      this.blurTimer = null;
-    }
+  private openPanel({ selectText = true }: { selectText?: boolean } = {}): void {
+    this.clearBlurTimer();
     this.filterText.set('');
     this.isOpen.set(true);
     this.initFocusedIndex();
-    this.inputEl()?.nativeElement.select();
+    if (selectText) {
+      this.inputEl()?.nativeElement.select();
+    }
     this.removeDocumentClick?.();
     this.removeDocumentClick = this.listenForOutsideClicks();
   }
@@ -261,6 +270,7 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     this.isOpen.set(false);
     this.focusedIndex.set(-1);
     this.filterText.set('');
+    this.clearBlurTimer();
     if (this.filterDebounceTimer !== null) {
       clearTimeout(this.filterDebounceTimer);
       this.filterDebounceTimer = null;
@@ -268,7 +278,13 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     this.commitOrRevert();
   }
 
-  /** If the user cleared the input, set value to null; otherwise restore the selected label. */
+  private clearBlurTimer(): void {
+    if (this.blurTimer !== null) {
+      clearTimeout(this.blurTimer);
+      this.blurTimer = null;
+    }
+  }
+
   private commitOrRevert(): void {
     if (this.inputText() === '') {
       this.value.set(null);
@@ -276,15 +292,9 @@ export class ComboboxComponent<T = unknown> implements FormValueControl<T | null
     this.revertInputText();
   }
 
-  /** Resets the input text to the selected option's label (direct DOM write needed when signal value is unchanged). */
   private revertInputText(): void {
     const opt = this.selectedOption();
-    const display = opt ? opt.label : '';
-    this.inputText.set(display);
-    const el = this.inputEl()?.nativeElement;
-    if (el) {
-      el.value = display;
-    }
+    this.inputText.set(opt ? opt.label : '');
   }
 
   private listenForOutsideClicks(): () => void {

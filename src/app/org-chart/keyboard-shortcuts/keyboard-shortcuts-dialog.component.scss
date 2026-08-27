@@ -1,0 +1,52 @@
+@use './kbd';
+
+.shortcuts-table {
+  width: 100%;
+  margin-bottom: var(--ngd-primitive-4rule-16);
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.shortcuts-table th,
+.shortcuts-table td {
+  padding: var(--ngd-primitive-even-6) var(--ngd-primitive-4rule-12) var(--ngd-primitive-even-6) 0;
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+.shortcuts-table th {
+  font-weight: 600;
+  color: var(--ngd-txt-secondary-default);
+  border-bottom: 1px solid var(--ngd-ui-separator-primary-default);
+}
+
+.keys-cell {
+  width: 36%;
+}
+
+kbd {
+  @include kbd.kbd-chip;
+}
+
+.key-separator,
+.combo-separator {
+  color: var(--ngd-txt-secondary-default);
+}
+
+.close-button {
+  padding: var(--ngd-token-spacing-button-m-v-pad-2) var(--ngd-token-spacing-button-m-h-pad-2);
+  border: none;
+  border-radius: var(--ngd-token-radius-button-m);
+  background: var(--ngd-button-primary-bg-default);
+  color: var(--ngd-txt-primary-white);
+  cursor: pointer;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--ngd-button-primary-bg-hover);
+  }
+
+  &:active {
+    background: var(--ngd-button-primary-bg-active);
+  }
+}

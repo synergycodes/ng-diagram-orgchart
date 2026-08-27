@@ -1,10 +1,17 @@
+@let moveNodeId = showMoveButton() ? nodeId() : null;
+
 @switch (variant()) {
   @case ('vacant') {
-    <app-vacant-node [role]="node().data.role" />
+    <app-vacant-node [role]="node().data.role" [moveNodeId]="moveNodeId" />
   }
   @case ('compact') {
     @let data = occupiedData();
-    <app-compact-node [fullName]="data?.fullName" [role]="data?.role" [color]="color()" />
+    <app-compact-node
+      [fullName]="data?.fullName"
+      [role]="data?.role"
+      [color]="color()"
+      [moveNodeId]="moveNodeId"
+    />
   }
   @case ('full') {
     @let data = occupiedData();
@@ -12,6 +19,7 @@
       [fullName]="data?.fullName"
       [role]="data?.role"
       [color]="color()"
+      [moveNodeId]="moveNodeId"
       [reports]="data?.reports"
       [headcount]="data?.headcount"
       [utilization]="data?.utilization"
@@ -21,10 +29,10 @@
 
 <app-toggle-expand-button [node]="node()" [isHorizontal]="isHorizontal()" />
 
-@if (isInDropRange()) {
-  <app-drop-indicator [nodeId]="nodeId()" side="left" />
-  <app-drop-indicator [nodeId]="nodeId()" side="right" />
-  <app-drop-indicator [nodeId]="nodeId()" side="bottom" [hasChildren]="hasChildren()" />
+@if (indicators(); as indicators) {
+  <app-drop-indicator side="left" [state]="indicators.left" />
+  <app-drop-indicator side="right" [state]="indicators.right" />
+  <app-drop-indicator side="bottom" [state]="indicators.bottom" [hasChildren]="hasChildren()" />
 }
 
 @if (showAddButtons()) {

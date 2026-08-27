@@ -26,6 +26,11 @@
       --ngd-node-port-fill-active
     ); /* No Figma token - the same as for default state. Add different color on hover? */
   }
+
+  &:focus-visible {
+    outline: var(--ngd-primitive-even-2) solid var(--ngd-input-stroke-primary-focus);
+    outline-offset: var(--ngd-primitive-even-2);
+  }
 }
 
 :host(.layout-horizontal) .toggle-btn {

@@ -1,14 +1,17 @@
 @if (hasChildren()) {
   <button
     class="toggle-btn p11"
-    [disabled]="isDisabled()"
+    type="button"
+    tabindex="-1"
+    data-node-action="toggleExpand"
+    [attr.aria-label]="ariaLabel()"
     (pointerdown)="$event.stopPropagation()"
     (click)="onToggle($event)"
   >
     @if (isCollapsed()) {
-      {{ collapsedChildrenCount() }}
+      <span aria-hidden="true">{{ collapsedChildrenCount() }}</span>
     } @else {
-      <img src="assets/minus.svg" alt="Collapse" width="13" height="13" />
+      <img src="assets/minus.svg" alt="" width="13" height="13" />
     }
   </button>
 }

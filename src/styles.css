@@ -50,4 +50,88 @@ h4,
 h5,
 h6 {
   text-wrap: balance;
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.visually-hidden:focus,
+.visually-hidden:focus-within {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  z-index: 1000;
+  background: var(--ngd-ui-bg-primary-default);
+  color: var(--ngd-txt-primary-default);
+  border: 2px solid var(--ngd-input-stroke-primary-focus);
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+:where(button, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--ngd-input-stroke-primary-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.keyboard-help {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.keyboard-help:focus-within {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 280px;
+  max-width: calc(100vw - 24px);
+  padding: 12px 16px;
+  background: var(--ngd-ui-bg-primary-default);
+  color: var(--ngd-txt-primary-default);
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-element-16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.keyboard-help .skip-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 600;
+  color: var(--ngd-txt-primary-default);
 }

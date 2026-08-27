@@ -1,24 +1,22 @@
 :host {
   --sidebar-width: 320px; /* No Figma token */
   position: relative;
-  display: block;
-  height: 100%;
-}
-
-.ui-overlay {
-  position: absolute;
-  inset: 0;
   display: grid;
   grid-template-rows: auto auto 1fr;
+  height: 100vh;
   padding: var(--ngd-primitive-4rule-12); /* No Figma token */
   gap: var(--ngd-primitive-even-14); /* No Figma token */
-  pointer-events: none;
-  z-index: 10;
+
+  app-diagram {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
 
   .top-navbar {
-    pointer-events: all;
     grid-row: 1;
     grid-column: 1;
+    z-index: 10;
   }
 
   .top-toolbar-wrapper {
@@ -26,6 +24,8 @@
     grid-column: 1;
     display: flex;
     justify-content: center;
+    pointer-events: none;
+    z-index: 10;
   }
 
   .top-toolbar {
@@ -40,6 +40,8 @@
     align-items: flex-end;
     gap: var(--ngd-primitive-4rule-12);
     min-height: 0;
+    pointer-events: none;
+    z-index: 10;
 
     &:has(app-properties-sidebar.expanded) {
       flex-direction: row;

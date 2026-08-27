@@ -1,13 +1,31 @@
-<div class="diagram" [class.initialized]="isLayoutInitialized()">
-  <ng-diagram
-    [model]="model"
-    [config]="config"
-    [nodeTemplateMap]="nodeTemplateMap"
-    [edgeTemplateMap]="edgeTemplateMap"
-    (selectionRemoved)="onSelectionRemoved($event)"
-    (selectionGestureEnded)="onSelectionGestureEnded($event)"
-    (diagramInit)="onDiagramInit($event)"
+<main
+  #diagramMain
+  id="main-content"
+  class="diagram"
+  [class.initialized]="isLayoutInitialized()"
+  aria-label="Organization chart"
+  aria-describedby="diagram-instructions"
+  tabindex="-1"
+  (keydown)="onDiagramKeydown($event)"
+>
+  <app-move-mode-status />
+  <div
+    role="tree"
+    aria-label="Organization tree"
+    aria-describedby="diagram-instructions"
+    class="tree-wrapper"
   >
-    <ng-diagram-background type="dots" />
-  </ng-diagram>
-</div>
+    <ng-diagram
+      appSuppressLibraryTabStops
+      [model]="model"
+      [config]="config"
+      [nodeTemplateMap]="nodeTemplateMap"
+      [edgeTemplateMap]="edgeTemplateMap"
+      (selectionRemoved)="onSelectionRemoved($event)"
+      (selectionGestureEnded)="onSelectionGestureEnded($event)"
+      (diagramInit)="onDiagramInit($event)"
+    >
+      <ng-diagram-background type="dots" />
+    </ng-diagram>
+  </div>
+</main>

@@ -1,22 +1,38 @@
 <div class="panel" [class.collapsed]="!isExpanded()" [class.animate]="isReady()">
-  <div class="minimap-canvas">
-    <ng-diagram-minimap [showZoomControls]="false" [nodeStyle]="minimapNodeStyle" [deferNodeUpdates]="deferNodeUpdates()" />
+  <div class="minimap-canvas" aria-hidden="true">
+    <ng-diagram-minimap
+      [showZoomControls]="false"
+      [nodeStyle]="minimapNodeStyle"
+      [deferNodeUpdates]="deferNodeUpdates()"
+    />
   </div>
-  <div class="minimap-actions">
+  <div class="minimap-actions" role="toolbar" aria-label="Diagram zoom">
     <button
       class="action-button"
+      type="button"
       [disabled]="!canZoomOut()"
       (click)="zoomOut()"
       aria-label="Zoom out"
     >
-      <span class="icon icon-zoom-out"></span>
+      <span class="icon icon-zoom-out" aria-hidden="true"></span>
     </button>
-    <span class="zoom-level">{{ zoomPercent() }}</span>
-    <button class="action-button" [disabled]="!canZoomIn()" (click)="zoomIn()" aria-label="Zoom in">
-      <span class="icon icon-zoom-in"></span>
+    <span class="zoom-level" aria-live="polite" aria-label="Zoom level">{{ zoomPercent() }}</span>
+    <button
+      class="action-button"
+      type="button"
+      [disabled]="!canZoomIn()"
+      (click)="zoomIn()"
+      aria-label="Zoom in"
+    >
+      <span class="icon icon-zoom-in" aria-hidden="true"></span>
     </button>
-    <button class="action-button" (click)="toggleExpanded()" aria-label="Toggle minimap">
-      <span class="icon icon-map"></span>
+    <button
+      class="action-button"
+      type="button"
+      (click)="toggleExpanded()"
+      aria-label="Toggle minimap"
+    >
+      <span class="icon icon-map" aria-hidden="true"></span>
     </button>
   </div>
 </div>

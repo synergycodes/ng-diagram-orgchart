@@ -1,23 +1,31 @@
-<div class="toolbar" role="toolbar">
+<div class="toolbar" role="toolbar" aria-label="Layout direction">
   <button
+    #btn
     class="toolbar-btn"
     type="button"
     [class.active]="isDown()"
-    [attr.aria-pressed]="isDown()"
-    [disabled]="disabled()"
+    [attr.aria-current]="isDown() ? 'true' : null"
+    [attr.tabindex]="focusedIndex() === 0 ? 0 : -1"
+    [attr.aria-disabled]="disabled() ? 'true' : null"
     aria-label="Vertical layout"
     (click)="setVerticalLayout()"
+    (focus)="focusedIndex.set(0)"
+    (keydown)="onKeydown($event)"
   >
     <span class="icon icon-vertical" aria-hidden="true"></span>
   </button>
   <button
+    #btn
     class="toolbar-btn"
     type="button"
     [class.active]="isRight()"
-    [attr.aria-pressed]="isRight()"
-    [disabled]="disabled()"
+    [attr.aria-current]="isRight() ? 'true' : null"
+    [attr.tabindex]="focusedIndex() === 1 ? 0 : -1"
+    [attr.aria-disabled]="disabled() ? 'true' : null"
     aria-label="Horizontal layout"
     (click)="setHorizontalLayout()"
+    (focus)="focusedIndex.set(1)"
+    (keydown)="onKeydown($event)"
   >
     <span class="icon icon-horizontal" aria-hidden="true"></span>
   </button>

@@ -39,6 +39,16 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex: 1;
+}
+
+/**
+ * Holds the node's move button. The width is reserved whether or not the button is there, so
+ * the name and role do not shift when it appears on focus.
+ */
+.header-action {
+  flex: 0 0 24px; /* No Figma token - matches the nav button size */
+  height: 24px; /* No Figma token */
 }
 
 .name {

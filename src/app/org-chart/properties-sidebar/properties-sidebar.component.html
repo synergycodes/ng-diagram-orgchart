@@ -1,5 +1,5 @@
 <aside class="sidebar" aria-labelledby="properties-sidebar-title">
-  <app-sidebar-header [isExpanded]="isExpanded()" (toggle)="onHeaderToggle()" />
+  <app-sidebar-header [isExpanded]="isExpanded()" (toggled)="onHeaderToggle($event)" />
   @if (isExpanded()) {
     <div class="sidebar-separator"></div>
     <div class="sidebar-content sidebar-enter">
@@ -12,7 +12,12 @@
           [roleOptions]="roleOptions"
         />
         <div class="sidebar-actions">
-          <button class="remove-button p10" type="button" (click)="onRemoveNode()">
+          <button
+            #removeButton
+            class="remove-button p10"
+            type="button"
+            (click)="onDeleteNode(removeButton)"
+          >
             Remove node
           </button>
         </div>

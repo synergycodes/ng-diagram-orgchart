@@ -99,8 +99,8 @@ export class DragReorderService implements OnDestroy {
     }
   }
 
-  isSideHidden(nodeId: string, side: DropZone): boolean {
-    return this._hiddenSides().get(nodeId)?.has(side) ?? false;
+  hiddenSidesFor(nodeId: string): ReadonlySet<DropZone> | undefined {
+    return this._hiddenSides().get(nodeId);
   }
 
   isNodeInDropRange(nodeId: string): boolean {

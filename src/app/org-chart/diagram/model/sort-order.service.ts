@@ -1,9 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { getSortOrder } from './data-getters';
-import { SORT_ORDER } from './interfaces';
 import { isOrgChartNode } from './guards';
-import { type OrgChartNodeData } from './interfaces';
+import { SORT_ORDER, type OrgChartNodeData } from './interfaces';
 import { ModelChanges } from './model-changes';
 
 /** Describes where to insert a node relative to a sibling. */
@@ -57,7 +56,7 @@ export class SortOrderService {
     parentId: string,
     reorderChanges: ReorderChange[] = [],
     modelChanges: ModelChanges = new ModelChanges(),
-    excludeNodeIds: Set<string> = new Set(),
+    excludeNodeIds = new Set<string>(),
   ): { changes: ModelChanges; sortOrders: Record<string, number> } {
     const orderedChildren = this.getSortedChildren(parentId);
     const filtered =

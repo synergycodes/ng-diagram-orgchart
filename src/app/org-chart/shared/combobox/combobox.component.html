@@ -1,5 +1,5 @@
 <div class="combobox">
-  <div class="combobox-trigger" (click)="onTriggerClick()">
+  <div class="combobox-trigger">
     @if (prefixTpl(); as tpl) {
       <ng-container
         [ngTemplateOutlet]="tpl.templateRef"
@@ -20,7 +20,7 @@
       [attr.aria-controls]="isOpen() ? panelId() : null"
       aria-autocomplete="list"
       aria-haspopup="listbox"
-      [value]="inputText()"
+      (click)="onTriggerClick()"
       (input)="onInput($event)"
       (keydown)="onKeydown($event)"
       (blur)="onBlur()"
@@ -30,7 +30,7 @@
       class="caret-button"
       type="button"
       tabindex="-1"
-      aria-label="Toggle options"
+      aria-hidden="true"
       (click)="onChevronClick(); $event.stopPropagation()"
     >
       <span class="caret-icon" aria-hidden="true"></span>
@@ -40,8 +40,10 @@
   @if (isOpen()) {
     <div class="combobox-listbox" role="listbox" [attr.id]="panelId()">
       @for (item of displayedOptions(); track item.value; let i = $index) {
-        <div
+        <button
           #optionEl
+          type="button"
+          tabindex="-1"
           class="combobox-option p10"
           role="option"
           [attr.id]="optionId(i)"
@@ -67,7 +69,7 @@
               <span class="option-label">{{ item.option.label }}</span>
             }
           }
-        </div>
+        </button>
       }
     </div>
   }

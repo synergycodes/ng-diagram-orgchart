@@ -1,0 +1,53 @@
+:host {
+  display: contents;
+}
+
+.move-btn {
+  --move-button-size: 24px; /* No Figma token */
+  --move-glyph-size: 16px; /* No Figma token */
+
+  display: flex;
+  width: var(--move-button-size);
+  height: var(--move-button-size);
+  min-width: var(--move-button-size);
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  /* The glyph is round, so the focus outline has to follow a circle and not the box. */
+  border-radius: var(--ngd-token-radius-button-round);
+  animation: move-btn-fade-in 150ms ease;
+
+  &:hover &__icon {
+    background-color: var(--ngd-nav-button-icon-primary-default);
+  }
+
+  &:active &__icon {
+    background-color: var(--ngd-nav-button-icon-primary-pressed);
+  }
+
+  &__icon {
+    width: var(--move-glyph-size);
+    height: var(--move-glyph-size);
+    display: block;
+    background-color: var(--ngd-button-secondary-default);
+    mask-image: url('../../../../../../assets/arrows-out-cardinal.svg');
+    -webkit-mask-image: url('../../../../../../assets/arrows-out-cardinal.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    transition: background-color 150ms ease;
+  }
+
+  &:focus-visible {
+    outline: var(--ngd-primitive-even-2) solid var(--ngd-input-stroke-primary-focus);
+    outline-offset: var(--ngd-primitive-even-2);
+  }
+}
+
+@keyframes move-btn-fade-in {
+  from {
+    opacity: 0;
+  }
+}

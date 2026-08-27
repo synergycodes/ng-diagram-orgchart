@@ -12,4 +12,5 @@ export class CompactNodeComponent {
   fullName = input<string>();
   role = input<string>();
   color = input<string>();
+  moveNodeId = input<string | null>(null);
 }

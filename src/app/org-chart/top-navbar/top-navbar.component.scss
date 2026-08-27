@@ -39,4 +39,5 @@
 .right-wrap {
   display: flex;
   align-items: center;
+  gap: var(--ngd-token-spacing-spacing-8); /* No Figma token */
 }

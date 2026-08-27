@@ -7,7 +7,9 @@ import {
   type OrgChartBaseNodeData,
 } from './interfaces';
 
-type WithOrgData = { data?: Partial<OrgChartBaseNodeData> };
+interface WithOrgData {
+  data?: Partial<OrgChartBaseNodeData>;
+}
 
 export function getIsCollapsed(part: WithOrgData) {
   return part.data?.[IS_COLLAPSED];

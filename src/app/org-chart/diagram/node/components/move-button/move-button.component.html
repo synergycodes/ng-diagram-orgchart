@@ -1,0 +1,12 @@
+<button
+  class="move-btn"
+  type="button"
+  tabindex="-1"
+  data-node-action="move"
+  aria-label="Move node"
+  aria-describedby="move-mode-instructions"
+  (pointerdown)="$event.stopPropagation()"
+  (click)="onMove($event)"
+>
+  <span class="move-btn__icon" aria-hidden="true"></span>
+</button>

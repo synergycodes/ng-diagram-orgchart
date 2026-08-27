@@ -99,3 +99,14 @@
     }
   }
 }
+
+/* Forced colours override the background, so both states would otherwise look the same. */
+@media (forced-colors: active) {
+  :host(.drop-indicator--visible) {
+    background: CanvasText;
+  }
+
+  :host(.drop-indicator--highlighted) {
+    background: Highlight;
+  }
+}

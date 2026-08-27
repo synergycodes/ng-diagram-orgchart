@@ -1,0 +1,23 @@
+<dialog
+  #dialogEl
+  class="modal"
+  [attr.role]="dialogRole()"
+  [attr.aria-label]="heading()"
+  [attr.aria-describedby]="contentId()"
+  (close)="onClose()"
+>
+  <h2 #headingEl class="h7 modal-heading" tabindex="-1">{{ heading() }}</h2>
+  <!-- The role, the tab stop and the name go together. ARIA gives no name without a role. -->
+  <div
+    class="modal-body"
+    [attr.id]="contentId()"
+    [attr.role]="scrollableContent() ? 'group' : null"
+    [attr.tabindex]="scrollableContent() ? 0 : null"
+    [attr.aria-label]="scrollableContent() ? heading() : null"
+  >
+    <ng-content />
+  </div>
+  <div class="modal-footer">
+    <ng-content select="[modalFooter]" />
+  </div>
+</dialog>

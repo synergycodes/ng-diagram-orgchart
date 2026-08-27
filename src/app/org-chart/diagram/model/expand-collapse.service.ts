@@ -67,6 +67,9 @@ export class ExpandCollapseService {
   /**
    * Collects all descendant IDs via DFS, stopping at collapsed nodes.
    *
+   * The result set also stops the traversal from repeating a node. A user can draw an edge
+   * back to an ancestor, and without this the stack never empties.
+   *
    * @param nodeId - The root node to start traversal from (excluded from the result).
    * @returns Set of descendant node IDs that are currently visible in the tree.
    */
@@ -78,6 +81,7 @@ export class ExpandCollapseService {
       const parentId = stack.pop()!;
       for (const edge of this.modelService.getConnectedEdges(parentId)) {
         if (edge.source !== parentId) continue;
+        if (ids.has(edge.target)) continue;
         ids.add(edge.target);
 
         const childNode = this.modelService.getNodeById<OrgChartNodeData>(edge.target);

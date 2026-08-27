@@ -10,4 +10,5 @@ import { NodeHeaderComponent } from '../node-header/node-header.component';
 })
 export class VacantNodeComponent {
   role = input<string>();
+  moveNodeId = input<string | null>(null);
 }

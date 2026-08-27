@@ -1,0 +1,49 @@
+.modal {
+  width: min(640px, calc(100vw - 32px));
+  max-width: min(640px, calc(100vw - 32px));
+  max-height: min(80vh, calc(100vh - 32px));
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-modal-m);
+  background: var(--ngd-ui-bg-primary-default);
+  color: var(--ngd-txt-primary-default);
+  box-shadow: var(--ngd-token-shadow-shadow-s-x) var(--ngd-token-shadow-shadow-s-y)
+    var(--ngd-token-shadow-shadow-s-blur) var(--ngd-token-shadow-shadow-s-spread)
+    var(--ngd-colors-gray-900-10);
+
+  &::backdrop {
+    background: rgb(0 0 0 / 45%);
+  }
+}
+
+/* Keep the `[open]` selector. A `display` value on `.modal` is stronger than the browser rule
+   `dialog:not([open]) { display: none }`. */
+.modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-heading {
+  padding: var(--ngd-token-spacing-modal-m-header-pad);
+}
+
+.modal-heading:focus-visible,
+.modal-body:focus-visible {
+  outline-offset: -2px;
+}
+
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--ngd-token-spacing-modal-m-content-h-pad);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--ngd-token-spacing-modal-m-header-pad);
+  border-top: 1px solid var(--ngd-ui-separator-primary-default);
+}

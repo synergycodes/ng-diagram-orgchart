@@ -20,8 +20,11 @@
 
   --card-border-color: var(--ngd-ui-stroke-primary-default);
   --card-border-style: solid;
-  --card-box-shadow: var(--ngd-token-radius-shadow-xxs-x) var(--ngd-token-radius-shadow-xxs-y)
+  --card-elevation: var(--ngd-token-radius-shadow-xxs-x) var(--ngd-token-radius-shadow-xxs-y)
     var(--ngd-token-radius-shadow-xxs-blur) 0 var(--ngd-colors-gray-900-10); /* No Figma token - shadow color */
+  --card-focus-ring: 0 0 0 0 transparent;
+  --card-selection-ring: 0 0 0 0 transparent;
+  --card-box-shadow: var(--card-focus-ring), var(--card-selection-ring), var(--card-elevation);
 
   &:active {
     cursor: grabbing;
@@ -33,9 +36,25 @@
 
   &.selected {
     --card-border-color: var(--ngd-ui-stroke-primary-highlight);
-    --card-box-shadow: var(--ngd-token-shadow-focus-node-active-x)
+    --card-selection-ring: var(--ngd-token-shadow-focus-node-active-x)
       var(--ngd-token-shadow-focus-node-active-y) var(--ngd-token-shadow-focus-node-active-blur)
       var(--ngd-token-shadow-focus-node-active-spread) var(--ngd-focus-ring-node-active);
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible {
+    --card-focus-ring: inset 0 0 0 var(--ngd-primitive-even-2) var(--ngd-input-stroke-primary-focus);
+  }
+
+  @media (forced-colors: active) {
+    &:focus-visible {
+      outline: var(--ngd-primitive-even-2) solid Highlight;
+      outline-offset: calc(-1 * var(--ngd-primitive-even-2));
+    }
   }
 
   &.variant-vacant {

@@ -1,0 +1,31 @@
+/**
+ * Bottom centre, not top: the page's navbar and layout toolbar both overlay the top of the
+ * diagram, and anchoring above them would depend on their heights. Nothing else claims the
+ * bottom middle — the minimap is bottom right and the properties panel is on the right edge.
+ */
+:host {
+  position: absolute;
+  bottom: var(--ngd-token-spacing-node4-gap);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.move-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ngd-token-spacing-progressbar-gap);
+  max-width: min(420px, calc(100vw - 24px)); /* No Figma token - no designs */
+  margin: 0;
+  padding: var(--ngd-token-spacing-top-navbar-v-pad) var(--ngd-token-spacing-node4-h-pad);
+  background: var(--ngd-ui-bg-primary-default);
+  color: var(--ngd-txt-primary-default);
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: var(--ngd-token-radius-element-16);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 10%); /* No Figma token - matches .keyboard-help */
+}
+
+.move-status__hint {
+  color: var(--ngd-txt-secondary-default);
+}

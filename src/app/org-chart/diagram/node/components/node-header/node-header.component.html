@@ -3,3 +3,8 @@
   <span class="name h9" [class.node-name--vacant]="vacant()">{{ displayName() }}</span>
   <span class="role p11">{{ role() }}</span>
 </div>
+<div class="header-action">
+  @if (moveNodeId(); as id) {
+    <app-move-button [nodeId]="id" />
+  }
+</div>

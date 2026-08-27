@@ -1,0 +1,16 @@
+<button
+  #trigger
+  type="button"
+  class="trigger"
+  [class.trigger--icon]="isIcon()"
+  [class.trigger--link]="!isIcon()"
+  [attr.aria-label]="isIcon() ? label : null"
+  (click)="onClick()"
+>
+  @if (isIcon()) {
+    <span class="icon icon-question" aria-hidden="true"></span>
+  } @else {
+    <span class="trigger-label">{{ label }}</span>
+    <kbd class="trigger-key" aria-hidden="true">{{ hotkey }}</kbd>
+  }
+</button>

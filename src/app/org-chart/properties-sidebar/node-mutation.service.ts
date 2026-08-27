@@ -1,10 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { LayoutGate } from '../diagram/layout/layout-gate';
-import { type OrgChartNodeData } from '../diagram/model/interfaces';
 import { HierarchyService } from '../diagram/model/hierarchy.service';
+import { type OrgChartNodeData } from '../diagram/model/interfaces';
 import { ModelApplyService } from '../diagram/model/model-apply.service';
-import { ModelChanges } from '../diagram/model/model-changes';
 import { NodeVisibilityService } from '../diagram/node-visibility/node-visibility.service';
 import {
   formDataToNodeData,
@@ -12,7 +11,7 @@ import {
 } from './components/sidebar-form/sidebar-form.mappers';
 
 /**
- * Handles node data updates, hierarchy changes (updating node parent), and node removal.
+ * Handles node data updates and hierarchy changes (updating node parent).
  * Receives node IDs as parameters.
  */
 @Injectable()
@@ -22,22 +21,6 @@ export class NodeMutationService {
   private readonly layoutGate = inject(LayoutGate);
   private readonly modelApplyService = inject(ModelApplyService);
   private readonly nodeVisibilityService = inject(NodeVisibilityService);
-
-  /** Deletes the given node, updates parent's hasChildren flag, and re-layouts. */
-  async removeNode(nodeId: string): Promise<void> {
-    if (!this.layoutGate.isIdle()) return;
-
-    const parentId = this.hierarchyService.getParentId(nodeId);
-
-    const changes = new ModelChanges();
-    changes.addDeleteNodeIds(nodeId);
-
-    if (parentId) {
-      this.hierarchyService.clearHasChildrenFlags([parentId], changes, new Set([nodeId]));
-    }
-
-    await this.modelApplyService.applyWithLayout(changes);
-  }
 
   /** Processes form field changes: updates node data and/or update parent if "reportsTo" changed. */
   handleFieldChange(change: SidebarFieldChange): void {

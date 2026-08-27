@@ -34,9 +34,15 @@ export class ToggleExpandButtonComponent {
   protected isCollapsed = computed(() => getIsCollapsed(this.node()));
   protected collapsedChildrenCount = computed(() => getCollapsedChildrenCount(this.node()));
   protected isDisabled = computed(() => !this.layoutGate.isIdle());
+  protected ariaLabel = computed(() =>
+    this.isCollapsed()
+      ? `Expand ${this.collapsedChildrenCount()} hidden children`
+      : 'Collapse children',
+  );
 
   async onToggle(event: MouseEvent): Promise<void> {
     event.stopPropagation();
+    if (this.isDisabled()) return;
 
     const result = this.expandCollapseService.prepareToggle(this.node().id);
     if (!result) return;

@@ -30,7 +30,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "format": "prettier --write \"src/**/*.{ts,html,css,scss}\""
+    "format": "prettier --write \"src/**/*.{ts,html,css,scss}\"",
+    "lint": "ng lint"
   },
   "private": true,
   "packageManager": "npm@10.9.2",
@@ -50,9 +51,13 @@
     "@angular/build": "^21.2.7",
     "@angular/cli": "^21.2.7",
     "@angular/compiler-cli": "^21.2.9",
+    "@eslint/js": "^10.0.1",
+    "angular-eslint": "21.4.0",
+    "eslint": "^10.3.0",
     "jsdom": "^29.0.2",
     "prettier": "^3.8.3",
     "typescript": "~5.9.2",
+    "typescript-eslint": "8.59.2",
     "vitest": "^4.1.4"
   }
 }

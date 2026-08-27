@@ -2,7 +2,9 @@
 <button
   class="theme-toggle"
   type="button"
-  [attr.aria-label]="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+  role="switch"
+  aria-label="Dark theme"
+  [attr.aria-checked]="theme === 'dark'"
   (click)="toggleTheme()"
 >
   <span class="toggle-indicator" [class.active]="theme === 'light'" aria-hidden="true">

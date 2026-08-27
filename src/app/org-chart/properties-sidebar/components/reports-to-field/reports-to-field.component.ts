@@ -28,7 +28,7 @@ import { InitialsAvatarComponent } from '../../../shared/initials-avatar/initial
 })
 export class ReportsToFieldComponent implements FormValueControl<string | null> {
   candidateNodes = input.required<Node<OrgChartOccupiedNodeData>[]>();
-  triggerId = input<string>();
+  triggerId = input.required<string>();
 
   readonly value = model<string | null>(null);
 

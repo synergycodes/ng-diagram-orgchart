@@ -19,6 +19,7 @@ import {
   type ComboboxOption,
 } from '../../../shared/combobox/combobox.component';
 import { AutofocusDirective } from '../../../shared/autofocus/autofocus.directive';
+import { PropertiesSidebarService } from '../../properties-sidebar.service';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { ReportsToFieldComponent } from '../reports-to-field/reports-to-field.component';
 import { nodeDataToFormData } from './sidebar-form.mappers';
@@ -39,6 +40,7 @@ import { SidebarFormService } from './sidebar-form.service';
 })
 export class SidebarFormComponent {
   private readonly formService = inject(SidebarFormService);
+  private readonly sidebarService = inject(PropertiesSidebarService);
 
   readonly nodeId = input.required<string>();
   readonly nodeData = input.required<OrgChartNodeData>();
@@ -47,6 +49,7 @@ export class SidebarFormComponent {
   readonly roleOptions = input.required<ComboboxOption<OrgChartRole>[]>();
 
   protected readonly fieldTree = this.formService.fieldTree;
+  protected readonly firstFieldFocusRequest = this.sidebarService.firstFieldFocusRequest;
 
   constructor() {
     this.syncFormWithInputs();

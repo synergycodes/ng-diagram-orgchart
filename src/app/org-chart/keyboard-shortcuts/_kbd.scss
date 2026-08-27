@@ -1,0 +1,12 @@
+@mixin kbd-chip {
+  display: inline-block;
+  padding: 2px 6px; /* No Figma token */
+  font-family: inherit;
+  font-size: 0.9em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--ngd-txt-primary-default);
+  background: var(--ngd-ui-bg-tertiary-default);
+  border: 1px solid var(--ngd-ui-stroke-primary-default);
+  border-radius: 4px; /* No Figma token */
+}

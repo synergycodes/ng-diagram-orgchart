@@ -1,16 +1,34 @@
-<app-diagram #diagram appViewportBounds />
-<div class="ui-overlay">
-  <app-top-navbar class="top-navbar" appViewportOverlay />
-  <div class="top-toolbar-wrapper">
-    <app-toolbar-horizontal
-      class="top-toolbar"
-      [direction]="diagram.direction()"
-      [disabled]="!diagram.isLayoutIdle()"
-      (directionChange)="diagram.changeDirection($event)"
-    />
-  </div>
-  <div class="content-area">
-    <app-properties-sidebar appViewportOverlay />
-    <app-minimap-panel />
-  </div>
+<div class="keyboard-help">
+  <a class="skip-link" href="#main-content" (click)="onSkipToDiagram($event)">Skip to diagram</a>
+  <app-keyboard-shortcuts-trigger variant="link" />
 </div>
+<p id="diagram-instructions" class="visually-hidden">
+  Tab moves between nodes. Enter selects a node and moves to its buttons; Escape goes back. Delete
+  removes the node that has focus, after a confirmation. Use the Keyboard shortcuts button at the
+  top of the page, or press question mark, for the full list.
+</p>
+<p id="move-mode-instructions" class="visually-hidden">
+  Starts move mode, where you choose a new position for this colleague and confirm it. Press Escape
+  to cancel.
+</p>
+<h1 class="visually-hidden">Org Chart</h1>
+
+<app-top-navbar class="top-navbar" appViewportOverlay />
+<div class="top-toolbar-wrapper">
+  <app-toolbar-horizontal
+    class="top-toolbar"
+    [direction]="diagram.direction()"
+    [disabled]="!diagram.isLayoutIdle()"
+    (directionChange)="diagram.changeDirection($event)"
+  />
+</div>
+
+<app-diagram #diagram appViewportBounds />
+
+<div class="content-area">
+  <app-properties-sidebar appViewportOverlay />
+  <app-minimap-panel />
+</div>
+
+<app-keyboard-shortcuts-dialog />
+<app-confirm-delete-dialog />

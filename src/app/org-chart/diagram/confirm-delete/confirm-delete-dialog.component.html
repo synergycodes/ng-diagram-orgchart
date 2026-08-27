@@ -1,0 +1,37 @@
+<app-modal-dialog
+  dialogRole="alertdialog"
+  [heading]="message()?.title ?? ''"
+  [open]="isOpen()"
+  contentId="confirm-delete-description"
+  [scrollableContent]="false"
+  [initialFocus]="cancelButton"
+  [returnFocusTo]="returnFocusTarget()"
+  [dismissOnBackdrop]="false"
+  (closed)="onCancel()"
+>
+  <div class="consequences">
+    @for (sentence of message()?.sentences ?? []; track $index) {
+      <p>{{ sentence }}</p>
+    }
+  </div>
+
+  <div modalFooter class="actions">
+    <button
+      #cancelButton
+      type="button"
+      class="action action--cancel"
+      [disabled]="isActivated()"
+      (click)="onCancel()"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="action action--confirm"
+      [disabled]="isActivated()"
+      (click)="onConfirm()"
+    >
+      Delete
+    </button>
+  </div>
+</app-modal-dialog>

@@ -1,0 +1,14 @@
+@if (message(); as text) {
+  <p class="move-status">
+    <span class="move-status__text">{{ text }}</span>
+    @if (isActive()) {
+      <span class="move-status__hint">
+        @if (isPickingSide()) {
+          Press Escape to go back to choosing a colleague.
+        } @else {
+          Press Escape to cancel.
+        }
+      </span>
+    }
+  </p>
+}

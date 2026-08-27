@@ -28,7 +28,7 @@
     width: var(--add-button-size);
     height: var(--add-button-size);
     display: block;
-    background-color: var(--ngd-nav-button-icon-primary-disabled);
+    background-color: var(--ngd-button-secondary-default);
     mask-image: url('../../../../../../assets/plus-circle.svg');
     -webkit-mask-image: url('../../../../../../assets/plus-circle.svg');
     mask-size: contain;
@@ -56,6 +56,11 @@
 
   &--leaving {
     opacity: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--ngd-primitive-even-2) solid var(--ngd-input-stroke-primary-focus);
+    outline-offset: var(--ngd-primitive-even-2);
   }
 }
 

@@ -122,13 +122,14 @@ export function ensureNodeVisible(
   animated = true,
   edgePadding?: number,
   durationMs?: number,
+  signal?: AbortSignal,
 ): void {
   const viewport = viewportService.viewport();
   const target = computeEnsureVisibleTarget(node, viewport, insets, edgePadding);
   if (!target) return;
 
   if (animated) {
-    animateViewportTo(viewportService, target, durationMs);
+    animateViewportTo(viewportService, target, durationMs, signal);
   } else {
     viewportService.moveViewport(target.x, target.y);
   }

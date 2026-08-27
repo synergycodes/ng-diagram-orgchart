@@ -233,6 +233,7 @@ The template contains a few workarounds and compromises driven by current librar
 ### Issues with workarounds in this repo
 
 - **No API for hiding a node.** ngDiagram wraps each custom node in a `.node-content` div that intercepts pointer events, so hiding the custom node alone isn't enough. *Workaround:* `::ng-deep` CSS in `node.component.scss` reaches up to the wrapper to suppress both visibility and pointer events. A first-class hidden-node property would remove the `::ng-deep` entirely.
+- **`<ng-diagram>` and its watermark both add Tab stops without meaningful focus indicators.** The library element and the bottom-corner watermark link each apply `tabindex="0"` with no opt-out via config, so Tab navigation passes through two invisible stops before reaching a node. *Workaround:* `DiagramComponent` rewrites both to `tabindex="-1"` in `onDiagramInit`. The library's pointerdown handler still focuses the canvas programmatically on click (tabindex="-1" remains focusable for `.focus()` calls), and document-level keyboard shortcuts still fire when any descendant holds focus. A first-class `tabindex`/`hideWatermark` API would let us drop the manual attribute rewrite.
 
 ### Issues without workarounds (felt by end users)
 

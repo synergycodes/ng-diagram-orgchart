@@ -1,0 +1,56 @@
+@use './kbd';
+
+:host {
+  --icon-size: var(--ngd-primitive-4rule-16);
+}
+
+.trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.trigger--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding: var(--ngd-primitive-4rule-4);
+  border-radius: var(--ngd-token-radius-button-round);
+}
+
+.trigger--link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ngd-primitive-4rule-12);
+  width: 100%;
+  padding: 0;
+  color: var(--ngd-txt-primary-default);
+  text-align: left;
+}
+
+.trigger-label {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.trigger-key {
+  @include kbd.kbd-chip;
+}
+
+.icon {
+  display: inline-block;
+  background-color: var(--ngd-nav-button-icon-primary-default);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.icon-question {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  mask-image: url('../../../assets/question.svg');
+  -webkit-mask-image: url('../../../assets/question.svg');
+}

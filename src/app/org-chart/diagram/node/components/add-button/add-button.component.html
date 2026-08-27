@@ -1,12 +1,15 @@
 <button
   class="add-btn"
+  type="button"
+  tabindex="-1"
   animate.leave="add-btn--leaving"
   [appAddButtonPosition]="position()"
-  [disabled]="isDisabled()"
+  [attr.data-node-action]="action()"
+  [attr.aria-label]="ariaLabel()"
   (pointerdown)="$event.stopPropagation()"
   (click)="onAdd($event)"
   data-no-drag="true"
   data-no-pan="true"
 >
-  <span class="add-btn__icon"></span>
+  <span class="add-btn__icon" aria-hidden="true"></span>
 </button>

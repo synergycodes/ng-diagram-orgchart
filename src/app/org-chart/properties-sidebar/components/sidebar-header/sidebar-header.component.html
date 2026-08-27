@@ -1,11 +1,13 @@
 <div class="sidebar-header">
-  <span id="properties-sidebar-title" class="h7 sidebar-title">Properties</span>
+  <h2 id="properties-sidebar-title" class="h7 sidebar-title">Properties</h2>
   <button
+    #toggleButton
     class="sidebar-toggle"
-    (click)="toggle.emit()"
+    type="button"
+    (click)="onToggle()"
     [attr.aria-expanded]="isExpanded()"
     aria-label="Toggle properties panel"
   >
-    <span class="icon icon-sidebar"></span>
+    <span class="icon icon-sidebar" aria-hidden="true"></span>
   </button>
 </div>

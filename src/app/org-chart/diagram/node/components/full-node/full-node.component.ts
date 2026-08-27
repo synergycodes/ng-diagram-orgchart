@@ -12,6 +12,7 @@ export class FullNodeComponent {
   fullName = input<string>();
   role = input<string>();
   color = input<string>();
+  moveNodeId = input<string | null>(null);
   reports = input<number>();
   headcount = input<number>();
   utilization = input<number>();
