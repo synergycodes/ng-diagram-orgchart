@@ -2,7 +2,6 @@ import {
   COLLAPSED_CHILDREN_COUNT,
   HAS_CHILDREN,
   IS_COLLAPSED,
-  IS_HIDDEN,
   SORT_ORDER,
   type OrgChartBaseNodeData,
 } from './interfaces';
@@ -11,10 +10,6 @@ type WithOrgData = { data?: Partial<OrgChartBaseNodeData> };
 
 export function getIsCollapsed(part: WithOrgData) {
   return part.data?.[IS_COLLAPSED];
-}
-
-export function getIsHidden(part: WithOrgData) {
-  return part.data?.[IS_HIDDEN];
 }
 
 export function getHasChildren(part: WithOrgData) {

@@ -2,9 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService, type Node as DiagramNode, type Point } from 'ng-diagram';
 import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import { LayoutService } from '../layout/layout.service';
-import { ModelChanges } from '../model/model-changes';
+import { ModelChanges, type NodeUpdate } from '../model/model-changes';
 import { animate } from './animate';
-import { getIsCollapsed, getIsHidden } from '../model/data-getters';
+import { getIsCollapsed } from '../model/data-getters';
 
 interface NodeAnimation {
   id: string;
@@ -23,7 +23,7 @@ export interface AnimationResult {
  *
  * Auto-detects animation type from `changes`:
  * - New nodes (via `newEdges`) start at their parent's edge.
- * - Expanding nodes (`isHidden` transitioning to false) start at the toggled ancestor's edge.
+ * - Expanding nodes (`hidden` transitioning to false) start at the toggled ancestor's edge.
  * - All other repositioned nodes slide from their current position.
  *
  * Edges follow nodes automatically via ng-diagram's auto routing.
@@ -64,7 +64,7 @@ export class LayoutAnimationService {
   /**
    * Derives start position overrides from the changes content:
    * - New nodes → parent edge (found via new edges)
-   * - Expanding nodes (isHidden transitioning to false) → toggled ancestor's edge
+   * - Expanding nodes (hidden transitioning to false) → toggled ancestor's edge
    */
   private computeStartOverrides(changes: ModelChanges): Map<string, Point> {
     const overrides = new Map<string, Point>();
@@ -84,9 +84,9 @@ export class LayoutAnimationService {
       if (toggledEdge) {
         // All expanding descendants slide out from the toggled ancestor
         for (const update of changes.nodeUpdates) {
-          if (getIsHidden(update) !== false) continue;
+          if (update.hidden !== false) continue;
           const existing = this.modelService.getNodeById(update.id);
-          if (!existing || !getIsHidden(existing)) continue;
+          if (!existing?.hidden) continue;
           overrides.set(update.id, toggledEdge);
         }
       }
@@ -151,9 +151,11 @@ export class LayoutAnimationService {
     }
 
     for (const update of changes.nodeUpdates) {
-      if (update.data && !update.position) {
-        start.addNodeUpdates({ id: update.id, data: { ...update.data } });
-      }
+      if (update.position) continue;
+      const copy: NodeUpdate = { id: update.id };
+      if (update.data) copy.data = { ...update.data };
+      if (update.hidden !== undefined) copy.hidden = update.hidden;
+      if (copy.data || copy.hidden !== undefined) start.addNodeUpdates(copy);
     }
 
     for (const update of changes.edgeUpdates) {

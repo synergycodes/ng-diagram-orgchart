@@ -1,11 +1,11 @@
 import { type Edge as DiagramEdge, type Node as DiagramNode } from 'ng-diagram';
 import { isOrgChartEdge, isOrgChartNode } from '../model/guards';
 import { type OrgChartEdgeData, type OrgChartNodeData } from '../model/interfaces';
-import { getIsHidden } from '../model/data-getters';
 
 /**
  * Returns the subset of nodes and edges that are currently visible
- * (not hidden inside a collapsed subtree).
+ * (not hidden inside a collapsed subtree). An edge is visible when
+ * both of its endpoint nodes are visible.
  */
 export function getVisibleSet(
   nodes: DiagramNode[],
@@ -14,12 +14,16 @@ export function getVisibleSet(
   nodes: DiagramNode<OrgChartNodeData>[];
   edges: DiagramEdge<OrgChartEdgeData>[];
 } {
+  const visibleNodes = nodes.filter(
+    (node): node is DiagramNode<OrgChartNodeData> => isOrgChartNode(node) && !node.hidden,
+  );
+  const visibleNodeIds = new Set(visibleNodes.map((node) => node.id));
+
   return {
-    nodes: nodes.filter(
-      (node): node is DiagramNode<OrgChartNodeData> => isOrgChartNode(node) && !getIsHidden(node),
-    ),
+    nodes: visibleNodes,
     edges: edges.filter(
-      (edge): edge is DiagramEdge<OrgChartEdgeData> => isOrgChartEdge(edge) && !getIsHidden(edge),
+      (edge): edge is DiagramEdge<OrgChartEdgeData> =>
+        isOrgChartEdge(edge) && visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target),
     ),
   };
 }
@@ -39,17 +43,19 @@ export function getFutureVisibleSet(
   nodes: DiagramNode<OrgChartNodeData>[];
   edges: DiagramEdge<OrgChartEdgeData>[];
 } {
-  const willBeVisible = (id: string, isHidden: boolean) =>
-    collapsing ? !isHidden && !subtreeIds.has(id) : !isHidden || subtreeIds.has(id);
+  const hiddenById = new Map(nodes.map((node) => [node.id, !!node.hidden]));
+  const willBeVisible = (id: string) => {
+    const isHidden = hiddenById.get(id) ?? false;
+    return collapsing ? !isHidden && !subtreeIds.has(id) : !isHidden || subtreeIds.has(id);
+  };
 
   return {
     nodes: nodes.filter(
-      (n): n is DiagramNode<OrgChartNodeData> =>
-        isOrgChartNode(n) && willBeVisible(n.id, !!getIsHidden(n)),
+      (n): n is DiagramNode<OrgChartNodeData> => isOrgChartNode(n) && willBeVisible(n.id),
     ),
     edges: edges.filter(
       (edge): edge is DiagramEdge<OrgChartEdgeData> =>
-        isOrgChartEdge(edge) && willBeVisible(edge.target, !!getIsHidden(edge)),
+        isOrgChartEdge(edge) && willBeVisible(edge.source) && willBeVisible(edge.target),
     ),
   };
 }
