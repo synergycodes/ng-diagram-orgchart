@@ -1,15 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { NgDiagramModelService } from 'ng-diagram';
 import { getCollapsedChildrenCount, getIsCollapsed } from './data-getters';
-import {
-  COLLAPSED_CHILDREN_COUNT,
-  EDGE_IS_HIDDEN,
-  IS_COLLAPSED,
-  IS_HIDDEN,
-  type OrgChartEdgeData,
-  type OrgChartNodeData,
-} from './interfaces';
-import { ModelChanges } from './model-changes';
+import { COLLAPSED_CHILDREN_COUNT, IS_COLLAPSED, type OrgChartNodeData } from './interfaces';
+import { ModelChanges, type NodeUpdate } from './model-changes';
 
 export interface ToggleResult {
   changes: ModelChanges;
@@ -40,10 +33,7 @@ export class ExpandCollapseService {
 
     const collapsing = !getIsCollapsed(node);
     const subtreeIds = this.getVisibleDescendantIds(nodeId);
-    const { nodeUpdates, edgeUpdates } = this.computeSubtreeVisibilityChanges(
-      subtreeIds,
-      collapsing,
-    );
+    const nodeUpdates = this.computeSubtreeVisibilityChanges(subtreeIds, collapsing);
 
     modelChanges.addNodeUpdates(
       {
@@ -55,7 +45,6 @@ export class ExpandCollapseService {
       },
       ...nodeUpdates,
     );
-    modelChanges.addEdgeUpdates(...edgeUpdates);
 
     return {
       changes: modelChanges,
@@ -118,30 +107,19 @@ export class ExpandCollapseService {
     return count;
   }
 
-  /** Builds node and edge patches that set `isHidden` for all nodes in the given subtree. */
-  private computeSubtreeVisibilityChanges(
-    subtreeIds: Set<string>,
-    hidden: boolean,
-  ): {
-    nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[];
-    edgeUpdates: { id: string; data: Partial<OrgChartEdgeData> }[];
-  } {
-    const nodeUpdates: { id: string; data: Partial<OrgChartNodeData> }[] = [];
+  /**
+   * Builds node patches that set ng-diagram's `hidden` flag for all nodes in the
+   * given subtree. Edges need no patches of their own — an edge is effectively
+   * hidden whenever one of its endpoint nodes is hidden.
+   */
+  private computeSubtreeVisibilityChanges(subtreeIds: Set<string>, hidden: boolean): NodeUpdate[] {
+    const nodeUpdates: NodeUpdate[] = [];
     for (const id of subtreeIds) {
       const node = this.modelService.getNodeById<OrgChartNodeData>(id);
       if (!node) continue;
-      nodeUpdates.push({ id, data: { [IS_HIDDEN]: hidden } });
+      nodeUpdates.push({ id, hidden });
     }
 
-    const edgeUpdates: { id: string; data: Partial<OrgChartEdgeData> }[] = [];
-    for (const id of subtreeIds) {
-      for (const edge of this.modelService.getConnectedEdges(id)) {
-        if (edge.target === id) {
-          edgeUpdates.push({ id: edge.id, data: { [EDGE_IS_HIDDEN]: hidden } });
-        }
-      }
-    }
-
-    return { nodeUpdates, edgeUpdates };
+    return nodeUpdates;
   }
 }

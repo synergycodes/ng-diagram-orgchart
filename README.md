@@ -101,10 +101,11 @@ Node and edge data interfaces are defined in `src/app/org-chart/diagram/model/in
 | Property | Purpose |
 |---|---|
 | `isCollapsed` | Whether the node's subtree is collapsed |
-| `isHidden` | Whether the node is hidden (inside a collapsed subtree) |
 | `hasChildren` | Whether the node has child nodes |
 | `collapsedChildrenCount` | Cached descendant count for collapsed nodes |
 | `sortOrder` | Sibling ordering within the tree |
+
+Nodes inside a collapsed subtree are hidden through ngDiagram's built-in `hidden` flag (a top-level node property, not part of the app's data). Hidden nodes are excluded from rendering, hit-testing, selection and `zoomToFit` bounds by the library, and their connected edges disappear automatically — see the [Conditional Visibility guide](https://www.ngdiagram.dev/docs/guides/conditional-visibility/).
 
 Property names are exported as constants (e.g., `IS_COLLAPSED`, `HAS_CHILDREN`) from the same file. All reads go through getter functions in `data-getters.ts`, and all writes use bracket notation with these constants. To rename a property, change the constant value and the interface, no other files need updating.
 
@@ -228,13 +229,7 @@ src/app/org-chart/
 
 ## Known ngDiagram Issues
 
-The template contains a few workarounds and compromises driven by current library gaps. Resolving these would let us simplify the template.
-
-### Issues with workarounds in this repo
-
-- **No API for hiding a node.** ngDiagram wraps each custom node in a `.node-content` div that intercepts pointer events, so hiding the custom node alone isn't enough. *Workaround:* `::ng-deep` CSS in `node.component.scss` reaches up to the wrapper to suppress both visibility and pointer events. A first-class hidden-node property would remove the `::ng-deep` entirely.
-
-### Issues without workarounds (felt by end users)
+A few compromises in the template are driven by current library gaps. Resolving these would let us simplify the template.
 
 - **Resize batch re-runs edge routing per node.** When many nodes change size at once (for example, 500 nodes switching between compact and full variants on a zoom threshold), edges visibly disconnect from their nodes for roughly one to two seconds before snapping back.
 - **Layout animation is naive in the template.** The animation implementation in this template is fairly naive. Proper native animation support in ngDiagram is needed so the template can drop its custom animation code. If you notice lag from animations, you can turn them off by passing `animation: { layoutEnabled: false }` to `provideOrgChartConfig` (see "Configuration" above).

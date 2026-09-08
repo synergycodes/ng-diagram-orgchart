@@ -1,6 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { NgDiagramModelService, type NodeDragStartedEvent, type Rect } from 'ng-diagram';
-import { getIsHidden } from '../diagram/model/data-getters';
 import { LayoutService } from '../diagram/layout/layout.service';
 import { HierarchyService } from '../diagram/model/hierarchy.service';
 import { ORG_CHART_CONFIG } from '../org-chart.config';
@@ -131,7 +130,6 @@ export class DragService {
     let minDistance = Infinity;
 
     for (const node of nodesInRange) {
-      if (getIsHidden(node)) continue;
       const hidden = hiddenSides.get(node.id);
       if (hidden?.size === DragService.ALL_SIDES.size) continue;
 

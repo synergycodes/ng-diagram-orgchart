@@ -9,7 +9,7 @@ import {
 import { DragReorderService } from '../../drag-reorder/drag-reorder.service';
 import { ORG_CHART_CONFIG } from '../../org-chart.config';
 import { LayoutService } from '../layout/layout.service';
-import { getHasChildren, getIsHidden } from '../model/data-getters';
+import { getHasChildren } from '../model/data-getters';
 import { isOccupiedNodeData, isVacantNode } from '../model/guards';
 import { getColorForRole, type OrgChartNodeData } from '../model/interfaces';
 import { AddButtonComponent } from './components/add-button/add-button.component';
@@ -48,9 +48,6 @@ type NodeVariant = 'vacant' | 'compact' | 'full';
     '[class.ng-diagram-port-hoverable-over-node]': 'true',
     '[class.variant-vacant]': 'variant() === "vacant"',
     '[class.selected]': 'node().selected',
-    '[class.is-hidden]': 'isHidden()',
-    '[style.visibility]': 'isHidden() ? "hidden" : null',
-    '[style.pointer-events]': 'isHidden() ? "none" : null',
     '(mouseenter)': 'isNodeHovered.set(true)',
     '(mouseleave)': 'isNodeHovered.set(false)',
   },
@@ -69,7 +66,6 @@ export class NodeComponent implements NgDiagramNodeTemplate<OrgChartNodeData> {
   protected isHorizontal = this.layoutService.isHorizontal;
 
   protected nodeId = computed(() => this.node().id);
-  protected isHidden = computed(() => getIsHidden(this.node()));
   protected variant = computed<NodeVariant>(() => {
     if (isVacantNode(this.node())) return 'vacant';
     return this.viewportService.scale() < this.config.viewport.compactScaleThreshold

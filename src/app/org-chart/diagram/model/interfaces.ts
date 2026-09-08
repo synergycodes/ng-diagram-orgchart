@@ -52,15 +52,12 @@ export type OrgChartNodeData = OrgChartOccupiedNodeData | OrgChartVacantNodeData
  * To rename a property, change the key here and in the interface.
  */
 export const IS_COLLAPSED = 'isCollapsed' as const;
-export const IS_HIDDEN = 'isHidden' as const;
 export const HAS_CHILDREN = 'hasChildren' as const;
 export const COLLAPSED_CHILDREN_COUNT = 'collapsedChildrenCount' as const;
 export const SORT_ORDER = 'sortOrder' as const;
-export const EDGE_IS_HIDDEN = 'isHidden' as const;
 
 export interface OrgChartEdgeData {
   type: 'orgChart';
-  isHidden?: boolean;
 }
 
 export interface OrgChartOccupiedNodeData extends OrgChartBaseNodeData {
@@ -82,5 +79,4 @@ export interface OrgChartBaseNodeData {
   isCollapsed?: boolean;
   collapsedChildrenCount?: number;
   hasChildren?: boolean;
-  isHidden?: boolean;
 }

@@ -7,13 +7,10 @@ import {
   signal,
 } from '@angular/core';
 import {
-  MinimapNodeStyleFn,
   NgDiagramMinimapComponent,
   NgDiagramModelService,
   NgDiagramViewportService,
-  Node,
 } from 'ng-diagram';
-import { getIsHidden } from '../diagram/model/data-getters';
 import { ORG_CHART_CONFIG } from '../org-chart.config';
 
 @Component({
@@ -43,13 +40,6 @@ export class MinimapPanelComponent {
   );
 
   protected readonly deferNodeUpdates = computed(() => this.modelService.nodes().length >= 200);
-
-  protected readonly minimapNodeStyle: MinimapNodeStyleFn = (node: Node) => {
-    if (getIsHidden(node)) {
-      return { opacity: 0 };
-    }
-    return {};
-  };
 
   protected zoomIn(): void {
     const currentScale = this.viewportService.scale();
